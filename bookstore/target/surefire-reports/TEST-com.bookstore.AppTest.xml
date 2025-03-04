@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.bookstore.AppTest" time="0.05" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.bookstore.AppTest" time="0.023" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="23"/>
     <property name="sun.cpu.isalist" value="amd64"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
-    <property name="java.class.path" value="D:\hoc di emm\code\Java\java\main\target\test-classes;D:\hoc di emm\code\Java\java\main\target\classes;C:\Users\ADMIN\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\ADMIN\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
+    <property name="java.class.path" value="D:\hoc di emm\code\Java\java\bookstore\target\test-classes;D:\hoc di emm\code\Java\java\bookstore\target\classes;C:\Users\ADMIN\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\ADMIN\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ADMIN\.m2\repository\com\mysql\mysql-connector-j\8.0.33\mysql-connector-j-8.0.33.jar;C:\Users\ADMIN\.m2\repository\com\google\protobuf\protobuf-java\3.21.9\protobuf-java-3.21.9.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi\5.2.5\poi-5.2.5.jar;C:\Users\ADMIN\.m2\repository\commons-codec\commons-codec\1.16.0\commons-codec-1.16.0.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-collections4\4.4\commons-collections4-4.4.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-math3\3.6.1\commons-math3-3.6.1.jar;C:\Users\ADMIN\.m2\repository\commons-io\commons-io\2.15.0\commons-io-2.15.0.jar;C:\Users\ADMIN\.m2\repository\com\zaxxer\SparseBitSet\1.3\SparseBitSet-1.3.jar;C:\Users\ADMIN\.m2\repository\org\apache\logging\log4j\log4j-api\2.21.1\log4j-api-2.21.1.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi-ooxml\5.2.5\poi-ooxml-5.2.5.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi-ooxml-lite\5.2.5\poi-ooxml-lite-5.2.5.jar;C:\Users\ADMIN\.m2\repository\org\apache\xmlbeans\xmlbeans\5.2.0\xmlbeans-5.2.0.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-compress\1.25.0\commons-compress-1.25.0.jar;C:\Users\ADMIN\.m2\repository\com\github\virtuald\curvesapi\1.08\curvesapi-1.08.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\barcodes\7.2.5\barcodes-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\font-asian\7.2.5\font-asian-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\forms\7.2.5\forms-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\hyph\7.2.5\hyph-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\io\7.2.5\io-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\commons\7.2.5\commons-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\kernel\7.2.5\kernel-7.2.5.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcpkix-jdk15on\1.70\bcpkix-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcutil-jdk15on\1.70\bcutil-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcprov-jdk15on\1.70\bcprov-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\layout\7.2.5\layout-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\pdfa\7.2.5\pdfa-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\sign\7.2.5\sign-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\styled-xml-parser\7.2.5\styled-xml-parser-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\svg\7.2.5\svg-7.2.5.jar;C:\Users\ADMIN\.m2\repository\org\jfree\jfreechart\1.5.4\jfreechart-1.5.4.jar;C:\Users\ADMIN\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\ADMIN\.m2\repository\org\slf4j\slf4j-simple\1.7.36\slf4j-simple-1.7.36.jar;"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="user.variant" value=""/>
@@ -15,9 +15,9 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-23\bin"/>
-    <property name="sun.java.command" value="C:\Users\ADMIN\AppData\Local\Temp\surefire1454279369799822147\surefirebooter5148922528989267733.jar C:\Users\ADMIN\AppData\Local\Temp\surefire1454279369799822147 2025-02-28T17-12-08_781-jvmRun1 surefire7011578012288322495tmp surefire_05210142146724554339tmp"/>
+    <property name="sun.java.command" value="C:\Users\ADMIN\AppData\Local\Temp\surefire9721725024463281204\surefirebooter17575237855142361992.jar C:\Users\ADMIN\AppData\Local\Temp\surefire9721725024463281204 2025-03-03T16-13-37_907-jvmRun1 surefire1596111282471786794tmp surefire_05315879354591520407tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="D:\hoc di emm\code\Java\java\main\target\test-classes;D:\hoc di emm\code\Java\java\main\target\classes;C:\Users\ADMIN\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\ADMIN\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
+    <property name="surefire.test.class.path" value="D:\hoc di emm\code\Java\java\bookstore\target\test-classes;D:\hoc di emm\code\Java\java\bookstore\target\classes;C:\Users\ADMIN\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\ADMIN\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ADMIN\.m2\repository\com\mysql\mysql-connector-j\8.0.33\mysql-connector-j-8.0.33.jar;C:\Users\ADMIN\.m2\repository\com\google\protobuf\protobuf-java\3.21.9\protobuf-java-3.21.9.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi\5.2.5\poi-5.2.5.jar;C:\Users\ADMIN\.m2\repository\commons-codec\commons-codec\1.16.0\commons-codec-1.16.0.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-collections4\4.4\commons-collections4-4.4.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-math3\3.6.1\commons-math3-3.6.1.jar;C:\Users\ADMIN\.m2\repository\commons-io\commons-io\2.15.0\commons-io-2.15.0.jar;C:\Users\ADMIN\.m2\repository\com\zaxxer\SparseBitSet\1.3\SparseBitSet-1.3.jar;C:\Users\ADMIN\.m2\repository\org\apache\logging\log4j\log4j-api\2.21.1\log4j-api-2.21.1.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi-ooxml\5.2.5\poi-ooxml-5.2.5.jar;C:\Users\ADMIN\.m2\repository\org\apache\poi\poi-ooxml-lite\5.2.5\poi-ooxml-lite-5.2.5.jar;C:\Users\ADMIN\.m2\repository\org\apache\xmlbeans\xmlbeans\5.2.0\xmlbeans-5.2.0.jar;C:\Users\ADMIN\.m2\repository\org\apache\commons\commons-compress\1.25.0\commons-compress-1.25.0.jar;C:\Users\ADMIN\.m2\repository\com\github\virtuald\curvesapi\1.08\curvesapi-1.08.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\barcodes\7.2.5\barcodes-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\font-asian\7.2.5\font-asian-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\forms\7.2.5\forms-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\hyph\7.2.5\hyph-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\io\7.2.5\io-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\commons\7.2.5\commons-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\kernel\7.2.5\kernel-7.2.5.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcpkix-jdk15on\1.70\bcpkix-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcutil-jdk15on\1.70\bcutil-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\org\bouncycastle\bcprov-jdk15on\1.70\bcprov-jdk15on-1.70.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\layout\7.2.5\layout-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\pdfa\7.2.5\pdfa-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\sign\7.2.5\sign-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\styled-xml-parser\7.2.5\styled-xml-parser-7.2.5.jar;C:\Users\ADMIN\.m2\repository\com\itextpdf\svg\7.2.5\svg-7.2.5.jar;C:\Users\ADMIN\.m2\repository\org\jfree\jfreechart\1.5.4\jfreechart-1.5.4.jar;C:\Users\ADMIN\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\ADMIN\.m2\repository\org\slf4j\slf4j-simple\1.7.36\slf4j-simple-1.7.36.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\ADMIN"/>
     <property name="user.language" value="en"/>
@@ -25,12 +25,12 @@
     <property name="java.version.date" value="2025-01-21"/>
     <property name="java.home" value="C:\Program Files\Java\jdk-23"/>
     <property name="file.separator" value="\"/>
-    <property name="basedir" value="D:\hoc di emm\code\Java\java\main"/>
+    <property name="basedir" value="D:\hoc di emm\code\Java\java\bookstore"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\ADMIN\AppData\Local\Temp\surefire1454279369799822147\surefirebooter5148922528989267733.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\ADMIN\AppData\Local\Temp\surefire9721725024463281204\surefirebooter17575237855142361992.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="23.0.2+7-58"/>
@@ -45,7 +45,7 @@
     <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
     <property name="java.io.tmpdir" value="C:\Users\ADMIN\AppData\Local\Temp\"/>
     <property name="java.version" value="23.0.2"/>
-    <property name="user.dir" value="D:\hoc di emm\code\Java\java\main"/>
+    <property name="user.dir" value="D:\hoc di emm\code\Java\java\bookstore"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="sun.os.patch.level" value=""/>
@@ -58,5 +58,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="67.0"/>
   </properties>
-  <testcase name="shouldAnswerWithTrue" classname="com.bookstore.AppTest" time="0"/>
+  <testcase name="shouldAnswerWithTrue" classname="com.bookstore.AppTest" time="0.002"/>
 </testsuite>

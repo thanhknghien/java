@@ -1,13 +1,11 @@
 package com.bookstore;
-
-/**
- * Hello world!
- *
- */
+import com.bookstore.model.DBConnect;
+import java.sql.*;
 public class App 
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
-        System.out.println( "Hello World!" );
+        
+        
     }
 }

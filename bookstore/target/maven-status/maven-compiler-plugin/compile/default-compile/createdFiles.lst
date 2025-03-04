@@ -1,1 +1,10 @@
+com\bookstore\BUS\test.class
+com\bookstore\VChi\test.class
+com\bookstore\HChi\test.class
 com\bookstore\App.class
+com\bookstore\controller\test.class
+com\bookstore\Thanh\test.class
+com\bookstore\model\test.class
+com\bookstore\Lai\test.class
+com\bookstore\view\test.class
+com\bookstore\Bao\test.class
