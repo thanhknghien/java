@@ -4,6 +4,8 @@ public class RoleDTO {
     private int roleID;
     private String roleName;
 
+    public RoleDTO() {
+    }
     public RoleDTO(int roleID, String roleName) {
         this.roleID = roleID;
         this.roleName = roleName;
@@ -19,5 +21,9 @@ public class RoleDTO {
     }
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+    @Override
+    public String toString() {
+        return "RoleDTO [roleID= " + roleID + ", roleName= " + roleName + "]";
     }
 }

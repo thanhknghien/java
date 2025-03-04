@@ -26,6 +26,7 @@ public class DBConnect {
     public static void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
+            com.mysql.cj.jdbc.AbandonedConnectionCleanupThread.checkedShutdown();
             System.out.println("Đóng kết nối thành công");
         }
     }
