@@ -14,6 +14,7 @@ public class DBConnect {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                System.out.println("Kết nối thành công");
             } catch (ClassNotFoundException e) {
                 throw new SQLException("MySQL Driver not found: " + e.getMessage());
             }
@@ -25,6 +26,7 @@ public class DBConnect {
     public static void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
+            System.out.println("Đóng kết nối thành công");
         }
     }
 
