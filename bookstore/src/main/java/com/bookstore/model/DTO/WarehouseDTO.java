@@ -3,57 +3,59 @@ package com.bookstore.model.DTO;
 import java.sql.Date;
 
 public class WarehouseDTO {
-    private int WarehouseID;
-    private int BookID;
-    private int Quantity;
-    private Date LastUpdated;
+    private int warehouseID;
+    private int bookID;
+    private int quantity;
+    private Date lastUpdated;
 
-    public WarehouseDTO(int WarehouseID, int BookID, int Quantity, Date LastUpdated){
-        this.WarehouseID = WarehouseID;
-        this.BookID = BookID;
-        this.Quantity = Quantity;
-        this.LastUpdated = LastUpdated;
+    public WarehouseDTO(int warehouseID, int bookID, int quantity, Date lastUpdated){
+        this.warehouseID = warehouseID;
+        this.bookID = bookID;
+        this.quantity = quantity;
+        this.lastUpdated = lastUpdated;
     }
 
     public WarehouseDTO() {
     }
 
     public int getWarehouseID() {
-        return WarehouseID;
+        return warehouseID;
     }
 
     public void setWarehouseID(int warehouseID) {
-        WarehouseID = warehouseID;
+        this.warehouseID = warehouseID;
     }
 
     public int getBookID() {
-        return BookID;
+        return bookID;
     }
 
     public void setBookID(int bookID) {
-        BookID = bookID;
+        this.bookID = bookID;
     }
 
     public int getQuantity() {
-        return Quantity;
+        return quantity;
     }
 
     public void setQuantity(int quantity) {
-        Quantity = quantity;
+        this.quantity = quantity;
     }
 
     public Date getLastUpdated() {
-        return LastUpdated;
+        return lastUpdated;
     }
 
     public void setLastUpdated(Date lastUpdated) {
-        LastUpdated = lastUpdated;
+        this.lastUpdated = lastUpdated;
     }
 
     @Override
     public String toString() {
-        return "WarehouseDTO [BookID= " + BookID + ", LastUpdated= " + LastUpdated + ", Quantity= " + Quantity
-                + ", WarehouseID= " + WarehouseID + "]";
+        return "WarehouseDTO [warehouseID=" + warehouseID + ", bookID=" + bookID + ", quantity=" + quantity
+                + ", lastUpdated=" + lastUpdated + "]";
     }
+
+    
     
 }
