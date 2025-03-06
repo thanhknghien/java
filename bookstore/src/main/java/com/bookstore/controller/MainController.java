@@ -1,5 +1,5 @@
 package com.bookstore.controller;
 
-public class test {
+public class MainController {
 
 }

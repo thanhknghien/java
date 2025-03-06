@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-
 import com.bookstore.model.DBConnect;
 import com.bookstore.model.DTO.RoleDTO;
 
@@ -15,7 +14,6 @@ public class RoleDAO {
     public boolean isRoleNameExists(String roleName) throws SQLException {
         String sql = "SELECT COUNT(*) FROM Role WHERE RoleName = ?";
         ResultSet rs = null;
-        PreparedStatement stmt = null;
         Connection conn = null;
         try {
             conn = DBConnect.getConnection();
@@ -26,7 +24,6 @@ public class RoleDAO {
             return false;
         } finally {
             DBConnect.closeResultSet(rs);
-            DBConnect.closeStatement(stmt);
             DBConnect.closeConnection();
         }
     }
@@ -36,7 +33,6 @@ public class RoleDAO {
         ArrayList<RoleDTO> roles = new ArrayList<>();
         String sql = "SELECT * FROM Role";
         ResultSet rs = null;
-        PreparedStatement stmt = null;
         Connection conn = null;
         try {
             conn = DBConnect.getConnection();
@@ -49,7 +45,6 @@ public class RoleDAO {
             }
         } finally {
             DBConnect.closeResultSet(rs);
-            DBConnect.closeStatement(stmt);
             DBConnect.closeConnection();
         }
         return roles;
@@ -112,9 +107,25 @@ public class RoleDAO {
         DBConnect.executeUpdate(sql, role.getRoleName(), role.getRoleID());
     }
 
-    // Xóa vai trò
-    public void deleteRole(int roleID) throws SQLException {
-        String sql = "DELETE FROM Role WHERE RoleID = ?";
-        DBConnect.executeUpdate(sql, roleID);
+    public boolean deleteRole(int roleID) throws SQLException {
+        String checkSQL = "SELECT COUNT(*) FROM RolePermission WHERE RoleID = ?";
+        String deleteSQL = "DELETE FROM Role WHERE RoleID = ?";
+    
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSQL)) {
+            checkStmt.setInt(1, roleID);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new SQLException("Cannot delete Role because it is assigned to roles.");
+                }
+            }
+        }
+    
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteSQL)) {
+            deleteStmt.setInt(1, roleID);
+            return deleteStmt.executeUpdate() > 0;
+        }
     }
+    
 }

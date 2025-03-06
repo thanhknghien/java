@@ -20,6 +20,4 @@ public class RolePermissionDTO {
     public void setPermissionID(int permissionID) {
         this.permissionID = permissionID;
     }
-
-    
 }

@@ -1,10 +1,13 @@
 package com.bookstore.model.DTO;
 
-public class PermisionDTO {
+public class PermissionDTO {
     private int permissionID;
     private String permissionName;
 
-    public PermisionDTO(int permissionID, String permissionName) {
+    public PermissionDTO() {
+    }
+
+    public PermissionDTO(int permissionID, String permissionName) {
         this.permissionID = permissionID;
         this.permissionName = permissionName;
     }
