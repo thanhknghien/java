@@ -8,10 +8,10 @@ package com.bookstore.model.DTO;
  *
  * @author 84862
  */
-public class category {
+public class CategoryDTO {
     private int CategoryID;
     private String Name;
-    public category(int CategoryID, String Name){
+    public CategoryDTO(int CategoryID, String Name){
         this.CategoryID = CategoryID;
         this.Name = Name;
     }
