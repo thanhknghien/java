@@ -3,27 +3,27 @@ package com.bookstore.model.DTO;
 import java.sql.Date;
 
 public class ImportSlipDTO {
-    private int SlipID;
+    private int slipID;
     private int employeeID;
-    private Date ImportDate;
-    private double TotalAmount;
+    private Date importDate;
+    private double totalAmount;
 
-    public ImportSlipDTO(int SlipID, int employeeID, Date ImportDate, double TotalAmount){
-        this.SlipID = SlipID;
+    public ImportSlipDTO(int slipID, int employeeID, Date importDate, double totalAmount){
+        this.slipID = slipID;
         this.employeeID = employeeID;
-        this.ImportDate = ImportDate;
-        this.TotalAmount = TotalAmount;
+        this.importDate = importDate;
+        this.totalAmount = totalAmount;
     }
 
     public ImportSlipDTO() {
     }
 
     public int getSlipID() {
-        return SlipID;
+        return slipID;
     }
-
+    
     public void setSlipID(int slipID) {
-        SlipID = slipID;
+        this.slipID = slipID;
     }
 
     public int getEmployeeID() {
@@ -35,25 +35,25 @@ public class ImportSlipDTO {
     }
 
     public Date getImportDate() {
-        return ImportDate;
+        return importDate;
     }
 
     public void setImportDate(Date importDate) {
-        ImportDate = importDate;
+        this.importDate = importDate;
     }
 
     public double getTotalAmount() {
-        return TotalAmount;
+        return totalAmount;
     }
 
     public void setTotalAmount(double totalAmount) {
-        TotalAmount = totalAmount;
+        this.totalAmount = totalAmount;
     }
 
     @Override
     public String toString() {
-        return "ImportSlipDTO [SlipID=" + SlipID + ", employeeID=" + employeeID + ", ImportDate=" + ImportDate
-                + ", TotalAmount=" + TotalAmount + "]";
+        return "ImportSlipDTO [slipID=" + slipID + ", employeeID=" + employeeID + ", importDate=" + importDate
+                + ", totalAmount=" + totalAmount + "]";
     }
 
 }
