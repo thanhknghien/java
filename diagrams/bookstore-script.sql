@@ -138,41 +138,6 @@ CREATE TABLE PromotionBook (
     FOREIGN KEY (BookID) REFERENCES Book(BookID)
 );
 
--- Trigger kiểm tra tồn kho trước khi thêm vào giỏ hàng
-DELIMITER //
-CREATE TRIGGER CheckStockBeforeAddToCart
-BEFORE INSERT ON CartItem
-FOR EACH ROW
-BEGIN
-    DECLARE stock INT;
-    SELECT StockQuantity INTO stock
-    FROM Book
-    WHERE BookID = NEW.BookID;
-    
-    IF stock < NEW.Quantity THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Số lượng tồn kho không đủ để thêm vào giỏ hàng.';
-    END IF;
-END //
-DELIMITER ;
-
--- Trigger kiểm tra tồn kho trước khi cập nhật giỏ hàng
-DELIMITER //
-CREATE TRIGGER CheckStockBeforeUpdateCart
-BEFORE UPDATE ON CartItem
-FOR EACH ROW
-BEGIN
-    DECLARE stock INT;
-    SELECT StockQuantity INTO stock
-    FROM Book
-    WHERE BookID = NEW.BookID;
-    
-    IF stock < NEW.Quantity THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Số lượng tồn kho không đủ để cập nhật giỏ hàng.';
-    END IF;
-END //
-DELIMITER ;
 
 -- Trigger kiểm tra tồn kho trước khi bán (OrderDetail)
 DELIMITER //
@@ -204,22 +169,6 @@ BEGIN
 END //
 DELIMITER ;
 
--- Trigger hạ Warehouse.Quantity khi đơn được xác nhận (Confirmed)
-DELIMITER //
-CREATE TRIGGER UpdateWarehouseAfterConfirm
-AFTER UPDATE ON `Order`
-FOR EACH ROW
-BEGIN
-    IF OLD.Status = 'Pending' AND NEW.Status = 'Confirmed' THEN
-        UPDATE Warehouse w
-        JOIN OrderDetail od ON w.BookID = od.BookID
-        SET w.Quantity = w.Quantity - od.Quantity,
-            LastUpdated = NOW()
-        WHERE od.OrderID = NEW.OrderID;
-    END IF;
-END //
-DELIMITER ;
-
 -- Trigger khôi phục Book.StockQuantity khi hủy đơn (Pending → Cancelled)
 DELIMITER //
 CREATE TRIGGER RestoreStockAfterCancelPending
@@ -230,27 +179,6 @@ BEGIN
         UPDATE Book b
         JOIN OrderDetail od ON b.BookID = od.BookID
         SET b.StockQuantity = b.StockQuantity + od.Quantity
-        WHERE od.OrderID = NEW.OrderID;
-    END IF;
-END //
-DELIMITER ;
-
--- Trigger khôi phục cả Book.StockQuantity và Warehouse.Quantity khi hủy đơn (Confirmed → Cancelled)
-DELIMITER //
-CREATE TRIGGER RestoreStockAfterCancelConfirmed
-AFTER UPDATE ON `Order`
-FOR EACH ROW
-BEGIN
-    IF OLD.Status = 'Confirmed' AND NEW.Status = 'Cancelled' THEN
-        UPDATE Book b
-        JOIN OrderDetail od ON b.BookID = od.BookID
-        SET b.StockQuantity = b.StockQuantity + od.Quantity
-        WHERE od.OrderID = NEW.OrderID;
-        
-        UPDATE Warehouse w
-        JOIN OrderDetail od ON w.BookID = od.BookID
-        SET w.Quantity = w.Quantity + od.Quantity,
-            LastUpdated = NOW()
         WHERE od.OrderID = NEW.OrderID;
     END IF;
 END //
@@ -299,58 +227,3 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
-
--- Thêm dữ liệu mẫu
-INSERT INTO Category (Name) VALUES 
-('Văn học'), 
-('Khoa học');
-
-INSERT INTO Book (Title, Author, Genre, Price, StockQuantity, CategoryID, ImagePath) VALUES 
-('Harry Potter', 'J.K. Rowling', 'Fantasy', 15.99, 100, 1, '/images/1.jpg'),
-('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 12.99, 50, 1, '/images/2.jpg');
-
-INSERT INTO Customer (Name, Address, Phone, Email) VALUES 
-('Nguyen Van A', '123 Hanoi', '0901234567', 'nva@gmail.com');
-
-INSERT INTO Employee (Name, Status, Phone, Email) VALUES 
-('Tran Thi B', 'Active', '0912345678', 'ttb@gmail.com');
-
-INSERT INTO Role (RoleName) VALUES 
-('Customer'), 
-('Sales'), 
-('Warehouse'), 
-('Director'), 
-('Admin');
-
-INSERT INTO Permission (PermissionName) VALUES 
-('ViewOrder'), 
-('ManageOrder'), 
-('ManageStock'), 
-('CreatePromotion'), 
-('ManageUser');
-
-INSERT INTO RolePermission (RoleID, PermissionID) VALUES 
-(1, 1), 
-(2, 1), (2, 2), 
-(3, 3), 
-(4, 4), 
-(5, 5);
-
-INSERT INTO Account (Username, Password, RoleID, CustomerID, EmployeeID) VALUES 
-('nva', 'pass123', 1, 1, NULL), 
-('ttb', 'pass456', 3, NULL, 1);
-
-INSERT INTO Cart (CustomerID) VALUES 
-(1);
-
-INSERT INTO CartItem (CartID, BookID, Quantity) VALUES 
-(1, 1, 2);
-
-INSERT INTO ImportSlip (EmployeeID, ImportDate, TotalAmount) VALUES 
-(1, '2025-02-27 10:00:00', 159.90);
-
-INSERT INTO ImportSlipDetail (SlipID, BookID, Quantity, UnitPrice) VALUES 
-(1, 1, 10, 15.99);
-
-INSERT INTO Promotion (Name, DiscountPercent, StartDate, EndDate, CategoryID) VALUES 
-('Giảm giá Văn học', 20.00, '2025-03-01', '2025-03-07', 1);
