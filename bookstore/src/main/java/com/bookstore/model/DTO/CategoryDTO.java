@@ -9,27 +9,29 @@ package com.bookstore.model.DTO;
  * @author 84862
  */
 public class CategoryDTO {
-    private int CategoryID;
-    private String Name;
+    private int categoryID;
+    private String name;
     public CategoryDTO(int CategoryID, String Name){
-        this.CategoryID = CategoryID;
-        this.Name = Name;
+        this.categoryID = CategoryID;
+        this.name = Name;
     }
 
     public int getCategoryID() {
-        return CategoryID;
+        return categoryID;
     }
 
-    public void setCategoryID(int CategoryID) {
-        this.CategoryID = CategoryID;
+    public void setCategoryID(int categoryID) {
+        this.categoryID = categoryID;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
-    public void setName(String Name) {
-        this.Name = Name;
+    public void setName(String name) {
+        this.name = name;
     }
+
+  
     
 }
