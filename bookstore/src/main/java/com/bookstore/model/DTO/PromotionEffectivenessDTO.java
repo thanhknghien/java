@@ -1,7 +1,7 @@
 package com.bookstore.model.DTO;
 
 import java.util.Date;
-
+// Lớp hiệu quả khuyến mãi cấm đụng =)))
 public class PromotionEffectivenessDTO {
     private String promotionName;
     private Date startDate;

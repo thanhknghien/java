@@ -77,24 +77,6 @@ CREATE TABLE Account (
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
 );
 
--- Tạo bảng Cart (Giỏ hàng)
-CREATE TABLE Cart (
-    CartID INT PRIMARY KEY AUTO_INCREMENT,
-    CustomerID INT NOT NULL,
-    CreatedDate DATETIME NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
-);
-
--- Tạo bảng CartItem (Chi tiết giỏ hàng)
-CREATE TABLE CartItem (
-    CartID INT,
-    BookID INT,
-    Quantity INT NOT NULL DEFAULT 1,
-    PRIMARY KEY (CartID, BookID),
-    FOREIGN KEY (CartID) REFERENCES Cart(CartID),
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
-);
-
 -- Tạo bảng Order (Đơn hàng)
 CREATE TABLE `Order` (
     OrderID INT PRIMARY KEY AUTO_INCREMENT,
@@ -113,15 +95,6 @@ CREATE TABLE OrderDetail (
     UnitPrice DECIMAL(10, 2) NOT NULL,
     PRIMARY KEY (OrderID, BookID),
     FOREIGN KEY (OrderID) REFERENCES `Order`(OrderID),
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
-);
-
--- Tạo bảng Warehouse (Kho hàng)
-CREATE TABLE Warehouse (
-    WarehouseID INT PRIMARY KEY AUTO_INCREMENT,
-    BookID INT,
-    Quantity INT NOT NULL DEFAULT 0,
-    LastUpdated DATETIME NOT NULL DEFAULT NOW(),
     FOREIGN KEY (BookID) REFERENCES Book(BookID)
 );
 
