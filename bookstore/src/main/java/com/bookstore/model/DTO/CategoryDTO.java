@@ -15,7 +15,6 @@ public class CategoryDTO {
         this.categoryID = CategoryID;
         this.name = Name;
     }
-
     public int getCategoryID() {
         return categoryID;
     }
@@ -31,6 +30,13 @@ public class CategoryDTO {
     public void setName(String name) {
         this.name = name;
     }
+    @Override
+    public String toString() {
+        return "Category{" +
+            "categoryID=" + categoryID +
+            ", name='" + name + '\'' +
+            '}';
+}
 
   
     
