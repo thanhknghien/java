@@ -1,4 +1,6 @@
+com\bookstore\TestChi.class
 com\bookstore\App.class
+com\bookstore\model\DTO\PromotionBookDTO.class
 com\bookstore\model\DAO\RolePermissionDAO.class
 com\bookstore\model\DBConnect.class
 com\bookstore\model\DTO\RolePermissionDTO.class
@@ -7,6 +9,10 @@ com\bookstore\TestThanh.class
 com\bookstore\BUS\test.class
 com\bookstore\model\DAO\AccountDAO.class
 com\bookstore\model\DTO\RoleDTO.class
+com\bookstore\model\DTO\BookDTO.class
+com\bookstore\model\DTO\CategoryDTO.class
 com\bookstore\model\DAO\PermissionDAO.class
 com\bookstore\model\DTO\AccountDTO.class
 com\bookstore\model\DAO\RoleDAO.class
+com\bookstore\model\DTO\PromotionDTO.class
+com\bookstore\model\DAO\CategoryDAO.class
