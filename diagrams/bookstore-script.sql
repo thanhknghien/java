@@ -17,7 +17,8 @@ CREATE TABLE Supplier (
     SupplierID INT PRIMARY KEY AUTO_INCREMENT,
     SupplierName VARCHAR(50) NOT NULL,
     SupplierNumber VARCHAR(15) NOT NULL,
-    SupplierAddress VARCHAR(200) NOT NULL
+    SupplierAddress VARCHAR(200) NOT NULL,
+    Status VARCHAR(20) NOT NULL DEFAULT 'Active'
 );
 
 -- Tạo bảng Book (Sách)
