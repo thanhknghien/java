@@ -12,13 +12,22 @@ CREATE TABLE Category (
     Name VARCHAR(50) NOT NULL
 );
 
+-- Tạo bảng nhà cung cấp
+CREATE TABLE Supplier (
+    SupplierID INT PRIMARY KEY AUTO_INCREMENT,
+    SupplierName VARCHAR(50) NOT NULL,
+    SupplierNumber VARCHAR(15) NOT NULL,
+    SupplierAddress VARCHAR(200) NOT NULL,
+    Status VARCHAR(20) NOT NULL DEFAULT 'Active'
+);
+
 -- Tạo bảng Book (Sách)
 CREATE TABLE Book (
     BookID INT PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(100) NOT NULL,
     Author VARCHAR(50),
     Genre VARCHAR(30),
-    Price DECIMAL(10, 2) NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
     StockQuantity INT NOT NULL DEFAULT 0,
     CategoryID INT,
     ImagePath VARCHAR(255) NULL,
@@ -60,31 +69,33 @@ CREATE TABLE RolePermission (
     RoleID INT,
     PermissionID INT,
     PRIMARY KEY (RoleID, PermissionID),
-    FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
-    FOREIGN KEY (PermissionID) REFERENCES Permission(PermissionID)
+    FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE CASCADE,
+    FOREIGN KEY (PermissionID) REFERENCES Permission(PermissionID) ON DELETE CASCADE
 );
 
 -- Tạo bảng Account (Tài khoản)
 CREATE TABLE Account (
     AccountID INT PRIMARY KEY AUTO_INCREMENT,
     Username VARCHAR(30) NOT NULL UNIQUE,
-    Password VARCHAR(50) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
     RoleID INT,
     CustomerID INT NULL,
     EmployeeID INT NULL,
-    FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
+    FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE CASCADE
 );
 
--- Tạo bảng Order (Đơn hàng)
-CREATE TABLE `Order` (
+-- Tạo bảng Orders (Đơn hàng)
+CREATE TABLE Orders (
     OrderID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeID INT,
     CustomerID INT,
     OrderDate DATETIME NOT NULL DEFAULT NOW(),
-    TotalAmount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     Status VARCHAR(20) NOT NULL DEFAULT 'Pending',
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE SET NULL
 );
 
 -- Tạo bảng OrderDetail (Chi tiết đơn hàng)
@@ -92,19 +103,21 @@ CREATE TABLE OrderDetail (
     OrderID INT,
     BookID INT,
     Quantity INT NOT NULL,
-    UnitPrice DECIMAL(10, 2) NOT NULL,
+    UnitPrice DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (OrderID, BookID),
-    FOREIGN KEY (OrderID) REFERENCES `Order`(OrderID),
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Book(BookID) ON DELETE CASCADE
 );
 
 -- Tạo bảng ImportSlip (Phiếu nhập kho)
 CREATE TABLE ImportSlip (
     SlipID INT PRIMARY KEY AUTO_INCREMENT,
+    SupplierID INT DEFAULT NULL,
     EmployeeID INT,
     ImportDate DATETIME NOT NULL DEFAULT NOW(),
-    TotalAmount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
+    TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE SET NULL,
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID) ON DELETE SET NULL
 );
 
 -- Tạo bảng ImportSlipDetail (Chi tiết phiếu nhập)
@@ -112,118 +125,20 @@ CREATE TABLE ImportSlipDetail (
     SlipID INT,
     BookID INT,
     Quantity INT NOT NULL,
-    UnitPrice DECIMAL(10, 2) NOT NULL,
+    UnitPrice DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (SlipID, BookID),
-    FOREIGN KEY (SlipID) REFERENCES ImportSlip(SlipID),
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
+    FOREIGN KEY (SlipID) REFERENCES ImportSlip(SlipID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Book(BookID) ON DELETE CASCADE
 );
 
 -- Tạo bảng Promotion (Khuyến mãi)
 CREATE TABLE Promotion (
     PromotionID INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL,
-    DiscountPercent DECIMAL(5, 2) NOT NULL,
+    DiscountPercent DECIMAL(5,2) NOT NULL,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     CategoryID INT NULL,
-    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
+    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID) ON DELETE SET NULL
 );
 
--- Tạo bảng PromotionBook (Khuyến mãi áp dụng cho sách cụ thể)
-CREATE TABLE PromotionBook (
-    PromotionID INT,
-    BookID INT,
-    PRIMARY KEY (PromotionID, BookID),
-    FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID),
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
-);
-
-
--- Trigger kiểm tra tồn kho trước khi bán (OrderDetail)
-DELIMITER //
-CREATE TRIGGER CheckStockBeforeOrder
-BEFORE INSERT ON OrderDetail
-FOR EACH ROW
-BEGIN
-    DECLARE stock INT;
-    SELECT StockQuantity INTO stock
-    FROM Book
-    WHERE BookID = NEW.BookID;
-    
-    IF stock < NEW.Quantity THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Số lượng tồn kho không đủ để thực hiện đơn hàng.';
-    END IF;
-END //
-DELIMITER ;
-
--- Trigger hạ Book.StockQuantity ngay khi đặt đơn hàng (Pending)
-DELIMITER //
-CREATE TRIGGER ReserveStockAfterOrder
-AFTER INSERT ON OrderDetail
-FOR EACH ROW
-BEGIN
-    UPDATE Book
-    SET StockQuantity = StockQuantity - NEW.Quantity
-    WHERE BookID = NEW.BookID;
-END //
-DELIMITER ;
-
--- Trigger khôi phục Book.StockQuantity khi hủy đơn (Pending → Cancelled)
-DELIMITER //
-CREATE TRIGGER RestoreStockAfterCancelPending
-AFTER UPDATE ON `Order`
-FOR EACH ROW
-BEGIN
-    IF OLD.Status = 'Pending' AND NEW.Status = 'Cancelled' THEN
-        UPDATE Book b
-        JOIN OrderDetail od ON b.BookID = od.BookID
-        SET b.StockQuantity = b.StockQuantity + od.Quantity
-        WHERE od.OrderID = NEW.OrderID;
-    END IF;
-END //
-DELIMITER ;
-
--- Trigger cập nhật tồn kho sau khi nhập kho
-DELIMITER //
-CREATE TRIGGER UpdateStockAfterImport
-AFTER INSERT ON ImportSlipDetail
-FOR EACH ROW
-BEGIN
-    UPDATE Book
-    SET StockQuantity = StockQuantity + NEW.Quantity
-    WHERE BookID = NEW.BookID;
-    
-    INSERT INTO Warehouse (WarehouseID, BookID, Quantity, LastUpdated)
-    VALUES (NEW.SlipID, NEW.BookID, NEW.Quantity, NOW())
-    ON DUPLICATE KEY UPDATE
-    Quantity = Quantity + NEW.Quantity,
-    LastUpdated = NOW();
-END //
-DELIMITER ;
-
--- Trigger xử lý xóa tài khoản (chỉ cập nhật RoleID hoặc Status)
-DELIMITER //
-CREATE TRIGGER BeforeDeleteAccountUpdateRole
-BEFORE DELETE ON Account
-FOR EACH ROW
-BEGIN
-    IF OLD.EmployeeID IS NOT NULL THEN
-        UPDATE Employee
-        SET Status = 'Inactive'
-        WHERE EmployeeID = OLD.EmployeeID;
-        
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Không thể xóa tài khoản nhân viên, chỉ cập nhật trạng thái thành Inactive.';
-    END IF;
-    
-    IF OLD.CustomerID IS NOT NULL THEN
-        UPDATE Account
-        SET RoleID = NULL
-        WHERE AccountID = OLD.AccountID;
-        
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Không thể xóa tài khoản khách hàng, chỉ xóa RoleID.';
-    END IF;
-END //
-DELIMITER ;
