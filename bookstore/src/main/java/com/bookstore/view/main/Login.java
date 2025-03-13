@@ -2,102 +2,137 @@ package com.bookstore.view.main;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.*;
+import java.sql.SQLException;
+import com.bookstore.controller.AuthController;
 
 public class Login extends JFrame {
-    private JTabbedPane tabbedPane;
-    private JPanel loginPanel;
-    private JPanel signupPanel;
+    private JPanel panel;
+    private CardLayout tab;
+    private AuthController controller;
 
     public Login(){
-        initComponents();        
+        init();
+        controller = new AuthController();
+
+        tab = new CardLayout();
+        panel = new JPanel(tab);
+
+
+        panel.add(createRegisterPanel(), "Register");
+        panel.add(createLoginPanel(), "Login");
+        
+        add(panel);
+        tab.show(panel, "Login");
     }
 
-    private void initComponents() {
-        setLayout(new BorderLayout());
-        tabbedPane = new JTabbedPane();
+    public void init(){
+        setTitle("Book Store System");
+        setSize(400,400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+    }
+
+    private JPanel createLoginPanel(){
+        JPanel loginPnl = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(5,5,5,5);
+
+        JLabel lbUsername = new JLabel("Username:");
+        JTextField txtUsername = new JTextField(20);
+        JLabel lbPassword = new JLabel("Password:");
+        JPasswordField txtPassword = new JPasswordField(20);
+        JButton btnLogin = new JButton("Login");
+        JButton btnSwitch = new JButton("Register");
+
+        c.gridx = 0; c.gridy = 0; loginPnl.add(lbUsername,c);
+        c.gridx = 1; c.gridy = 0; loginPnl.add(txtUsername,c);
+        c.gridx = 0; c.gridy = 1; loginPnl.add(lbPassword,c);
+        c.gridx = 1; c.gridy = 1; loginPnl.add(txtPassword,c);
+        c.gridx = 0; c.gridy = 2; loginPnl.add(btnLogin,c);
+        c.gridx = 1; c.gridy = 2; loginPnl.add(btnSwitch,c);
+
+        btnLogin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = txtUsername.getText();
+                String password = new String(txtPassword.getPassword());
+                try {
+                    controller.handleLogin(username, password);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+            
         
-        // Login Panel
-        loginPanel = new JPanel(new GridBagLayout());
+        btnSwitch.addActionListener(e -> tab.show(panel, "Register")); 
+        return loginPnl;
+    }
+
+    private JPanel createRegisterPanel(){
+        JPanel registerPnl = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        loginPanel.add(new JLabel("Username:"), gbc);
+        JLabel lbName = new JLabel("Full Name:");
+        JLabel lbUsername = new JLabel("Username:");
+        JLabel lbEmail = new JLabel("Email:");
+        JLabel lbPhoneNumber = new JLabel("Phone Number:");
+        JLabel lbPassword = new JLabel("Password:");
+        JLabel lbConfirmPassword = new JLabel("Confirm Password:");
 
-        gbc.gridx = 1;
-        JTextField loginUsername = new JTextField(20);
-        loginPanel.add(loginUsername, gbc);
+        JTextField txtName = new JTextField(20);
+        JTextField txtUsername = new JTextField(20);
+        JTextField txtEmail = new JTextField(20);
+        JTextField txtPhoneNumber = new JTextField(20);
+        JPasswordField txtPassword = new JPasswordField(20);
+        JPasswordField txtConfirmPassword = new JPasswordField(20);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        loginPanel.add(new JLabel("Password:"), gbc);
+        JButton btnRegister = new JButton("Register");
+        JButton btnSwitch = new JButton("Login");
 
-        gbc.gridx = 1;
-        JPasswordField loginPassword = new JPasswordField(20);
-        loginPanel.add(loginPassword, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; registerPnl.add(lbName, gbc);
+        gbc.gridx = 1; gbc.gridy = 0; registerPnl.add(txtName, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; registerPnl.add(lbUsername, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; registerPnl.add(txtUsername, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; registerPnl.add(lbEmail, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; registerPnl.add(txtEmail, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; registerPnl.add(lbPhoneNumber, gbc);
+        gbc.gridx = 1; gbc.gridy = 3; registerPnl.add(txtPhoneNumber, gbc);
+        gbc.gridx = 0; gbc.gridy = 4; registerPnl.add(lbPassword, gbc);
+        gbc.gridx = 1; gbc.gridy = 4; registerPnl.add(txtPassword, gbc);
+        gbc.gridx = 0; gbc.gridy = 5; registerPnl.add(lbConfirmPassword, gbc);
+        gbc.gridx = 1; gbc.gridy = 5; registerPnl.add(txtConfirmPassword, gbc);
+        gbc.gridx = 0; gbc.gridy = 6; registerPnl.add(btnRegister, gbc);
+        gbc.gridx = 1; gbc.gridy = 6; registerPnl.add(btnSwitch, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        JButton loginButton = new JButton("Login");
-        loginPanel.add(loginButton, gbc);
+        btnRegister.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String fullName = txtName.getText();
+                String username = txtUsername.getText();
+                String password = new String(txtPassword.getPassword());
+                String confirmPassword = new String(txtConfirmPassword.getPassword());
+                String email = txtEmail.getText();
+                String phoneNumber = txtPhoneNumber.getText();
 
-        // Signup Panel
-        signupPanel = new JPanel(new GridBagLayout());
-        gbc.gridwidth = 1;
+                try {
+                    controller.handleRegister(fullName, username, password, confirmPassword, email, phoneNumber);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                
+                
+            }
+        });
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        signupPanel.add(new JLabel("Full Name:"), gbc);
-
-        gbc.gridx = 1;
-        JTextField fullName = new JTextField(20);
-        signupPanel.add(fullName, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        signupPanel.add(new JLabel("Email / Username:"), gbc);
-
-        gbc.gridx = 1;
-        JTextField signupUsername = new JTextField(20);
-        signupPanel.add(signupUsername, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        signupPanel.add(new JLabel("Password:"), gbc);
-
-        gbc.gridx = 1;
-        JPasswordField signupPassword = new JPasswordField(20);
-        signupPanel.add(signupPassword, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        signupPanel.add(new JLabel("Confirm Password:"), gbc);
-
-        gbc.gridx = 1;
-        JPasswordField confirmPassword = new JPasswordField(20);
-        signupPanel.add(confirmPassword, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        JButton signupButton = new JButton("Sign Up");
-        signupPanel.add(signupButton, gbc);
-
-        tabbedPane.addTab("Login", loginPanel);
-        tabbedPane.addTab("Sign Up", signupPanel);
-
-        add(tabbedPane, BorderLayout.CENTER);
-
+        btnSwitch.addActionListener(e -> tab.show(panel, "Login"));
+        return registerPnl;
     }
-
     public static void main(String[] args) {
-        Login login = new Login();
-        login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        login.pack();
-        login.setVisible(true);
+        SwingUtilities.invokeLater(() -> new Login().setVisible(true));
     }
 }
