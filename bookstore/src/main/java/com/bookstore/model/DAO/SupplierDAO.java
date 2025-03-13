@@ -5,7 +5,6 @@ import com.bookstore.model.DTO.SupplierDTO;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SupplierDAO {
 
