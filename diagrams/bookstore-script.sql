@@ -34,22 +34,10 @@ CREATE TABLE Book (
     FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 );
 
--- Tạo bảng Customer (Khách hàng)
-CREATE TABLE Customer (
-    CustomerID INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(50) NOT NULL,
-    Address VARCHAR(200),
-    Phone VARCHAR(15),
-    Email VARCHAR(50)
-);
-
 -- Tạo bảng Employee (Nhân viên)
 CREATE TABLE Employee (
     EmployeeID INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(50) NOT NULL,
-    Status VARCHAR(20) NOT NULL DEFAULT 'Active',
-    Phone VARCHAR(15),
-    Email VARCHAR(50)
+    Status VARCHAR(20) NOT NULL DEFAULT 'Active'
 );
 
 -- Tạo bảng Role (Vai trò)
@@ -78,11 +66,12 @@ CREATE TABLE Account (
     AccountID INT PRIMARY KEY AUTO_INCREMENT,
     Username VARCHAR(30) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
+    Email VARCHAR(50) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    Address VARCHAR(200) NOT NULL,
     RoleID INT,
-    CustomerID INT NULL,
     EmployeeID INT NULL,
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL,
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE CASCADE
 );
 
@@ -94,7 +83,7 @@ CREATE TABLE Orders (
     OrderDate DATETIME NOT NULL DEFAULT NOW(),
     TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     Status VARCHAR(20) NOT NULL DEFAULT 'Pending',
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
+    FOREIGN KEY (CustomerID) REFERENCES Account(AccountID) ON DELETE CASCADE,
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE SET NULL
 );
 
