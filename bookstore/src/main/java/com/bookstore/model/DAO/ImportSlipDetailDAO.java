@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.bookstore.model.DBConnect;
 import com.bookstore.model.DTO.ImportSlipDetailDTO;
@@ -30,13 +29,13 @@ public class ImportSlipDetailDAO {
 
     // Cập nhật thông tin chi tiết phiếu nhập theo ID
     public boolean updateImportSlipDetail(ImportSlipDetailDTO importSlipDetail) {
-        String sql = "UPDATE importslipdetail SET quantity = ?, unitPrice = ? WHERE slipID = ? AND bookID = ?";
+        String sql = "UPDATE importslipdetail SET quantity = ?, unitPrice = ?, bookID = ? WHERE slipID = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, importSlipDetail.getQuantity());
             pstmt.setDouble(2, importSlipDetail.getUnitPrice());
-            pstmt.setInt(3, importSlipDetail.getSlipID());
-            pstmt.setInt(4, importSlipDetail.getBookID());
+            pstmt.setInt(3, importSlipDetail.getBookID());
+            pstmt.setInt(4, importSlipDetail.getSlipID());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -45,12 +44,11 @@ public class ImportSlipDetailDAO {
     }
 
     // Xóa chi tiết phiếu nhập theo ID
-    public boolean deleteImportSlipDetail(int slipID, int bookID) {
-        String sql = "DELETE FROM importslipdetail WHERE slipID = ? AND bookID = ?";
+    public boolean deleteImportSlipDetail(int slipID) {
+        String sql = "DELETE FROM importslipdetail WHERE slipID = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, slipID);
-            pstmt.setInt(2, bookID);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,12 +57,11 @@ public class ImportSlipDetailDAO {
     }
 
     // Lấy thông tin chi tiết phiếu nhập theo ID
-    public ImportSlipDetailDTO getImportSlipDetailById(int slipID, int bookID) {
-        String sql = "SELECT * FROM importslipdetail WHERE slipID = ? AND bookID = ?";
+    public ImportSlipDetailDTO getImportSlipDetailById(int slipID) {
+        String sql = "SELECT * FROM importslipdetail WHERE slipID = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, slipID);
-            pstmt.setInt(2, bookID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 ImportSlipDetailDTO importSlipDetail = new ImportSlipDetailDTO();
@@ -81,8 +78,8 @@ public class ImportSlipDetailDAO {
     }
 
     // Lấy danh sách tất cả chi tiết phiếu nhập
-    public List<ImportSlipDetailDTO> getAllImportSlipDetails() {
-        List<ImportSlipDetailDTO> importSlipDetails = new ArrayList<>();
+    public ArrayList<ImportSlipDetailDTO> getAllImportSlipDetails() {
+        ArrayList<ImportSlipDetailDTO> importSlipDetails = new ArrayList<>();
         String sql = "SELECT * FROM importslipdetail";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);

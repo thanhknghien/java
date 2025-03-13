@@ -4,15 +4,17 @@ import java.sql.Date;
 
 public class ImportSlipDTO {
     private int slipID;
-    private int employeeID;
     private int supplierID;
+    private int employeeID;
     private Date importDate;
     private double totalAmount;
 
-    public ImportSlipDTO(int slipID, int employeeID, int supplierID, Date importDate, double totalAmount){
+    
+
+    public ImportSlipDTO(int slipID, int supplierID, int employeeID, Date importDate, double totalAmount) {
         this.slipID = slipID;
-        this.employeeID = employeeID;
         this.supplierID = supplierID;
+        this.employeeID = employeeID;
         this.importDate = importDate;
         this.totalAmount = totalAmount;
     }
@@ -62,7 +64,7 @@ public class ImportSlipDTO {
 
     @Override
     public String toString() {
-        return "ImportSlipDTO [slipID=" + slipID + ", employeeID=" + employeeID + ", supplierID=" + supplierID
+        return "ImportSlipDTO [slipID=" + slipID + ", supplierID=" + supplierID + ", employeeID=" + employeeID
                 + ", importDate=" + importDate + ", totalAmount=" + totalAmount + "]";
     }
 
