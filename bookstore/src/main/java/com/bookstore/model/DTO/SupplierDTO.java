@@ -5,12 +5,15 @@ public class SupplierDTO {
     private String supplierName;
     private String supplierNumber;
     private String supplierAddress;
+    private String status;
 
-    public SupplierDTO(int supplierID, String supplierName, String supplierNumber, String supplierAddress) {
+    public SupplierDTO(int supplierID, String supplierName, String supplierNumber, String supplierAddress,
+            String status) {
         this.supplierID = supplierID;
         this.supplierName = supplierName;
         this.supplierNumber = supplierNumber;
         this.supplierAddress = supplierAddress;
+        this.status = status;
     }
 
     public SupplierDTO() {
@@ -48,10 +51,18 @@ public class SupplierDTO {
         this.supplierAddress = supplierAddress;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "Supplier [supplierID=" + supplierID + ", supplierName=" + supplierName + ", supplierNumber="
-                + supplierNumber + ", supplierAddress=" + supplierAddress + "]";
+        return "SupplierDTO [supplierID=" + supplierID + ", supplierName=" + supplierName + ", supplierNumber="
+                + supplierNumber + ", supplierAddress=" + supplierAddress + ", status=" + status + "]";
     }
 
 }
