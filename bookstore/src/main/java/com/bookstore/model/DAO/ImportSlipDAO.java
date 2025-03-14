@@ -10,12 +10,12 @@ public class ImportSlipDAO {
 
     // Thêm một phiếu nhập mới
     public boolean insertImportSlip(ImportSlipDTO importSlip) {
-        String sql = "INSERT INTO importslip (SlipID, EmployeeID, SupplierID, ImportDate, TotalAmount) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO importslip (SlipID, SupplierID, EmployeeID, ImportDate, TotalAmount) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, importSlip.getSlipID());
-            pstmt.setInt(2, importSlip.getEmployeeID());
-            pstmt.setInt(3, importSlip.getSupplierID());
+            pstmt.setInt(2, importSlip.getSupplierID());
+            pstmt.setInt(3, importSlip.getEmployeeID());
             pstmt.setDate(4, importSlip.getImportDate());
             pstmt.setDouble(5, importSlip.getTotalAmount());
             return pstmt.executeUpdate() > 0;
@@ -27,11 +27,11 @@ public class ImportSlipDAO {
 
     // Cập nhật thông tin phiếu nhập theo ID
     public boolean updateImportSlip(ImportSlipDTO importSlip) {
-        String sql = "UPDATE importslip SET employeeID = ?, supplierID = ?, importDate = ?, totalAmount = ? WHERE slipID = ?";
+        String sql = "UPDATE importslip SET supplierID = ?, employeeID = ?, importDate = ?, totalAmount = ? WHERE slipID = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, importSlip.getEmployeeID());
-            pstmt.setInt(2, importSlip.getSupplierID());
+            pstmt.setInt(1, importSlip.getSupplierID());
+            pstmt.setInt(2, importSlip.getEmployeeID());
             pstmt.setDate(3, importSlip.getImportDate());
             pstmt.setDouble(4, importSlip.getTotalAmount());
             pstmt.setInt(5, importSlip.getSlipID());
@@ -56,8 +56,8 @@ public class ImportSlipDAO {
     }
 
     // Lấy danh sách tất cả phiếu nhập
-    public List<ImportSlipDTO> getAllImportSlips() {
-        List<ImportSlipDTO> importSlips = new ArrayList<>();
+    public ArrayList<ImportSlipDTO> getAllImportSlips() {
+        ArrayList<ImportSlipDTO> importSlips = new ArrayList<>();
         String sql = "SELECT * FROM importSlip";    
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -65,8 +65,8 @@ public class ImportSlipDAO {
             while (rs.next()) {
                 ImportSlipDTO importSlip = new ImportSlipDTO();
                 importSlip.setSlipID(rs.getInt("slipID"));
-                importSlip.setEmployeeID(rs.getInt("employeeID"));
                 importSlip.setSupplierID(rs.getInt("supplierID"));
+                importSlip.setEmployeeID(rs.getInt("employeeID"));
                 importSlip.setImportDate(rs.getDate("importDate"));
                 importSlip.setTotalAmount(rs.getDouble("totalAmount"));
                 importSlips.add(importSlip);
@@ -87,8 +87,8 @@ public class ImportSlipDAO {
             if (rs.next()) {
                 ImportSlipDTO importSlip = new ImportSlipDTO();
                 importSlip.setSlipID(rs.getInt("slipID"));
-                importSlip.setEmployeeID(rs.getInt("employeeID"));
                 importSlip.setSupplierID(rs.getInt("supplierID"));
+                importSlip.setEmployeeID(rs.getInt("employeeID"));
                 importSlip.setImportDate(rs.getDate("importDate"));
                 importSlip.setTotalAmount(rs.getDouble("totalAmount"));
                 return importSlip;
