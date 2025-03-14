@@ -66,6 +66,7 @@ CREATE TABLE Account (
     AccountID INT PRIMARY KEY AUTO_INCREMENT,
     Username VARCHAR(30) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
+    FullName VARCHAR(20) NOT NULL,
     Email VARCHAR(50) NOT NULL,
     Phone VARCHAR(15) NOT NULL,
     Address VARCHAR(200) NOT NULL,
@@ -130,48 +131,3 @@ CREATE TABLE Promotion (
     CategoryID INT NULL,
     FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID) ON DELETE SET NULL
 );
-----------------------
--- Dữ liệu mẫu--------
-----------------------
-
--- Table Role
-INSERT INTO Role (RoleName) VALUES 
-('Admin'),
-('Manager'),
-('Warehouse Staff'),  
-('Invoice Staff'),    
-('Customer');
-
--- Table Permission
-INSERT INTO Permission (PermissionName) VALUES 
-('Manage Users'),       -- Quản lý tài khoản
-('Manage Books'),       -- Quản lý sách
-('Manage Orders'),      -- Quản lý đơn hàng
-('Manage Inventory'),   -- Quản lý kho sách
-('View Reports'),       -- Xem báo cáo
-('Purchase Books');     -- Khách hàng mua sách
-
--- Table RolePermission
--- Admin có tất cả quyền
-INSERT INTO RolePermission (RoleID, PermissionID)
-SELECT 1, PermissionID FROM Permission;
-
--- Manager có quyền quản lý sách, đơn hàng, kho và báo cáo
-INSERT INTO RolePermission (RoleID, PermissionID) VALUES 
-(2, 2), -- Manage Books
-(2, 3), -- Manage Orders
-(2, 4), -- Manage Inventory
-(2, 5); -- View Reports
-
--- Nhân viên quản lý kho chỉ có quyền quản lý kho sách
-INSERT INTO RolePermission (RoleID, PermissionID) VALUES 
-(3, 4); -- Manage Inventory
-
--- Nhân viên quản lý hóa đơn chỉ có quyền quản lý đơn hàng
-INSERT INTO RolePermission (RoleID, PermissionID) VALUES 
-(4, 3); -- Manage Orders
-
--- Khách hàng chỉ có quyền mua sách
-INSERT INTO RolePermission (RoleID, PermissionID) VALUES 
-(5, 6); -- Purchase Books
-
