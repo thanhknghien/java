@@ -84,4 +84,16 @@ public class CategoryDAO {
         }
         return false;
     }
+    public boolean deleteCategory(int id) {
+        String query = "DELETE FROM Category WHERE CategoryID = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
