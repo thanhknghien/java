@@ -2,15 +2,17 @@ package com.bookstore.model.DTO;
 
 public class InvoiceDTO {
     private int invoiceID;
-    private String customerName;
+    private int customerID;
     private String date;
     private double totalAmount;
+    private int status;
     
-    public InvoiceDTO (int invoiceID, String customerName, String date, double totalAmount){
+    public InvoiceDTO (int invoiceID, int customerID, String date, double totalAmount, int status){
         this.invoiceID = invoiceID;
-        this.customerName = customerName;
+        this.customerID = customerID;
         this.date = date;
         this.totalAmount = totalAmount;
+        this.status = status;
     }
     
     public void setInvoiceID (int invoiceID){
@@ -20,11 +22,11 @@ public class InvoiceDTO {
         return invoiceID;
     }
     
-    public void setCustomerName (String customerName){
-        this.customerName = customerName;
+    public void setCustomerID (int customerID){
+        this.customerID = customerID;
     }
-    public String setCustomerName (){
-        return customerName;
+    public int getCustomerID (){
+        return customerID;
     }
     
     public void setDate (String date){
@@ -39,5 +41,12 @@ public class InvoiceDTO {
     }
     public double getTotalAmount (){
         return totalAmount;
+    }
+    
+    public void setStatus (int status){
+        this.status = status;
+    }
+    public int getStatus (){
+        return status;
     }
 }
