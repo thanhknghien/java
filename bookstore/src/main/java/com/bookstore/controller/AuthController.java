@@ -26,9 +26,9 @@ public class AuthController {
         }
     }
 
-    public void handleRegister(String fullName, String username, String password,String confirmPassword, String email, String phone) throws SQLException{
+    public void handleRegister(String fullName, String username, String password,String confirmPassword, String email, String address,String phone) throws SQLException{
     try {
-        if(bus.register(fullName, username, password, confirmPassword, email, phone)){
+        if(bus.register(fullName, username, password, confirmPassword, email, address, phone)){
             JOptionPane.showMessageDialog(view, "Register Successful");
         }
     } catch (ShowException e) {

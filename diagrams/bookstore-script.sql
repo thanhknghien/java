@@ -132,7 +132,7 @@ CREATE TABLE Promotion (
     FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID) ON DELETE SET NULL
 );
 
------Dữ liệu mẫu-------
+-- Dữ liệu mẫu-------
 -- Danh mục sách----
 INSERT INTO Category (Name) VALUES 
 ('Văn học'), 

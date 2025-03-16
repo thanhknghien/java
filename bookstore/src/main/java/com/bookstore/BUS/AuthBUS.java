@@ -26,7 +26,7 @@ public class AuthBUS {
         return (acc != null && acc.getPassword().equals(password));
     }
 
-    public boolean register(String fullName, String username, String password,String confirmPassword, String email, String phone ) throws SQLException, ShowException{
+    public boolean register(String fullName, String username, String password,String confirmPassword, String email, String address,String phone ) throws SQLException, ShowException{
         if(ValidateUtils.isEmptyString(fullName)){
             throw new ShowException("Empty fullName!");
         }
@@ -45,6 +45,9 @@ public class AuthBUS {
         if(ValidateUtils.isEmptyString(phone)){
             throw new ShowException("Empty phone!");
         }
+        if(ValidateUtils.isEmptyString(address)){
+            throw new ShowException("Empty address!");
+        }
         if(ValidateUtils.isValidEmail(email)){
             throw new ShowException("Wrong email!");
         }
@@ -55,7 +58,7 @@ public class AuthBUS {
             throw new ShowException("Username already exists!");
         }
        
-        AccountDTO newAcc = new AccountDTO(999, username, password, null, null, null);
+        AccountDTO newAcc = new AccountDTO(99, username, password, fullName, email, phone, address, 2, null);
 
         if(accountDAO.insertAccount(newAcc)){
             return true;
