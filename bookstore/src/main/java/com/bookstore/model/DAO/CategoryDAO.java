@@ -1,23 +1,21 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bookstore.model.DAO;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
 
-
 import com.bookstore.model.DBConnect;
 import com.bookstore.model.DTO.CategoryDTO;
+
 public class CategoryDAO {
     private Connection conn;
     
     public CategoryDAO(Connection conn) {
         this.conn = conn;
     }
-    public List<CategoryDTO> getAllCategories() {
+
+    // Lấy danh sách tất cả thể loại
+    public List<CategoryDTO> getAllCategoriesDAO() {
         List<CategoryDTO> categories = new ArrayList<>();
         String query = "SELECT * FROM Category";
         
@@ -34,11 +32,13 @@ public class CategoryDAO {
         }
         return categories;
     }
-    public CategoryDTO getCategoryById(int id) {
+
+    // Lấy thể loại theo ID
+    public CategoryDTO getCategoryByIdDAO(int categoryID) {
         String query = "SELECT * FROM Category WHERE CategoryID = ?";
         
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, id);
+            pstmt.setInt(1, categoryID);
             ResultSet rs = pstmt.executeQuery();
             
             if (rs.next()) {
@@ -52,43 +52,29 @@ public class CategoryDAO {
         }
         return null;
     }
-    public boolean insertCategory(CategoryDTO category) {
+
+    // Thêm thể loại mới
+    public boolean insertCategoryDAO(String categoryName) {
         String query = "INSERT INTO Category (Name) VALUES (?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, category.getName());
+            pstmt.setString(1, categoryName);
 
             int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    category.setCategoryID(rs.getInt(1)); // Gán ID mới cho đối tượng DTO
-                }
-                return true;
-            }
+            return affectedRows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-    public boolean updateCategory(CategoryDTO category) {
-        String query = "UPDATE Category SET name = ? WHERE CategoryID = ?";
+
+    // Cập nhật thể loại theo ID
+    public boolean updateCategoryByIdDAO(int categoryID, String newCategoryName) {
+        String query = "UPDATE Category SET Name = ? WHERE CategoryID = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, category.getName()); // Gán giá trị Name
-            pstmt.setInt(2, category.getCategoryID()); // Gán giá trị CategoryID (dùng trong WHERE)
-
-            return pstmt.executeUpdate() > 0; // Trả về true nếu cập nhật thành công
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public boolean deleteCategory(int id) {
-        String query = "DELETE FROM Category WHERE CategoryID = ?";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, id);
+            pstmt.setString(1, newCategoryName);
+            pstmt.setInt(2, categoryID);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,4 +82,16 @@ public class CategoryDAO {
         return false;
     }
 
+    // Xóa thể loại theo ID
+    public boolean deleteCategoryByIdDAO(int categoryID) {
+        String query = "DELETE FROM Category WHERE CategoryID = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, categoryID);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

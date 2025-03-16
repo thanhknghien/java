@@ -12,26 +12,34 @@ public class BookDAO {
         this.conn = conn;
     }
 
+    public List<String> getAllPromotionBooks() {
+        List<String> promotionBooks = new ArrayList<>();
+        String sql = "SELECT * FROM PromotionBook";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                promotionBooks.add("PromotionID: " + rs.getInt("PromotionID") + ", BookID: " + rs.getInt("BookID"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return promotionBooks;
+    }
+
     // 1️⃣ Thêm sách mới
-    public boolean insertBook(BookDTO book) {
+    public boolean insertBookWithDetails(String title, String author, String genre, double price, int stockQuantity, int categoryID, String imagePath) {
         String query = "INSERT INTO Book (Title, Author, Genre, Price, StockQuantity, CategoryID, ImagePath) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, book.getTitle());
-            pstmt.setString(2, book.getAuthor());
-            pstmt.setString(3, book.getGenre());
-            pstmt.setDouble(4, book.getPrice());
-            pstmt.setInt(5, book.getStockQuantity());
-            pstmt.setInt(6, book.getCategoryID());
-            pstmt.setString(7, book.getImagePath());
-            
+            pstmt.setString(1, title);
+            pstmt.setString(2, author);
+            pstmt.setString(3, genre);
+            pstmt.setDouble(4, price);
+            pstmt.setInt(5, stockQuantity);
+            pstmt.setInt(6, categoryID);
+            pstmt.setString(7, imagePath);
+
             int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    book.setBookID(rs.getInt(1));
-                }
-                return true;
-            }
+            return affectedRows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -39,17 +47,17 @@ public class BookDAO {
     }
 
     // 2️⃣ Sửa thông tin sách
-    public boolean updateBook(BookDTO book) {
+    public boolean updateBookWithID(int bookID, String title, String author, String genre, double price, int stockQuantity, int categoryID, String imagePath) {
         String query = "UPDATE Book SET Title = ?, Author = ?, Genre = ?, Price = ?, StockQuantity = ?, CategoryID = ?, ImagePath = ? WHERE BookID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, book.getTitle());
-            pstmt.setString(2, book.getAuthor());
-            pstmt.setString(3, book.getGenre());
-            pstmt.setDouble(4, book.getPrice());
-            pstmt.setInt(5, book.getStockQuantity());
-            pstmt.setInt(6, book.getCategoryID());
-            pstmt.setString(7, book.getImagePath());
-            pstmt.setInt(8, book.getBookID());
+            pstmt.setString(1, title);
+            pstmt.setString(2, author);
+            pstmt.setString(3, genre);
+            pstmt.setDouble(4, price);
+            pstmt.setInt(5, stockQuantity);
+            pstmt.setInt(6, categoryID);
+            pstmt.setString(7, imagePath);
+            pstmt.setInt(8, bookID);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,7 +66,7 @@ public class BookDAO {
     }
 
     // 3️⃣ Xóa sách theo ID
-    public boolean deleteBook(int bookID) {
+     public boolean deleteBookByID(int bookID) {
         String query = "DELETE FROM Book WHERE BookID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, bookID);
@@ -70,7 +78,7 @@ public class BookDAO {
     }
 
     // 4️⃣ Tìm kiếm sách theo ID
-    public BookDTO searchBookById(int bookID) {
+    public BookDTO findBookByID(int bookID) {
         String query = "SELECT * FROM Book WHERE BookID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, bookID);
@@ -92,5 +100,4 @@ public class BookDAO {
         }
         return null;
     }
-    
 }

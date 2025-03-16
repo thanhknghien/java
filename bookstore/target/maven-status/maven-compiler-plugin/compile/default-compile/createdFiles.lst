@@ -1,7 +1,9 @@
 com\bookstore\model\DAO\RolePermissionDAO.class
+com\bookstore\model\DAO\PromotionBookDAO.class
 com\bookstore\model\DTO\RolePermissionDTO.class
 com\bookstore\model\DAO\ReportDAO.class
 com\bookstore\model\DAO\AccountDAO.class
+com\bookstore\model\DAO\PromotionDAO.class
 com\bookstore\model\DTO\CategoryDTO.class
 com\bookstore\model\DAO\RoleDAO.class
 com\bookstore\TestChi.class
