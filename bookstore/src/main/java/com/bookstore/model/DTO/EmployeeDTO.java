@@ -10,20 +10,14 @@ package com.bookstore.model.DTO;
  */
 public class EmployeeDTO {
     private int employeeId;
-    private String name;
     private String status;
-    private String phone;
-    private String email;
 
     public EmployeeDTO() {
     }
 
-    public EmployeeDTO(int employeeId, String name, String status, String phone, String email) {
+    public EmployeeDTO(int employeeId, String status) {
         this.employeeId = employeeId;
-        this.name = name;
         this.status = status;
-        this.phone = phone;
-        this.email = email;
     }
 
     public int getEmployeeId() {
@@ -34,14 +28,6 @@ public class EmployeeDTO {
         this.employeeId = employeeId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -50,24 +36,9 @@ public class EmployeeDTO {
         this.status = status;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     @Override
     public String toString() {
-        return "EmployeeDTO{" + "employeeId=" + employeeId + ", name=" + name + ", status=" + status + ", phone=" + phone + ", email=" + email + '}';
+        return "EmployeeDTO{" + "employeeId=" + employeeId + ", status=" + status + '}';
     }
+    
 }
