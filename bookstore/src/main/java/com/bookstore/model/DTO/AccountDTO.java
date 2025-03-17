@@ -1,37 +1,37 @@
 package com.bookstore.model.DTO;
 
 public class AccountDTO {
-    private int accountID;
+    private int accountId;
     private String username;
     private String password;
     private String fullName;
     private String email;
     private String phone;
     private String address;
-    private int roleID;
-    private Integer employeeID; 
+    private int roleId;
+    private int employeeId;
 
-    public AccountDTO(int accountID, String username, String password, String fullName, String email, String phone, String address, int roleID, Integer employeeID) {
-        this.accountID = accountID;
+    public AccountDTO() {
+    }
+
+    public AccountDTO(int accountId, String username, String password, String fullName, String email, String phone, String address, int roleId, int employeeId) {
+        this.accountId = accountId;
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.roleID = roleID;
-        this.employeeID = employeeID;
-    }
-    
-    public AccountDTO() {
+        this.roleId = roleId;
+        this.employeeId = employeeId;
     }
 
-    public int getAccountID() {
-        return accountID;
+    public int getAccountId() {
+        return accountId;
     }
 
-    public void setAccountID(int accountID) {
-        this.accountID = accountID;
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
     }
 
     public String getUsername() {
@@ -55,8 +55,7 @@ public class AccountDTO {
     }
 
     public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
+        }
 
     public String getEmail() {
         return email;
@@ -82,20 +81,36 @@ public class AccountDTO {
         this.address = address;
     }
 
-    public int getRoleID() {
-        return roleID;
+    public int getRoleId() {
+        return roleId;
     }
 
-    public void setRoleID(int roleID) {
-        this.roleID = roleID;
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
-    public Integer getEmployeeID() {
-        return employeeID;
+    public int getEmployeeId() {
+        return employeeId;
     }
 
-    public void setEmployeeID(Integer employeeID) {
-        this.employeeID = employeeID;
+    public void setEmployeeId(int employeeId) {
+        this.employeeId = employeeId;
     }
- 
+
+    @Override
+    public String toString() {
+        return "AccountDTO{" +
+                "accountId=" + accountId +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", roleId=" + roleId +
+                ", employeeId=" + employeeId +
+                '}';
+    }
+
+    
 }

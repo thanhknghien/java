@@ -1,6 +1,5 @@
 package com.bookstore.model.DTO;
 
-// Class for show customer who has highest total spent
 public class CustomerPurchaseDTO {
     private String customerName;
     private int totalOrders;

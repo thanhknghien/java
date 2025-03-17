@@ -81,7 +81,6 @@ public class Login extends JFrame {
         JLabel lbUsername = new JLabel("Username:");
         JLabel lbEmail = new JLabel("Email:");
         JLabel lbPhoneNumber = new JLabel("Phone Number:");
-        JLabel lbAddress = new JLabel("Address:");
         JLabel lbPassword = new JLabel("Password:");
         JLabel lbConfirmPassword = new JLabel("Confirm Password:");
 
@@ -89,7 +88,6 @@ public class Login extends JFrame {
         JTextField txtUsername = new JTextField(20);
         JTextField txtEmail = new JTextField(20);
         JTextField txtPhoneNumber = new JTextField(20);
-        JTextField txtAddress = new JTextField(20);
         JPasswordField txtPassword = new JPasswordField(20);
         JPasswordField txtConfirmPassword = new JPasswordField(20);
 
@@ -104,14 +102,12 @@ public class Login extends JFrame {
         gbc.gridx = 1; gbc.gridy = 2; registerPnl.add(txtEmail, gbc);
         gbc.gridx = 0; gbc.gridy = 3; registerPnl.add(lbPhoneNumber, gbc);
         gbc.gridx = 1; gbc.gridy = 3; registerPnl.add(txtPhoneNumber, gbc);
-        gbc.gridx = 0; gbc.gridy = 4; registerPnl.add(lbAddress, gbc);
-        gbc.gridx = 1; gbc.gridy = 4; registerPnl.add(txtAddress, gbc);
-        gbc.gridx = 0; gbc.gridy = 5; registerPnl.add(lbPassword, gbc);
-        gbc.gridx = 1; gbc.gridy = 5; registerPnl.add(txtPassword, gbc);
-        gbc.gridx = 0; gbc.gridy = 6; registerPnl.add(lbConfirmPassword, gbc);
-        gbc.gridx = 1; gbc.gridy = 6; registerPnl.add(txtConfirmPassword, gbc);
-        gbc.gridx = 0; gbc.gridy = 7; registerPnl.add(btnRegister, gbc);
-        gbc.gridx = 1; gbc.gridy = 7; registerPnl.add(btnSwitch, gbc);
+        gbc.gridx = 0; gbc.gridy = 4; registerPnl.add(lbPassword, gbc);
+        gbc.gridx = 1; gbc.gridy = 4; registerPnl.add(txtPassword, gbc);
+        gbc.gridx = 0; gbc.gridy = 5; registerPnl.add(lbConfirmPassword, gbc);
+        gbc.gridx = 1; gbc.gridy = 5; registerPnl.add(txtConfirmPassword, gbc);
+        gbc.gridx = 0; gbc.gridy = 6; registerPnl.add(btnRegister, gbc);
+        gbc.gridx = 1; gbc.gridy = 6; registerPnl.add(btnSwitch, gbc);
 
         btnRegister.addActionListener(new ActionListener() {
             @Override
@@ -122,17 +118,21 @@ public class Login extends JFrame {
                 String confirmPassword = new String(txtConfirmPassword.getPassword());
                 String email = txtEmail.getText();
                 String phoneNumber = txtPhoneNumber.getText();
-                String address = txtAddress.getText();
 
                 try {
-                    controller.handleRegister(fullName, username, password, confirmPassword, email, address, phoneNumber);
+                    controller.handleRegister(fullName, username, password, confirmPassword, email, phoneNumber);
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
+                
+                
             }
         });
 
         btnSwitch.addActionListener(e -> tab.show(panel, "Login"));
         return registerPnl;
+    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Login().setVisible(true));
     }
 }

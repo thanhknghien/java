@@ -6,94 +6,133 @@ import java.util.ArrayList;
 
 import com.bookstore.model.DBConnect;
 import com.bookstore.model.DTO.AccountDTO;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 public class AccountDAO {
-
-    // Thêm tài khoản mới
-    public boolean insertAccount(AccountDTO account) throws SQLException {
-        String sql = "INSERT INTO Account (Username, Password, FullName, Email, Phone, Address, RoleID, EmployeeID) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        return DBConnect.executeUpdate(sql, 
-                account.getUsername(), account.getPassword(), 
-                account.getFullName(), account.getEmail(), account.getPhone(), 
-                account.getAddress(), account.getRoleID(), account.getEmployeeID());
+    
+    public boolean addAccount(AccountDTO account) throws SQLException{
+        String sql = "INSERT INTO Account (Username, Password, FullName, Email, Phone, Address, RoleID, EmployeeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try(Connection conn = DBConnect.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+            stmt.setString(1, account.getUsername());
+            stmt.setString(2, account.getPassword());
+            stmt.setString(3, account.getFullName());
+            stmt.setString(4, account.getEmail());
+            stmt.setString(5, account.getPhone());
+            stmt.setString(6, account.getAddress());
+            stmt.setInt(7, account.getRoleId());
+            stmt.setInt(8, account.getEmployeeId());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        account.setAccountId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
-
-    // Cập nhật tài khoản
-    public boolean updateAccount(AccountDTO account) throws SQLException {
-        String sql = "UPDATE Account SET Password = ?, FullName = ?, Email = ?, Phone = ?, Address = ?, RoleID = ?, EmployeeID = ? " +
-                     "WHERE Username = ?";
-        return DBConnect.executeUpdate(sql, 
-                account.getPassword(), account.getFullName(), account.getEmail(), 
-                account.getPhone(), account.getAddress(), account.getRoleID(), 
-                account.getEmployeeID(), account.getUsername());
+    public AccountDTO getAccountById(int accountId) throws SQLException {
+        String sql = "SELECT * FROM Account WHERE AccountID = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, accountId);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    return new AccountDTO(
+                        resultSet.getInt("AccountID"),
+                        resultSet.getString("Username"),
+                        resultSet.getString("Password"),
+                        resultSet.getString("FullName"),
+                        resultSet.getString("Email"),
+                        resultSet.getString("Phone"),
+                        resultSet.getString("Address"),
+                        resultSet.getInt("RoleID"),
+                        resultSet.getInt("EmployeeID")
+                    );
+                }
+            }
+        }
+        return null;
     }
-
-    // Xóa tài khoản theo Username
-    public boolean deleteAccount(String username) throws SQLException {
-        String sql = "DELETE FROM Account WHERE Username = ?";
-        return DBConnect.executeUpdate(sql, username);
-    }
-
-    // Lấy danh sách tất cả tài khoản
+    // Lấy tất cả tài khoản
     public ArrayList<AccountDTO> getAllAccounts() throws SQLException {
         ArrayList<AccountDTO> accounts = new ArrayList<>();
         String sql = "SELECT * FROM Account";
-        ResultSet rs = DBConnect.executeQuery(sql);
-
-        while (rs.next()) {
-            accounts.add(new AccountDTO(
-                rs.getInt("AccountID"), rs.getString("Username"), rs.getString("Password"),
-                rs.getString("FullName"), rs.getString("Email"), rs.getString("Phone"),
-                rs.getString("Address"), rs.getInt("RoleID"), rs.getInt("EmployeeID")));
+        try (Connection conn = DBConnect.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet resultSet = stmt.executeQuery(sql)) {
+            while (resultSet.next()) {
+                accounts.add(new AccountDTO(
+                    resultSet.getInt("AccountID"),
+                    resultSet.getString("Username"),
+                    resultSet.getString("Password"),
+                    resultSet.getString("FullName"),
+                    resultSet.getString("Email"),
+                    resultSet.getString("Phone"),
+                    resultSet.getString("Address"),
+                    resultSet.getInt("RoleID"),
+                    resultSet.getInt("EmployeeID")
+                ));
+            }
         }
-
-        DBConnect.closeResultSet(rs);
         return accounts;
     }
+    // Cập nhật thông tin tài khoản
+    public boolean updateAccount(AccountDTO account) throws SQLException {
+        String sql = "UPDATE Account SET Username = ?, Password = ?, FullName = ?, Email = ?, Phone = ?, Address = ?, RoleID = ?, EmployeeID = ? WHERE AccountID = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, account.getUsername());
+            stmt.setString(2, account.getPassword());
+            stmt.setString(3, account.getFullName());
+            stmt.setString(4, account.getEmail());
+            stmt.setString(5, account.getPhone());
+            stmt.setString(6, account.getAddress());
+            stmt.setInt(7, account.getRoleId());
+            stmt.setInt(8, account.getEmployeeId());
+            stmt.setInt(9, account.getAccountId());
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
 
-    // Lấy tài khoản theo Username
+    // Xóa tài khoản
+    public boolean deleteAccount(int accountId) throws SQLException {
+        String sql = "DELETE FROM Account WHERE AccountID = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, accountId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    // Lấy thông tin tài khoản theo tên đăng nhập
     public AccountDTO getAccountByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM Account WHERE Username = ? LIMIT 1";
-        ResultSet rs = DBConnect.executeQuery(sql, username);
-
-        if (rs.next()) {
-            AccountDTO account = new AccountDTO(
-                rs.getInt("AccountID"), rs.getString("Username"), rs.getString("Password"),
-                rs.getString("FullName"), rs.getString("Email"), rs.getString("Phone"),
-                rs.getString("Address"), rs.getInt("RoleID"), rs.getInt("EmployeeID"));
-            DBConnect.closeResultSet(rs);
-            return account;
+        String sql = "SELECT * FROM Account WHERE Username = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    return new AccountDTO(
+                        resultSet.getInt("AccountID"),
+                        resultSet.getString("Username"),
+                        resultSet.getString("Password"),
+                        resultSet.getString("FullName"),
+                        resultSet.getString("Email"),
+                        resultSet.getString("Phone"),
+                        resultSet.getString("Address"),
+                        resultSet.getInt("RoleID"),
+                        resultSet.getInt("EmployeeID")
+                    );
+                }
+            }
         }
-
-        DBConnect.closeResultSet(rs);
         return null;
-    }
-
-    // Lấy tài khoản theo ID
-    public AccountDTO getAccountByID(int accountID) throws SQLException {
-        String sql = "SELECT * FROM Account WHERE AccountID = ? LIMIT 1";
-        ResultSet rs = DBConnect.executeQuery(sql, accountID);
-
-        if (rs.next()) {
-            AccountDTO account = new AccountDTO(
-                rs.getInt("AccountID"), rs.getString("Username"), rs.getString("Password"),
-                rs.getString("FullName"), rs.getString("Email"), rs.getString("Phone"),
-                rs.getString("Address"), rs.getInt("RoleID"), rs.getInt("EmployeeID"));
-            DBConnect.closeResultSet(rs);
-            return account;
-        }
-
-        DBConnect.closeResultSet(rs);
-        return null;
-    }
-
-    // Kiểm tra tài khoản đã tồn tại hay chưa
-    public boolean isAccountExist(String username) throws SQLException {
-        String sql = "SELECT 1 FROM Account WHERE Username = ? LIMIT 1";
-        ResultSet rs = DBConnect.executeQuery(sql, username);
-        boolean exists = rs.next();
-        DBConnect.closeResultSet(rs);
-        return exists;
     }
 }
