@@ -55,9 +55,8 @@ public class AuthBUS {
             throw new ShowException("Username already exists!");
         }
        
-        AccountDTO newAcc = new AccountDTO(999, username, password, null, null, null);
-
-        if(accountDAO.insertAccount(newAcc)){
+        AccountDTO newAcc = new AccountDTO(89, li, fwsed, w, fsfsfs, fadfsdfs, fsfsdfs, 540, 650);
+        if(accountDAO.addAccount(newAcc)){
             return true;
         }else{
             return false;
