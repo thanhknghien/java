@@ -9,12 +9,12 @@ public class AccountDTO {
     private String phone;
     private String address;
     private int roleId;
-    private int employeeId;
+    private Integer employeeId;
 
     public AccountDTO() {
     }
 
-    public AccountDTO(int accountId, String username, String password, String fullName, String email, String phone, String address, int roleId, int employeeId) {
+    public AccountDTO(int accountId, String username, String password, String fullName, String email, String phone, String address, int roleId, Integer employeeId) {
         this.accountId = accountId;
         this.username = username;
         this.password = password;
@@ -89,11 +89,11 @@ public class AccountDTO {
         this.roleId = roleId;
     }
 
-    public int getEmployeeId() {
+    public Integer getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setEmployeeId(Integer employeeId) {
         this.employeeId = employeeId;
     }
 
