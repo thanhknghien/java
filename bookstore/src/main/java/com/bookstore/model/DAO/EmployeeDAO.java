@@ -22,7 +22,7 @@ public class EmployeeDAO {
     public boolean addEmployee(EmployeeDTO employee) throws SQLException {
         String sql = "INSERT INTO Employee (Status) VALUES (?)";
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, employee.getStatus());
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
