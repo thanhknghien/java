@@ -4,7 +4,7 @@
  */
 package com.bookstore.view.panel;
 
-import com.bookstore.controller.AccountManagementController;
+//import com.bookstore.controller.AccountManagementController;
 import com.bookstore.model.DAO.AccountDAO;
 import com.bookstore.model.DTO.AccountDTO;
 import java.awt.BorderLayout;
@@ -56,25 +56,34 @@ public class AccountManagementPanel extends JFrame{
         setLayout(new BorderLayout()); 
 
         //Tao controller
-        AccountManagementController accountManagementController = new AccountManagementController(this);
+       // AccountManagementController accountManagementController = new AccountManagementController(this);
         
         JMenuBar jMenuBar = new JMenuBar();
         JButton addButton = new JButton(new ImageIcon("D:\\QLBH\\java\\bookstore\\src\\main\\java\\com\\bookstore\\resources\\icon\\Button-Add-icon-16x16.png"));
         JMenu filterButton = new JMenu("Filter ");        
         
+        //Tao "search"
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchField = new JTextField("Tìm kiếm",20);
+      //  searchField.addActionListener(accountManagementController);
+       // searchButton.addActionListener(accountManagementController);
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        //searchPanel.setVisible(false);
         
+        // Tao Button Filter
         JMenuItem customerFilter = new JMenuItem("customer");
-        customerFilter.addActionListener(accountManagementController);
+       // customerFilter.addActionListener(accountManagementController);
         JMenuItem employeeFilter = new JMenuItem("employee");
-        employeeFilter.addActionListener(accountManagementController);
+       // employeeFilter.addActionListener(accountManagementController);
         filterButton.add(customerFilter);
         filterButton.addSeparator();
         filterButton.add(employeeFilter);
         
         jMenuBar.add(addButton);
-        jMenuBar.add(Box.createHorizontalGlue());
         jMenuBar.add(filterButton);
-        jMenuBar.add(searchButton);
+        //jMenuBar.add(Box.createHorizontalGlue());
+        jMenuBar.add(searchPanel);
         
         
         add(jMenuBar, BorderLayout.NORTH);
@@ -132,7 +141,9 @@ public class AccountManagementPanel extends JFrame{
             return this;
         }
     }
-
+    //xử lý "Tìm kiếm"
+    
+    
     // Editor xử lý sự kiện khi nhấn nút
     private class ActionEditor extends AbstractCellEditor implements TableCellEditor {
         private final JPanel panel;
