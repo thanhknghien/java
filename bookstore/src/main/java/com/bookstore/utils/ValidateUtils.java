@@ -3,7 +3,8 @@ package com.bookstore.utils;
 import java.util.regex.Pattern;
 
 public class ValidateUtils {
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+    private static final String EMAIL_REGEX = "^(?!.*\\.\\.)[a-zA-Z0-9][a-zA-Z0-9._%+-]*[a-zA-Z0-9]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\r\n" + //
+                "";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     private static final String PHONE_REGEX = "^\\?[0-9]{7,10}$";

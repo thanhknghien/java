@@ -66,4 +66,10 @@ public class AuthBUS {
             return false;
         }
     }
+
+    public int getAccountByUsername(String username) throws SQLException, ShowException{
+        AccountDTO acc = new AccountDTO();
+        acc = accountDAO.getAccountByUsername(username);
+        return acc.getAccountId();
+    }
 }

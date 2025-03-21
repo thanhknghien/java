@@ -36,7 +36,7 @@ public class AccountDAO {
         }
         return false;
     }
-    public AccountDTO getAccountById(int accountId) throws SQLException {
+    public AccountDTO getAccountByID(int accountId) throws SQLException {
         String sql = "SELECT * FROM Account WHERE AccountID = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

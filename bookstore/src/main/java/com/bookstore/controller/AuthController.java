@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import com.bookstore.BUS.AuthBUS;
 import com.bookstore.utils.ShowException;
 import com.bookstore.view.main.Login;
+import com.bookstore.view.main.MainFrame;
 
 public class AuthController {
     private AuthBUS bus;
@@ -20,6 +21,8 @@ public class AuthController {
         try {
             if(bus.login(username, password)){
                 JOptionPane.showMessageDialog(view, "Login Successful");
+                int accountID = bus.getAccountByUsername(username);
+                new MainFrame(accountID).setVisible(true);
             }
         } catch (ShowException e) {
             JOptionPane.showMessageDialog(view, e.getMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
