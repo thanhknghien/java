@@ -46,7 +46,6 @@ CREATE TABLE products (
     name VARCHAR(100) NOT NULL,
     author VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    stock INT NOT NULL,
     category VARCHAR(50) NOT NULL
 );
 
@@ -111,9 +110,9 @@ INSERT INTO users (username, password, role_id) VALUES
 ('admin', 'password3', 3);
 
 -- Thêm sản phẩm
-INSERT INTO products (name, price, stock, category) VALUES 
-('Sản phẩm A', 10000, 50, 'Thực phẩm'),
-('Sản phẩm B', 20000, 30, 'Đồ uống');
+INSERT INTO products (name, price, category) VALUES 
+('Sản phẩm A', 10000, 'Thực phẩm'),
+('Sản phẩm B', 20000, 'Đồ uống');
 
 -- Thêm khách hàng
 INSERT INTO customers (name, phone, points) VALUES 
