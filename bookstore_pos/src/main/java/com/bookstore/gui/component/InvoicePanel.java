@@ -14,13 +14,13 @@ public class InvoicePanel extends JPanel {
 
     public InvoicePanel(String customerName, List<OrderDetail> orderDetails, List<Product> products) {
         setLayout(new BorderLayout());
-        setBackground(ColorScheme.BACKGROUND_MAIN); // Trắng kem
+        setBackground(ColorScheme.BACKGROUND_MAIN); // Light Gray
 
         invoiceText = new JTextArea();
         invoiceText.setEditable(false);
-        invoiceText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        invoiceText.setForeground(ColorScheme.TEXT_PRIMARY); // Đen nhạt
-        invoiceText.setBackground(ColorScheme.SURFACE); // Trắng
+        invoiceText.setFont(new Font("Roboto", Font.PLAIN, 14));
+        invoiceText.setForeground(ColorScheme.TEXT_PRIMARY); // Dark Gray
+        invoiceText.setBackground(ColorScheme.SURFACE); // White
         invoiceText.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(new JScrollPane(invoiceText), BorderLayout.CENTER);
 
