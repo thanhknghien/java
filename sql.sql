@@ -90,3 +90,74 @@ CREATE VIEW sales_report AS
 SELECT o.id AS order_id, o.date, u.username AS employee, o.total 
 FROM orders o 
 JOIN users u ON o.employee_id = u.id;
+
+-- Dữ liệu mẫu
+INSERT INTO roles (name) VALUES
+('Nhân viên'),
+('Quản lý'),
+('Admin');
+
+INSERT INTO permission_groups (name) VALUES
+('Quản lý Sản phẩm'),
+('Quản lý Đơn hàng'),
+('Quản lý Khách hàng'),
+('Quản lý Người dùng');
+
+INSERT INTO permissions (group_id, name) VALUES
+(1, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Sản phẩm
+(1, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Sản phẩm
+(2, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Đơn hàng
+(2, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Đơn hàng
+(3, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Khách hàng
+(3, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Khách hàng
+(4, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Người dùng
+(4, 'Chỉ xem');   -- Quyền chỉ xem cho Quản lý Người dùng
+
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+-- Nhân viên (role_id = 1)
+(1, 2), -- Chỉ xem Quản lý Sản phẩm
+(1, 4), -- Chỉ xem Quản lý Đơn hàng
+(1, 6), -- Chỉ xem Quản lý Khách hàng
+-- Quản lý (role_id = 2)
+(2, 1), -- Chỉnh sửa Quản lý Sản phẩm
+(2, 3), -- Chỉnh sửa Quản lý Đơn hàng
+(2, 5), -- Chỉnh sửa Quản lý Khách hàng
+(2, 8), -- Chỉ xem Quản lý Người dùng
+-- Admin (role_id = 3)
+(3, 1), -- Chỉnh sửa Quản lý Sản phẩm
+(3, 3), -- Chỉnh sửa Quản lý Đơn hàng
+(3, 5), -- Chỉnh sửa Quản lý Khách hàng
+(3, 7); -- Chỉnh sửa Quản lý Người dùng
+
+INSERT INTO users (username, password, role_id, status) VALUES
+('employee1', 'emp123', 1, 'Active'),
+('manager1', 'mgr123', 2, 'Active'),
+('admin1', 'adm123', 3, 'Active');
+
+INSERT INTO category (categoryid, name) VALUES
+(1, 'Sách Văn học'),
+(2, 'Sách Khoa học'),
+(3, 'Sách Thiếu nhi');
+INSERT INTO products (name, author, price, categoryid) VALUES
+('Nhà giả kim', 'Paulo Coelho', 120000, 1),
+('Đắc nhân tâm', 'Dale Carnegie', 150000, 1),
+('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2),
+('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2),
+('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3);
+INSERT INTO customers (name, phone, points) VALUES
+('Nguyễn Văn A', '0905123456', 50),
+('Trần Thị B', '0915123456', 30),
+('Lê Văn C', '0925123456', 20);
+INSERT INTO orders (date, customer_id, employee_id, total) VALUES
+('2025-04-01 10:00:00', 1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
+('2025-04-02 14:30:00', 2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
+('2025-04-03 09:15:00', 3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
+INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
+-- Đơn hàng 1
+(1, 1, 1, 120000), -- Nhà giả kim
+(1, 2, 1, 150000), -- Đắc nhân tâm
+-- Đơn hàng 2
+(2, 3, 1, 200000), -- Vũ trụ trong một hạt cát
+(2, 4, 1, 180000), -- Hành trình về phương Đông
+-- Đơn hàng 3
+(3, 5, 2, 80000);  -- Dế mèn phiêu lưu ký (2 cuốn)
