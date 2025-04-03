@@ -62,9 +62,11 @@ CREATE TABLE customers (
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    customer_id INT,
     employee_id INT,
     total DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (employee_id) REFERENCES users(id)
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 -- Bảng chi tiết đơn hàng
