@@ -51,6 +51,7 @@ CREATE TABLE products (
     author VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     categoryid INT NOT NULL,
+    imagePath VARCHAR(50),
     FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
 );
 
