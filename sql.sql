@@ -69,7 +69,7 @@ CREATE TABLE orders (
     customer_id INT,
     employee_id INT,
     total DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES users(id)
+    FOREIGN KEY (employee_id) REFERENCES users(id),
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
