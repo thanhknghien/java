@@ -39,16 +39,21 @@ CREATE TABLE users (
     role_id INT,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
-
+CREATE TABLE category(
+    categoryid INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
 -- Bảng sản phẩm
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     author VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    image VARCHAR(255) 
+    categoryid INT NOT NULL,
+    FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
+
 );
+
 
 -- Bảng khách hàng
 CREATE TABLE customers (
@@ -85,7 +90,10 @@ FROM orders o
 JOIN users u ON o.employee_id = u.id;
 
 -- Dữ liệu mẫu
-
+-- them danh muc
+INSERT INTO category(categoryid, name) VALUES
+(1, "Thực pphẩm"),
+(2, "Đồ uống");
 -- Thêm vai trò
 INSERT INTO roles (name) VALUES ('Nhân viên'), ('Quản lý'), ('Admin');
 
@@ -111,9 +119,9 @@ INSERT INTO users (username, password, role_id) VALUES
 ('admin', 'password3', 3);
 
 -- Thêm sản phẩm
-INSERT INTO products (name, price, category) VALUES 
-('Sản phẩm A', 10000, 'Thực phẩm'),
-('Sản phẩm B', 20000, 'Đồ uống');
+INSERT INTO products (name, price, categoryid) VALUES 
+('Sản phẩm A', 10000, 2),
+('Sản phẩm B', 20000, 1);
 
 -- Thêm khách hàng
 INSERT INTO customers (name, phone, points) VALUES 
