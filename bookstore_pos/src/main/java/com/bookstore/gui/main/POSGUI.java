@@ -34,6 +34,7 @@ public class POSGUI extends JFrame {
     // Right Panel 
     private TextField searchCustomerField;
     private Button addCustomerButton;
+    private JPanel selectedCustomerLabel;
     private CustomTable selectedProductsTable;
     private DefaultTableModel selectedProductsTableModel;
 
