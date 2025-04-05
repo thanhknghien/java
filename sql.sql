@@ -1,5 +1,5 @@
 -- Tạo database
-CREATE DATABASE pos_system;
+CREATE DATABASE IF NOT EXISTS pos_system;
 USE pos_system;
 
 -- Bảng vai trò (Roles)
@@ -37,13 +37,16 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role_id INT,
-    status VARCHAR(20),
+    status BOOLEAN DEFAULT true,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
-CREATE TABLE category(
-    categoryid INT PRIMARY KEY,
+
+-- Bảng danh mục sản phẩm
+CREATE TABLE category (
+    categoryid INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
+
 -- Bảng sản phẩm
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -51,7 +54,7 @@ CREATE TABLE products (
     author VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     categoryid INT NOT NULL,
-    imagePath VARCHAR(50),
+    imagePath VARCHAR(255),
     FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
 );
 
@@ -85,13 +88,20 @@ CREATE TABLE order_details (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- Bảng báo cáo doanh thu (tùy chọn)
-CREATE VIEW sales_report AS
-SELECT o.id AS order_id, o.date, u.username AS employee, o.total 
-FROM orders o 
-JOIN users u ON o.employee_id = u.id;
+-- Xóa dữ liệu cũ nếu có
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE role_permissions;
+TRUNCATE TABLE permissions;
+TRUNCATE TABLE permission_groups;
+TRUNCATE TABLE order_details;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE products;
+TRUNCATE TABLE category;
+TRUNCATE TABLE users;
+TRUNCATE TABLE roles;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- Dữ liệu mẫu
+-- Thêm dữ liệu mẫu
 INSERT INTO roles (name) VALUES
 ('Nhân viên'),
 ('Quản lý'),
@@ -130,28 +140,32 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 (3, 7); -- Chỉnh sửa Quản lý Người dùng
 
 INSERT INTO users (username, password, role_id, status) VALUES
-('employee1', 'emp123', 1, 'Active'),
-('manager1', 'mgr123', 2, 'Active'),
-('admin1', 'adm123', 3, 'Active');
+('employee1', 'emp123', 1, true),
+('manager1', 'mgr123', 2, true),
+('admin1', 'adm123', 3, true);
 
-INSERT INTO category (categoryid, name) VALUES
-(1, 'Sách Văn học'),
-(2, 'Sách Khoa học'),
-(3, 'Sách Thiếu nhi');
+INSERT INTO category (name) VALUES
+('Sách Văn học'),
+('Sách Khoa học'),
+('Sách Thiếu nhi');
+
 INSERT INTO products (name, author, price, categoryid) VALUES
 ('Nhà giả kim', 'Paulo Coelho', 120000, 1),
 ('Đắc nhân tâm', 'Dale Carnegie', 150000, 1),
 ('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2),
 ('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2),
 ('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3);
+
 INSERT INTO customers (name, phone, points) VALUES
 ('Nguyễn Văn A', '0905123456', 50),
 ('Trần Thị B', '0915123456', 30),
 ('Lê Văn C', '0925123456', 20);
-INSERT INTO orders (date, customer_id, employee_id, total) VALUES
-('2025-04-01 10:00:00', 1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
-('2025-04-02 14:30:00', 2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
-('2025-04-03 09:15:00', 3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
+
+INSERT INTO orders (customer_id, employee_id, total) VALUES
+(1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
+(2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
+(3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
+
 INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
 -- Đơn hàng 1
 (1, 1, 1, 120000), -- Nhà giả kim
