@@ -40,6 +40,11 @@
             <version>7.2.5</version>
             <type>pom</type>
         </dependency>
+        <dependency>
+        <groupId>com.itextpdf</groupId>
+        <artifactId>html2pdf</artifactId>
+        <version>4.0.5</version>
+    </dependency>
 
         <!-- JFreeChart for charts (báo cáo biểu đồ) -->
         <dependency>

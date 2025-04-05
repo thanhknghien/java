@@ -55,7 +55,7 @@ public class ProductCard extends JPanel {
     }
 
     private void loadProductImage() {
-        String imagePath = product.getImage();
+        String imagePath = product.getImagePath();
         ImageIcon imageIcon;
 
         if (imagePath != null && !imagePath.isEmpty() && new File(imagePath).exists()) {
