@@ -1,5 +1,5 @@
 package com.bookstore.BUS;
 
-public class ProductService {
+public class ProductBUS {
 
 }
