@@ -77,4 +77,20 @@ public class RoleDAO {
         }
         return roles;
     }
+
+    // Lấy thông tin vai trò theo ID
+    public Role getRoleById(int id) throws SQLException {
+        String query = "SELECT * FROM roles WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Role role = new Role();
+                role.setId(rs.getInt("id"));
+                role.setName(rs.getString("name"));
+                return role;
+            }
+        }
+        return null;
+    }
 }
