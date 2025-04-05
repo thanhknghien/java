@@ -30,7 +30,8 @@ public class ProductDAO {
                 product.setPrice(rs.getDouble("price"));
                 product.setStock(rs.getInt("stock"));
                 product.setCategory(rs.getString("category"));
-                product.setAuthor(rs.getString("author"));
+                product.setAuthor(rs.getString("author"));  
+                product.setImage(rs.getString("image"));
                 products.add(product);
             }
         }
@@ -39,27 +40,29 @@ public class ProductDAO {
 
     // Thêm sách
     public void addProduct(Product product) throws SQLException {
-        String query = "INSERT INTO products (name, price, stock, category, author) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO products (name, price, stock, category, author, image) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, product.getName());
             stmt.setDouble(2, product.getPrice());
             stmt.setInt(3, product.getStock());
             stmt.setString(4, product.getCategory());
             stmt.setString(5, product.getAuthor());
+            stmt.setString(6, product.getImage());
             stmt.executeUpdate();
         }
     }
 
     // Sửa sách
     public void updateProduct(Product product) throws SQLException {
-        String query = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, author = ? WHERE id = ?";
+        String query = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, author = ?, image = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, product.getName());
             stmt.setDouble(2, product.getPrice());
             stmt.setInt(3, product.getStock());
             stmt.setString(4, product.getCategory());
             stmt.setString(5, product.getAuthor());
-            stmt.setInt(6, product.getId());
+            stmt.setString(6, product.getImage());
+            stmt.setInt(7, product.getId());
             stmt.executeUpdate();
         }
     }
@@ -89,6 +92,7 @@ public class ProductDAO {
                 product.setStock(rs.getInt("stock"));
                 product.setCategory(rs.getString("category"));
                 product.setAuthor(rs.getString("author"));
+                product.setImage(rs.getString("image"));
                 products.add(product);
             }
         }

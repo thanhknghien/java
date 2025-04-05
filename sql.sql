@@ -1,5 +1,5 @@
 -- Tạo database
-CREATE DATABASE pos_system;
+CREATE DATABASE IF NOT EXISTS pos_system;
 USE pos_system;
 
 -- Bảng vai trò (Roles)
@@ -18,7 +18,7 @@ CREATE TABLE permission_groups (
 CREATE TABLE permissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     group_id INT,
-    name ENUM('Thêm', 'Sửa', 'Xóa', 'Tìm kiếm') NOT NULL,
+    name ENUM('Chỉnh sửa', 'Chỉ xem') NOT NULL,
     FOREIGN KEY (group_id) REFERENCES permission_groups(id) ON DELETE CASCADE
 );
 
@@ -37,7 +37,14 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role_id INT,
+    status BOOLEAN DEFAULT true,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
+);
+
+-- Bảng danh mục sản phẩm
+CREATE TABLE category (
+    categoryid INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
 );
 
 -- Bảng sản phẩm
@@ -46,8 +53,9 @@ CREATE TABLE products (
     name VARCHAR(100) NOT NULL,
     author VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    stock INT NOT NULL,
-    category VARCHAR(50) NOT NULL
+    categoryid INT NOT NULL,
+    imagePath VARCHAR(255),
+    FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
 );
 
 -- Bảng khách hàng
@@ -62,9 +70,11 @@ CREATE TABLE customers (
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    customer_id INT,
     employee_id INT,
     total DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES users(id)
+    FOREIGN KEY (employee_id) REFERENCES users(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 -- Bảng chi tiết đơn hàng
@@ -78,53 +88,90 @@ CREATE TABLE order_details (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- Bảng báo cáo doanh thu (tùy chọn)
-CREATE VIEW sales_report AS
-SELECT o.id AS order_id, o.date, u.username AS employee, o.total 
-FROM orders o 
-JOIN users u ON o.employee_id = u.id;
+-- Xóa dữ liệu cũ nếu có
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE role_permissions;
+TRUNCATE TABLE permissions;
+TRUNCATE TABLE permission_groups;
+TRUNCATE TABLE order_details;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE products;
+TRUNCATE TABLE category;
+TRUNCATE TABLE users;
+TRUNCATE TABLE roles;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- Dữ liệu mẫu
+-- Thêm dữ liệu mẫu
+INSERT INTO roles (name) VALUES
+('Nhân viên'),
+('Quản lý'),
+('Admin');
 
--- Thêm vai trò
-INSERT INTO roles (name) VALUES ('Nhân viên'), ('Quản lý'), ('Admin');
+INSERT INTO permission_groups (name) VALUES
+('Quản lý Sản phẩm'),
+('Quản lý Đơn hàng'),
+('Quản lý Khách hàng'),
+('Quản lý Người dùng');
 
--- Thêm nhóm quyền
-INSERT INTO permission_groups (name) VALUES ('Quản lý Sản phẩm'), ('Quản lý Đơn hàng'), ('Quản lý Khách hàng');
+INSERT INTO permissions (group_id, name) VALUES
+(1, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Sản phẩm
+(1, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Sản phẩm
+(2, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Đơn hàng
+(2, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Đơn hàng
+(3, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Khách hàng
+(3, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Khách hàng
+(4, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Người dùng
+(4, 'Chỉ xem');   -- Quyền chỉ xem cho Quản lý Người dùng
 
--- Thêm quyền chi tiết
-INSERT INTO permissions (group_id, name) VALUES 
-(1, 'Thêm'), (1, 'Sửa'), (1, 'Xóa'), (1, 'Tìm kiếm'),
-(2, 'Thêm'), (2, 'Sửa'), (2, 'Xóa'), (2, 'Tìm kiếm'),
-(3, 'Thêm'), (3, 'Sửa'), (3, 'Xóa'), (3, 'Tìm kiếm');
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+-- Nhân viên (role_id = 1)
+(1, 2), -- Chỉ xem Quản lý Sản phẩm
+(1, 4), -- Chỉ xem Quản lý Đơn hàng
+(1, 6), -- Chỉ xem Quản lý Khách hàng
+-- Quản lý (role_id = 2)
+(2, 1), -- Chỉnh sửa Quản lý Sản phẩm
+(2, 3), -- Chỉnh sửa Quản lý Đơn hàng
+(2, 5), -- Chỉnh sửa Quản lý Khách hàng
+(2, 8), -- Chỉ xem Quản lý Người dùng
+-- Admin (role_id = 3)
+(3, 1), -- Chỉnh sửa Quản lý Sản phẩm
+(3, 3), -- Chỉnh sửa Quản lý Đơn hàng
+(3, 5), -- Chỉnh sửa Quản lý Khách hàng
+(3, 7); -- Chỉnh sửa Quản lý Người dùng
 
--- Gán quyền cho vai trò
-INSERT INTO role_permissions (role_id, permission_id) VALUES 
-(1, 1), (1, 2), (1, 4),
-(2, 1), (2, 2), (2, 3), (2, 4),
-(3, 1), (3, 2), (3, 3), (3, 4);
+INSERT INTO users (username, password, role_id, status) VALUES
+('employee1', 'emp123', 1, true),
+('manager1', 'mgr123', 2, true),
+('admin1', 'adm123', 3, true);
 
--- Thêm người dùng
-INSERT INTO users (username, password, role_id) VALUES 
-('nv001', 'password1', 1), 
-('ql001', 'password2', 2), 
-('admin', 'password3', 3);
+INSERT INTO category (name) VALUES
+('Sách Văn học'),
+('Sách Khoa học'),
+('Sách Thiếu nhi');
 
--- Thêm sản phẩm
-INSERT INTO products (name, price, stock, category) VALUES 
-('Sản phẩm A', 10000, 50, 'Thực phẩm'),
-('Sản phẩm B', 20000, 30, 'Đồ uống');
+INSERT INTO products (name, author, price, categoryid) VALUES
+('Nhà giả kim', 'Paulo Coelho', 120000, 1),
+('Đắc nhân tâm', 'Dale Carnegie', 150000, 1),
+('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2),
+('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2),
+('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3);
 
--- Thêm khách hàng
-INSERT INTO customers (name, phone, points) VALUES 
-('Nguyễn Văn A', '0909123456', 10),
-('Trần Thị B', '0988765432', 20);
+INSERT INTO customers (name, phone, points) VALUES
+('Nguyễn Văn A', '0905123456', 50),
+('Trần Thị B', '0915123456', 30),
+('Lê Văn C', '0925123456', 20);
 
--- Thêm đơn hàng
-INSERT INTO orders (employee_id, total) VALUES 
-(1, 30000);
+INSERT INTO orders (customer_id, employee_id, total) VALUES
+(1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
+(2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
+(3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
 
--- Thêm chi tiết đơn hàng
-INSERT INTO order_details (order_id, product_id, quantity, price) VALUES 
-(1, 1, 2, 20000),
-(1, 2, 1, 10000);
+INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
+-- Đơn hàng 1
+(1, 1, 1, 120000), -- Nhà giả kim
+(1, 2, 1, 150000), -- Đắc nhân tâm
+-- Đơn hàng 2
+(2, 3, 1, 200000), -- Vũ trụ trong một hạt cát
+(2, 4, 1, 180000), -- Hành trình về phương Đông
+-- Đơn hàng 3
+(3, 5, 2, 80000);  -- Dế mèn phiêu lưu ký (2 cuốn)
