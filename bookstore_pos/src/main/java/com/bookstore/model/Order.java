@@ -5,46 +5,56 @@ import java.time.LocalDateTime;
 public class Order {
     private int id;
     private LocalDateTime date;
-    private Integer customerId;
-    private Integer employeeId; // Có thể null nếu nhân viên bị xóa
+    private Customer customer;
+    private User employee;
     private double total;
 
-    public Order(int id, LocalDateTime date, Integer customerId, Integer employeeId, double total) {
-        this.id = id;
-        this.date = date;
-        this.customerId = customerId;
-        this.employeeId = employeeId;
-        this.total = total;
-    }
-    public Order() {
-    }
+    // Constructor
+    public Order() {}
+
+    // Getters và Setters
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public LocalDateTime getDate() {
         return date;
     }
+
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
-    public Integer getCustomerId() {
-        return customerId;
+
+    public Customer getCustomer() {
+        return customer;
     }
-    public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
+
+    @Override
+    public String toString() {
+        return "Order [id=" + id + ", date=" + date + ", customer=" + customer + ", employee=" + employee + ", total="
+                + total + "]";
     }
-    public Integer getEmployeeId() {
-        return employeeId;
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
+
+    public User getEmployee() {
+        return employee;
     }
+
+    public void setEmployee(User employee) {
+        this.employee = employee;
+    }
+
     public double getTotal() {
         return total;
     }
+
     public void setTotal(double total) {
         this.total = total;
     }
