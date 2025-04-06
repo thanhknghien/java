@@ -72,17 +72,18 @@ public class OrderBUS {
         }
     }
 
+    // Get All Order
     public ArrayList<Order> getAllOrders() throws SQLException {
         return orderDAO.getAllOrders();
     }
 
+    // Search Order
     public ArrayList<Order> searchOrders(Map<String, String> criteria) throws SQLException {
         return orderDAO.searchOrders(criteria);
     }
 
-    // In hóa đơn dưới dạng PDF từ file HTML
+    // Print PDF
     public void printReceipt(int orderId, String templatePath, String outputPath, double moneyReceived) throws Exception {
-        // Lấy thông tin đơn hàng
         Map<String, String> criteria = new HashMap<>();
         criteria.put("id", String.valueOf(orderId));
         ArrayList<Order> orders = searchOrders(criteria);
@@ -93,16 +94,13 @@ public class OrderBUS {
         Order order = orders.get(0);
         ArrayList<OrderDetail> details = orderDetailDAO.getOrderDetailsByOrderId(orderId);
 
-        // Tính toán tiền thừa
         double moneyBack = moneyReceived - order.getTotal();
         if (moneyBack < 0) {
             throw new Exception("Số tiền khách đưa không đủ để thanh toán!");
         }
 
-        // Đọc nội dung từ file HTML
         String htmlContent = HtmlTemplateUtil.readHtmlTemplate(templatePath);
 
-        // Tạo Map chứa các placeholder và giá trị thay thế
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("orderId", String.valueOf(order.getId()));
         placeholders.put("orderDate", order.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
@@ -110,7 +108,6 @@ public class OrderBUS {
         placeholders.put("customerPhone", order.getCustomer() != null ? order.getCustomer().getPhone() : "N/A");
         placeholders.put("employeeName", order.getEmployee().getUsername());
 
-        // Tạo HTML cho danh sách sản phẩm
         StringBuilder itemsHtml = new StringBuilder();
         for (OrderDetail detail : details) {
             double itemTotal = detail.getQuantity() * detail.getPrice();
@@ -123,7 +120,6 @@ public class OrderBUS {
         }
         placeholders.put("items", itemsHtml.toString());
 
-        // Thay thế các giá trị tiền
         placeholders.put("totalAmount", String.format("%,.0f", order.getTotal()));
         placeholders.put("moneyReceived", String.format("%,.0f", moneyReceived));
         placeholders.put("moneyBack", String.format("%,.0f", moneyBack));
@@ -131,7 +127,6 @@ public class OrderBUS {
         // Thay thế các placeholder trong HTML
         String finalHtml = HtmlTemplateUtil.replacePlaceholders(htmlContent, placeholders);
 
-        // Chuyển đổi HTML thành PDF
         HtmlConverter.convertToPdf(finalHtml, new FileOutputStream(outputPath));
         System.out.println("Hóa đơn đã được tạo tại: " + outputPath);
     }
@@ -154,9 +149,7 @@ public class OrderBUS {
         // for( Order l : list2){
         //     System.out.println(l.getId());
         // }
-        bus.printReceipt(1, "/templates/order.html", "/test-printPDF", 1000000);
+        bus.printReceipt(4, "templates/order.html", "test-printPDF.pdf", 1000000);
 
     }
-
-
 }
