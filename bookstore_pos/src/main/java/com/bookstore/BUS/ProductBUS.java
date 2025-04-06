@@ -2,6 +2,7 @@ package com.bookstore.BUS;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.bookstore.dao.ProductDAO;
@@ -23,6 +24,14 @@ public class ProductBUS {
     }
 
     public ArrayList<Product> searchProducts(Map<String, String> criteria) throws SQLException{
+        return productDAO.searchProducts(criteria);
+    }
+
+    // Filter Products By Range of Price
+    public ArrayList<Product> getProductByRanggeOfPrice(String min, String max) throws SQLException{
+        Map<String, String> criteria = new HashMap<>();
+        criteria.put("price_min", min);
+        criteria.put("price_max", max);
         return productDAO.searchProducts(criteria);
     }
 }

@@ -25,12 +25,21 @@ public class POSBUS {
         }
     }
 
+    // loading Product By Category
+    public ArrayList<Product> loadingProducts(Map<String, ArrayList<Product>> filterProducts, String categoryName){
+        ArrayList<Product> products = filterProducts.get(categoryName);
+        return products;
+    }
+
     // Filter Product By Name
-    public ArrayList<Product> geProductByName(String productName) throws SQLException{
+    public ArrayList<Product> getProductByName(String productName) throws SQLException{
         Map<String, String> criteria = new HashMap<>();
         criteria.put("name", productName);
         return productBUS.searchProducts(criteria);
     }
 
-    // 
+    
+
+
+    
 }

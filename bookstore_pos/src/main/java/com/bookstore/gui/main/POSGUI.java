@@ -15,13 +15,13 @@ import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class POSGUI extends JFrame {
     // Biến dữ liệu tạm thời
-    private List<OrderDetail> selectedProducts;
+    private ArrayList<OrderDetail> selectedProducts;
     private Customer selectedCustomer;
-    private List<Product> allProducts;
+    private Map<String, ArrayList<Product>> productFilterByCategory;
 
     // Left Panel
     private CategoryList categoryList;
