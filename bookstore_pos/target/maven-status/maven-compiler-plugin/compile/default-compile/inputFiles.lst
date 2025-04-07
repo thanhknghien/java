@@ -1,12 +1,14 @@
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\CategoryBUS.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\LoginBUS.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\OrderBUS.java
+D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\POSBUS.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\ProductBUS.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\BUS\UserManagementBUS.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\config\DataBaseConfig.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\controller\CategoryController.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\controller\LoginController.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\controller\OrderController.java
+D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\controller\POSController.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\controller\UserManagementController.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\dao\CategoryDAO.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\dao\CustomerDAO.java
@@ -33,6 +35,7 @@ D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\main\POSGUI.ja
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\panel\CategoryPanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\panel\LoginPanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\panel\OrderManagementPanel.java
+D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\panel\ProductPanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\panel\UserManagementPanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\util\ColorScheme.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\util\FrameUtils.java

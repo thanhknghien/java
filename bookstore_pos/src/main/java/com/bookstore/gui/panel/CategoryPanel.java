@@ -7,7 +7,6 @@ import com.bookstore.controller.CategoryController;
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.CustomTable;
-import com.bookstore.gui.util.FrameUtils;
 import com.bookstore.gui.util.ColorScheme;
 
 import javax.swing.*;
@@ -72,7 +71,7 @@ public class CategoryPanel extends JPanel {
         rightPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Thanh chức năng"));
         Dimension buttonSize = new Dimension(150, 30);
         GridBagConstraints gbcR = new GridBagConstraints();
-        gbcR.insets = new Insets(10, 20, 5, 0);
+        gbcR.insets = new Insets(10, 20, 5, 5);
         gbcR.gridx = 0;
         gbcR.gridy = 0;
         gbcR.fill = GridBagConstraints.HORIZONTAL;

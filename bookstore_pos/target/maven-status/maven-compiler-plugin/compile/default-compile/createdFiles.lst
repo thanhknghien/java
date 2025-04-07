@@ -26,6 +26,7 @@ com\bookstore\gui\panel\UserManagementPanel.class
 com\bookstore\util\NumberUtil.class
 com\bookstore\controller\LoginController.class
 com\bookstore\gui\component\Button$1.class
+com\bookstore\gui\panel\ProductPanel$1.class
 com\bookstore\gui\component\CustomLabel.class
 com\bookstore\gui\component\ProductCard.class
 com\bookstore\util\TableUtil.class
@@ -58,6 +59,7 @@ com\bookstore\gui\component\Button.class
 com\bookstore\BUS\LoginBUS.class
 com\bookstore\gui\component\CategoryList.class
 com\bookstore\gui\main\POSGUI$ButtonEditor.class
+com\bookstore\gui\panel\ProductPanel.class
 com\bookstore\controller\UserManagementController$4.class
 com\bookstore\gui\component\Password.class
 com\bookstore\model\OrderDetail.class
