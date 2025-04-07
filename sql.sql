@@ -11,7 +11,7 @@ CREATE TABLE roles (
 -- Bảng nhóm quyền (Permission Groups)
 CREATE TABLE permission_groups (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL -- (Quản lý Sản phẩm, Quản lý Đơn hàng, ...)
+    name VARCHAR(50) UNIQUE NOT NULL -- (Quản lý Sản phẩm, Quản lý Đơn hàng, Quản lý Hóa đơn, ...)
 );
 
 -- Bảng quyền chi tiết (Permissions)
@@ -22,15 +22,6 @@ CREATE TABLE permissions (
     FOREIGN KEY (group_id) REFERENCES permission_groups(id) ON DELETE CASCADE
 );
 
--- Bảng ánh xạ quyền cho từng vai trò (Role-Permissions)
-CREATE TABLE role_permissions (
-    role_id INT,
-    permission_id INT,
-    PRIMARY KEY (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
-);
-
 -- Bảng người dùng (Users)
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -39,6 +30,15 @@ CREATE TABLE users (
     role_id INT,
     status BOOLEAN DEFAULT true,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
+);
+
+-- Bảng ánh xạ quyền cho từng user (User-Permissions)
+CREATE TABLE user_permissions (
+    user_id INT,
+    permission_id INT,
+    PRIMARY KEY (user_id, permission_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
 );
 
 -- Bảng danh mục sản phẩm
@@ -102,47 +102,33 @@ TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Thêm dữ liệu mẫu
-INSERT INTO roles (name) VALUES
+-- Thêm vai trò
+INSERT INTO roles (name) VALUES 
 ('Nhân viên'),
 ('Quản lý'),
 ('Admin');
 
-INSERT INTO permission_groups (name) VALUES
+-- Thêm nhóm quyền
+INSERT INTO permission_groups (name) VALUES 
 ('Quản lý Sản phẩm'),
 ('Quản lý Đơn hàng'),
-('Quản lý Khách hàng'),
-('Quản lý Người dùng');
+('Quản lý Hóa đơn');
 
-INSERT INTO permissions (group_id, name) VALUES
-(1, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Sản phẩm
-(1, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Sản phẩm
-(2, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Đơn hàng
-(2, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Đơn hàng
-(3, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Khách hàng
-(3, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Khách hàng
-(4, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Người dùng
-(4, 'Chỉ xem');   -- Quyền chỉ xem cho Quản lý Người dùng
+-- Thêm quyền chi tiết
+INSERT INTO permissions (group_id, name) VALUES 
+(1, 'Chỉnh sửa'), -- Quản lý Sản phẩm - Chỉnh sửa
+(1, 'Chỉ xem'),   -- Quản lý Sản phẩm - Chỉ xem
+(2, 'Chỉnh sửa'), -- Quản lý Đơn hàng - Chỉnh sửa
+(2, 'Chỉ xem'),   -- Quản lý Đơn hàng - Chỉ xem
+(3, 'Chỉnh sửa'), -- Quản lý Hóa đơn - Chỉnh sửa
+(3, 'Chỉ xem');   -- Quản lý Hóa đơn - Chỉ xem
 
-INSERT INTO role_permissions (role_id, permission_id) VALUES
--- Nhân viên (role_id = 1)
-(1, 2), -- Chỉ xem Quản lý Sản phẩm
-(1, 4), -- Chỉ xem Quản lý Đơn hàng
-(1, 6), -- Chỉ xem Quản lý Khách hàng
--- Quản lý (role_id = 2)
-(2, 1), -- Chỉnh sửa Quản lý Sản phẩm
-(2, 3), -- Chỉnh sửa Quản lý Đơn hàng
-(2, 5), -- Chỉnh sửa Quản lý Khách hàng
-(2, 8), -- Chỉ xem Quản lý Người dùng
--- Admin (role_id = 3)
-(3, 1), -- Chỉnh sửa Quản lý Sản phẩm
-(3, 3), -- Chỉnh sửa Quản lý Đơn hàng
-(3, 5), -- Chỉnh sửa Quản lý Khách hàng
-(3, 7); -- Chỉnh sửa Quản lý Người dùng
+-- Thêm user hiện có: nhanvien1 (Nhân viên, quyền Chỉ xem Quản lý Sản phẩm)
+INSERT INTO users (username, password, role_id, status) 
+VALUES ('nhanvien1', 'hashed_password1', 1, true); -- role_id 1 là "Nhân viên"
 
-INSERT INTO users (username, password, role_id, status) VALUES
-('employee1', 'emp123', 1, true),
-('manager1', 'mgr123', 2, true),
-('admin1', 'adm123', 3, true);
+INSERT INTO user_permissions (user_id, permission_id) 
+VALUES (1, 2); -- user_id 1 là nhanvien1, permission_id 2 là "Chỉ xem" Quản lý Sản phẩm
 
 INSERT INTO category (name) VALUES
 ('Sách Văn học'),

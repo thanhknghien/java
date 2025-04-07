@@ -15,13 +15,13 @@ import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class POSGUI extends JFrame {
     // Biến dữ liệu tạm thời
-    private List<OrderDetail> selectedProducts;
+    private ArrayList<OrderDetail> selectedProducts;
     private Customer selectedCustomer;
-    private List<Product> allProducts;
+    private Map<String, ArrayList<Product>> productFilterByCategory;
 
     // Left Panel
     private CategoryList categoryList;
@@ -133,6 +133,7 @@ public class POSGUI extends JFrame {
 
         String[] columns = {"Tên", "Số lượng", "Đơn giá", "Thành tiền", "Hành động"};
         selectedProductsTable = new CustomTable(columns);
+        selectedProductsTable.getTableHeader().setReorderingAllowed(false);
         selectedProductsTableModel = (DefaultTableModel) selectedProductsTable.getModel();
         selectedProductsTable.getColumn("Hành động").setCellRenderer(new ButtonRenderer());
         selectedProductsTable.getColumn("Hành động").setCellEditor(new ButtonEditor());
@@ -169,6 +170,9 @@ public class POSGUI extends JFrame {
         dispose();
     }
 
+    public void loadingData(){
+        
+    }
     
 
 

@@ -5,13 +5,14 @@ import com.bookstore.model.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProductDAO {
 
     // Lấy tất cả sản phẩm
-    public List<Product> getAllProducts() throws SQLException {
-        List<Product> products = new ArrayList<>();
+    public ArrayList<Product> getAllProducts() throws SQLException {
+        ArrayList<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products";
         try (Connection conn = DataBaseConfig.getConnection();
              Statement stmt = conn.createStatement();
@@ -103,4 +104,77 @@ public class ProductDAO {
             }
         }
     }
+
+    public Map<String, ArrayList<Product>> getAllProductsByCategory() throws SQLException {
+        Map<String, ArrayList<Product>> categoryProductMap = new HashMap<>();
+        String sql =  "SELECT p.id, p.name, p.author, p.price, p.categoryid, p.imagePath, c.name AS categoryName " +
+                "FROM products p " +
+                "JOIN category c ON p.categoryid = c.categoryid";
+        try (Connection conn = DataBaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    String categoryName = rs.getString("categoryName");
+                    Product product = new Product();
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setAuthor(rs.getString("author"));
+                    product.setPrice(rs.getDouble("price"));
+                    product.setCategoryId(rs.getInt("categoryid"));
+                    product.setImagePath(rs.getString("imagePath"));
+                    categoryProductMap.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(product);
+            }
+        }
+        return categoryProductMap;
+    }
+
+    // Search Product By Criteria
+    public ArrayList<Product> searchProducts(Map<String, String> criteria) throws SQLException {
+        ArrayList<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN category c ON p.categoryid = c.categoryid WHERE 1=1");
+        ArrayList<String> params = new ArrayList<>();
+    
+        if (criteria.containsKey("name")) {
+            sql.append(" AND p.name LIKE ?");
+            params.add("%" + criteria.get("name") + "%");
+        }
+        if (criteria.containsKey("author")) {
+            sql.append(" AND p.author LIKE ?");
+            params.add("%" + criteria.get("author") + "%");
+        }
+        if (criteria.containsKey("category_id")) {
+            sql.append(" AND p.categoryid = ?");
+            params.add(criteria.get("category_id"));
+        }
+        if (criteria.containsKey("price_min")) {
+            sql.append(" AND p.price >= ?");
+            params.add(criteria.get("price_min"));
+        }
+        if (criteria.containsKey("price_max")) {
+            sql.append(" AND p.price <= ?");
+            params.add(criteria.get("price_max"));
+        }
+    
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setString(i + 1, params.get(i));
+            }
+    
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Product product = new Product();
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setAuthor(rs.getString("author"));
+                    product.setPrice(rs.getDouble("price"));
+                    product.setCategoryId(rs.getInt("categoryid"));
+                    product.setImagePath(rs.getString("imagePath"));
+                    products.add(product);
+                }
+            }
+        }
+        return products;
+    }
+    
 }
