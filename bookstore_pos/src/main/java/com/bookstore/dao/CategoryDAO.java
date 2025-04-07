@@ -75,23 +75,23 @@ public class CategoryDAO {
         return null;
     }
     public boolean insertCategory(Category category) {
-        String query = "INSERT INTO Category (Name) VALUES (?)";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, category.getName());
-
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
+        String sql = "INSERT INTO Category (name) VALUES (?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, category.getName());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
-                    category.setCategoryID(rs.getInt(1)); // Gán ID mới cho đối tượng DTO
+                    int newId = rs.getInt(1); // Lấy ID mới từ DB
+                    category.setCategoryID(newId); // Cập nhật ID vào category
+                    return true;
                 }
-                return true;
             }
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
     public boolean updateCategory(Category category) {
         String query = "UPDATE Category SET name = ? WHERE CategoryID = ?";

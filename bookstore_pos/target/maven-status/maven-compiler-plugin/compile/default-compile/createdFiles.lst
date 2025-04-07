@@ -7,6 +7,7 @@ com\bookstore\dao\OrderDAO.class
 com\bookstore\BUS\OrderBUS.class
 com\bookstore\gui\util\ColorScheme.class
 com\bookstore\gui\component\ProductCard$1.class
+com\bookstore\BUS\CategoryBUS.class
 com\bookstore\model\Permission.class
 com\bookstore\gui\component\TextField.class
 com\bookstore\controller\UserManagementController$2.class
@@ -44,6 +45,7 @@ com\bookstore\config\DataBaseConfig.class
 com\bookstore\controller\UserManagementController$7.class
 com\bookstore\gui\component\TextField$1.class
 com\bookstore\BUS\UserManagementBUS.class
+com\bookstore\controller\CategoryController.class
 com\bookstore\BUS\ProductBUS.class
 com\bookstore\gui\component\InvoicePanel.class
 com\bookstore\model\Order.class
