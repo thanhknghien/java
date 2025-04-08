@@ -27,6 +27,24 @@ public class CategoryBUS {
         return categoryDAO.deleteCategory(categoryID);
     }
     
+    public boolean updateCategory(Category category){
+        return categoryDAO.updateCategory(category);
+    }
+    
+    public Category getCategoryById(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID danh mục phải lớn hơn 0!");
+        }
+        return categoryDAO.getCategoryById(id);
+    }
+    
+    public List<Category> searchCategoriesByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên danh mục không được để trống!");
+        }
+        return categoryDAO.getCategoriesByName(name.trim());
+    }
+    
     public List<Category> getAllCategories() {
         return categoryDAO.getAllCategories();
     }

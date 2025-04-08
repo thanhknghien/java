@@ -208,6 +208,10 @@ public class ProductPanel extends JPanel {
         centerPanel.add(productsScrollPane, BorderLayout.CENTER);
         this.add(centerPanel, BorderLayout.CENTER);
     }
+    
+    public void getAllProducts(){
+        
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

@@ -97,6 +97,7 @@ public class CategoryPanel extends JPanel {
         btnReset.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
+        btnReset.addActionListener(e -> loadCategoriesData());
 
         gbcR.insets = new Insets(10, 0, 5, 25);
         gbcR.gridx = 1;
@@ -105,6 +106,7 @@ public class CategoryPanel extends JPanel {
         btnUpdate.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
+        btnUpdate.addActionListener(e -> updateCategory());
 
         gbcR.insets = new Insets(10, 0, 5, 25);
         cboSearchType = new JComboBox<>(new String[]{"Tìm theo ID", "Tìm theo tên"});
@@ -116,6 +118,7 @@ public class CategoryPanel extends JPanel {
         btnClear.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnClear, false);
         rightPanel.add(btnClear, gbcR);
+        btnClear.addActionListener(e -> clearTextField());
 
         gbcR.gridx = 2;
         gbcR.gridy = 2;
@@ -136,6 +139,7 @@ public class CategoryPanel extends JPanel {
         btnSearch.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnSearch, false);
         rightPanel.add(btnSearch, gbcR);
+        btnSearch.addActionListener(e -> searchCategory());
 
         gbcR.gridx = 3;
         gbcR.gridy = 1;
@@ -238,6 +242,93 @@ public class CategoryPanel extends JPanel {
         }
     }
 
+    public void updateCategory() {
+        String idText = categoryID.getText().trim();
+        String categoryName = name.getText().trim();
+
+        // Kiểm tra nếu ID trống
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn danh mục để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Kiểm tra nếu tên danh mục trống
+        if (categoryName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên danh mục!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idText); // Chuyển ID từ String sang int
+            Category updatedCategory = new Category(id, categoryName); // Tạo đối tượng Category mới
+
+            // Gọi controller để cập nhật danh mục
+            boolean success = controller.updateCategory(updatedCategory);
+            if (success) {
+                // Làm mới bảng
+                loadCategoriesData();
+                // Xóa các ô nhập liệu sau khi cập nhật
+                categoryID.setText("");
+                name.setText("");
+                JOptionPane.showMessageDialog(this, "Cập nhật danh mục thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật danh mục!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void searchCategory(){
+        String searchText = searchCategory.getText().trim();
+        String searchType = (String) cboSearchType.getSelectedItem();
+
+        if (searchText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập thông tin để tìm kiếm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        categorysTableModel.setRowCount(0);
+
+        try {
+            List<Category> results;
+            if ("Tìm theo ID".equals(searchType)) {
+                int id = Integer.parseInt(searchText);
+                Category category = controller.getCategoryById(id);
+                if (category != null) {
+                    categorysTableModel.addRow(new Object[]{category.getCategoryID(), category.getName()});
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy danh mục với ID: " + searchText, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else if ("Tìm theo tên".equals(searchType)) {
+                results = controller.searchCategoriesByName(searchText);
+                if (results != null && !results.isEmpty()) {
+                    for (Category category : results) {
+                        categorysTableModel.addRow(new Object[]{category.getCategoryID(), category.getName()});
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy danh mục với tên: " + searchText, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+
+            if (categorysTableModel.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy kết quả nào!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID phải là một số hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi khi tìm kiếm: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void clearTextField(){
+        categoryID.setText("");
+        name.setText("");
+    }
     // Nếu muốn test lại bạn có thể dùng như sau:
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

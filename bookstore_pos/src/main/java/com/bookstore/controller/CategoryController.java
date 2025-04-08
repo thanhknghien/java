@@ -16,7 +16,7 @@ public class CategoryController {
         this.categoryBUS = new CategoryBUS();
     }
     
-    public boolean addCategory(Category category) { // Nhận Category thay vì String
+    public boolean addCategory(Category category) {
         try {
             return categoryBUS.addCategory(category);
         } catch (IllegalArgumentException e) {
@@ -26,6 +26,22 @@ public class CategoryController {
     
     public boolean deleteCategory(int categoryID){
         return categoryBUS.deleteCategory(categoryID);
+    }
+    
+    public boolean updateCategory(Category category){
+        return categoryBUS.updateCategory(category);
+    }
+    
+    public Category getCategoryById(int categoryID){
+        return categoryBUS.getCategoryById(categoryID);
+    }
+    
+    public List<Category> searchCategoriesByName(String name) {
+        try {
+            return categoryBUS.searchCategoriesByName(name);
+        } catch (IllegalArgumentException e) {
+            throw e; // Chuyển ngoại lệ lên giao diện để xử lý
+        }
     }
     
     public List<Category> getAllCategories() {
