@@ -99,4 +99,64 @@ public class PermissionDAO {
         }
         return permissions;
     }
+
+    // Hàm main để test
+    public static void main(String[] args) {
+        try {
+            PermissionDAO permissionDAO = new PermissionDAO();
+            
+            // Test thêm quyền
+            System.out.println("=== Test thêm quyền ===");
+            Permission newPermission = new Permission();
+            newPermission.setGroupId(1); // Giả sử có nhóm quyền với ID = 1
+            newPermission.setName("Thêm sản phẩm");
+            permissionDAO.addPermission(newPermission);
+            System.out.println("Đã thêm quyền: " + newPermission.getName());
+            
+            // Test lấy tất cả quyền
+            System.out.println("\n=== Test lấy tất cả quyền ===");
+            List<Permission> allPermissions = permissionDAO.getAllPermissions();
+            System.out.println("Danh sách tất cả quyền:");
+            for (Permission p : allPermissions) {
+                System.out.println("ID: " + p.getId() + ", Nhóm: " + p.getGroupId() + ", Tên: " + p.getName());
+            }
+            
+            // Test lấy quyền theo nhóm
+            System.out.println("\n=== Test lấy quyền theo nhóm ===");
+            List<Permission> groupPermissions = permissionDAO.getPermissionsByGroupId(1);
+            System.out.println("Danh sách quyền của nhóm 1:");
+            for (Permission p : groupPermissions) {
+                System.out.println("ID: " + p.getId() + ", Tên: " + p.getName());
+            }
+            
+            // Test tìm kiếm quyền
+            System.out.println("\n=== Test tìm kiếm quyền ===");
+            List<Permission> searchResults = permissionDAO.searchPermissions("sản phẩm");
+            System.out.println("Kết quả tìm kiếm quyền chứa 'sản phẩm':");
+            for (Permission p : searchResults) {
+                System.out.println("ID: " + p.getId() + ", Tên: " + p.getName());
+            }
+            
+            // Test sửa quyền
+            System.out.println("\n=== Test sửa quyền ===");
+            if (!searchResults.isEmpty()) {
+                Permission permissionToUpdate = searchResults.get(0);
+                permissionToUpdate.setName("Thêm/Sửa sản phẩm");
+                permissionDAO.updatePermission(permissionToUpdate);
+                System.out.println("Đã sửa quyền ID " + permissionToUpdate.getId() + " thành: " + permissionToUpdate.getName());
+            }
+            
+            // Test xóa quyền
+            System.out.println("\n=== Test xóa quyền ===");
+            if (!searchResults.isEmpty()) {
+                int permissionId = searchResults.get(0).getId();
+                permissionDAO.deletePermission(permissionId);
+                System.out.println("Đã xóa quyền ID: " + permissionId);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi test PermissionDAO: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
