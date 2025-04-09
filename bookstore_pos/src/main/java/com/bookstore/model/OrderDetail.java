@@ -58,4 +58,13 @@ public class OrderDetail {
     public void setPrice(double price) {
         this.price = price;
     }
+    public double getSubtotal() {
+        return price * quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderDetail [id=" + id + ", orderId=" + orderId + ", product=" + product + ", quantity=" + quantity
+                + ", price=" + price + "]";
+    }
 }

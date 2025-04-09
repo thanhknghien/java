@@ -1,9 +1,11 @@
 package com.bookstore.gui.main;
 
+import com.bookstore.controller.POSController;
 import com.bookstore.gui.component.*;
 import com.bookstore.gui.util.ColorScheme;
 import com.bookstore.gui.util.FrameUtils;
 import com.bookstore.model.Customer;
+import com.bookstore.model.Order;
 import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Product;
 import com.bookstore.gui.component.TextField;
@@ -14,12 +16,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class POSGUI extends JFrame {
     // Biến dữ liệu tạm thời
-    private ArrayList<OrderDetail> selectedProducts;
+    private POSController controller;
+    private Map<Integer, OrderDetail> cart;
+    private Order currentOrder;
+    private ArrayList<Customer> listCustomers;
     private Customer selectedCustomer;
     private Map<String, ArrayList<Product>> productFilterByCategory;
 
@@ -32,9 +41,8 @@ public class POSGUI extends JFrame {
     private ProductGridPanel productGridPanel;
 
     // Right Panel 
-    private TextField searchCustomerField;
+    private CustomComboBox<String> searchCustomerField;
     private Button addCustomerButton;
-    private JPanel selectedCustomerLabel;
     private CustomTable selectedProductsTable;
     private DefaultTableModel selectedProductsTableModel;
 
@@ -44,24 +52,25 @@ public class POSGUI extends JFrame {
     private Button checkoutButton;
 
 
-    public POSGUI() {
-        
+    public POSGUI() throws Exception {
+        initializeData();
         initializeUI();
         setVisible(true);
     }
 
     private void initializeUI() {
-        FrameUtils.setupFrame(this, "POS SYSTEM", 1200, 800);
+        FrameUtils.setupFrame(this, "POS SYSTEM", FrameUtils.screenWidth, FrameUtils.screenHeight);
 
         // Left Panel
         categoryListModel = new DefaultListModel<>();
+        displayCategory(productFilterByCategory);
         categoryList = new CategoryList(categoryListModel);
         categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         categoryList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedCategory = categoryList.getSelectedValue();
                 if (selectedCategory != null) {
-                    //onCategorySelected(selectedCategory);
+                    onCategorySelected(selectedCategory);
                 }
             }
         });
@@ -83,15 +92,9 @@ public class POSGUI extends JFrame {
        // searchProductField.addActionListener(e -> onSearchProduct());
         searchProductPanel.add(searchProductField, BorderLayout.CENTER);
 
-        Button searchProductButton = new Button("Tìm kiếm");
-        ColorScheme.styleButton(searchProductButton, false);
-        //searchProductButton.addActionListener(e -> onSearchProduct());
-        searchProductPanel.add(searchProductButton, BorderLayout.EAST);
-
         productMainPanel.add(searchProductPanel, BorderLayout.NORTH);
-
         productGridPanel = new ProductGridPanel();
-        //productGridPanel.setProductClickListener(this::onProductClicked);
+        displayProduct(productFilterByCategory, productFilterByCategory.keySet().iterator().next());
         productGridPanel.setBackground(ColorScheme.SURFACE);
         JScrollPane productScrollPane = new JScrollPane(productGridPanel);
         productScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
@@ -111,16 +114,12 @@ public class POSGUI extends JFrame {
         JPanel searchCustomerPanel = new JPanel(new BorderLayout());
         searchCustomerPanel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
 
-        searchCustomerField = new TextField();
+        searchCustomerField = new CustomComboBox();
         searchCustomerField.setPlaceholder("Tìm kiếm khách hàng...");
-        ColorScheme.styleTextField(searchCustomerField);
         //searchCustomerField.addActionListener(e -> onSearchCustomer());
         searchCustomerPanel.add(searchCustomerField, BorderLayout.CENTER);
 
-        Button searchCustomerButton = new Button("Tìm kiếm");
-        ColorScheme.styleButton(searchCustomerButton, false);
-        //searchCustomerButton.addActionListener(e -> onSearchCustomer());
-        searchCustomerPanel.add(searchCustomerButton, BorderLayout.EAST);
+        customerPanel.add(displayCustomerSelected(selectedCustomer), BorderLayout.SOUTH);
 
         customerPanel.add(searchCustomerPanel, BorderLayout.CENTER);
 
@@ -140,6 +139,7 @@ public class POSGUI extends JFrame {
         JScrollPane selectedProductsScrollPane = new JScrollPane(selectedProductsTable);
         selectedProductsScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
         rightPanel.add(selectedProductsScrollPane, BorderLayout.CENTER);
+        rightPanel.setPreferredSize(new Dimension((int)(FrameUtils.screenHeight - FrameUtils.screenWidth*0.25 ) ,0));
 
         add(rightPanel, BorderLayout.EAST);
 
@@ -165,17 +165,135 @@ public class POSGUI extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    private void initializeData() throws Exception{
+        this.controller = new POSController(this);
+        this.selectedCustomer = new Customer();
+        this.listCustomers = controller.loadingDataCustomers();
+        this.productFilterByCategory = controller.loadingDataProducts();
+        this.cart = new HashMap<>();
+    }
+
+    // Display when select category
+    private void displayCategory(Map<String, ArrayList<Product>> list){
+        categoryListModel.clear();
+        for(String key : list.keySet()){
+            categoryListModel.addElement(key);
+        }
+    }
+
+    // Display with category
+    private void displayProduct(Map<String, ArrayList<Product>> productFilterByCategory, String categoryName) {
+        if (!productFilterByCategory.containsKey(categoryName)) {
+            System.out.println("⚠ Không tìm thấy danh mục trong map!");
+            productGridPanel.add(new Label("Danh mục rỗng!"));
+        }
+    
+        ArrayList<Product> listProducts = productFilterByCategory.get(categoryName);
+        System.out.println("Số sản phẩm tìm được: " + (listProducts == null ? "null" : listProducts.size()));
+    
+        productGridPanel.removeAll();
+        if (listProducts != null) {
+            for (Product product : listProducts) {
+                ProductCard card = new ProductCard(product);
+                card.addAddToCartListener(e -> handleAddToCart(e)); 
+                productGridPanel.add(card);
+            }
+        }
+        productGridPanel.revalidate();
+        productGridPanel.repaint();
+    }
+    
+    // For filter product
+    private void displayProduct(ArrayList<Product> listProducts){
+        productGridPanel.removeAll();
+        if (listProducts != null) {
+            for (Product product : listProducts) {
+                productGridPanel.add(new ProductCard(product));
+            }
+        }else{
+            productGridPanel.add(new JLabel("Danh sách rỗng!"));
+        }
+        productGridPanel.revalidate();
+        productGridPanel.repaint();
+    }
+    
+    // Display Cart
+    private void displayCart(){
+        selectedProductsTableModel.setRowCount(0); 
+        for (OrderDetail detail : cart.values()) {
+            Product product = detail.getProduct();
+            int quantity = detail.getQuantity();
+            double price = detail.getPrice();
+            double total = quantity * price;
+
+            selectedProductsTableModel.addRow(new Object[]{
+                product.getName(),
+                quantity,
+                String.format("%.0f", price),
+                String.format("%.0f", total),
+                "Xóa" 
+            });
+        }
+        
+    }
+    
+    private void onCategorySelected(String selected){
+        displayProduct(productFilterByCategory, selected);
+    }
+
+    private void handleAddToCart(ActionEvent e){
+        ProductCard source = (ProductCard) e.getSource();
+        Product item = source.getProduct();
+        int productId = item.getId();
+        if (cart.containsKey(productId)) {
+            OrderDetail detail = cart.get(productId);
+            detail.setQuantity(detail.getQuantity() + 1);
+        } else {
+            OrderDetail newDetail = new OrderDetail(null, null, item, 1, item.getPrice());
+            cart.put(productId, newDetail);
+        }
+        displayCart();
+        onChangeCart();
+    } 
+
+    private void onChangeCart(){
+        totalBooksLabel.removeAll();
+        totalLabel.removeAll();
+        double total = 0.0;
+        int totalQuantity = 0;
+        for (Map.Entry<Integer, OrderDetail> entry : this.cart.entrySet()) {
+            total += entry.getValue().getSubtotal();
+            totalQuantity += entry.getValue().getQuantity();
+        }
+        totalLabel.setText("Tổng tiền: "+ total +" Đ");
+        totalBooksLabel.setText("Tổng sách: " + totalQuantity + " cuốn");
+    }
+
+    private JPanel displayCustomerSelected(Customer customer){
+        JPanel selectedCustomerLabel = new JPanel();
+        selectedCustomerLabel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
+        if(customer.getName() == null){
+            selectedCustomerLabel.add(new JLabel("Chưa có khách hàng được chọn !"));
+            return selectedCustomerLabel;
+        }else{
+            
+            CustomLabel nameCustomerSelectedLabel = new CustomLabel("Khách hàng: "+ customer.getName());
+            CustomLabel phoneCustomerSelectedLabel = new CustomLabel("SĐT: "+ customer.getPhone());
+            Button deleteSelectedCustomerBtn = new Button("X");
+            ColorScheme.styleButton(deleteSelectedCustomerBtn, true);
+        
+            selectedCustomerLabel.add(nameCustomerSelectedLabel);
+            selectedCustomerLabel.add(phoneCustomerSelectedLabel);
+            selectedCustomerLabel.add(deleteSelectedCustomerBtn);
+
+            return selectedCustomerLabel;
+        }
+    }
+
     // Exit POS
     public void exitFrame(){
         dispose();
     }
-
-    public void loadingData(){
-        
-    }
-    
-
-
     class ButtonRenderer extends JPanel implements TableCellRenderer {
         private Button increaseButton;
         private Button decreaseButton;
@@ -190,6 +308,7 @@ public class POSGUI extends JFrame {
             ColorScheme.styleButton(increaseButton, false);
             ColorScheme.styleButton(decreaseButton, false);
             ColorScheme.styleButton(removeButton, true);
+            
             add(increaseButton);
             add(decreaseButton);
             add(removeButton);
@@ -200,7 +319,6 @@ public class POSGUI extends JFrame {
             return this;
         }
     }
-
     class ButtonEditor extends DefaultCellEditor {
         private JPanel panel;
         private Button increaseButton;
@@ -222,6 +340,57 @@ public class POSGUI extends JFrame {
             panel.add(increaseButton);
             panel.add(decreaseButton);
             panel.add(removeButton);
+
+            // Handle "+"
+        increaseButton.addActionListener(e -> {
+            if (selectedProductsTable.getCellEditor() != null) {
+                selectedProductsTable.getCellEditor().stopCellEditing();
+            }
+            String productName = (String) selectedProductsTableModel.getValueAt(row, 0);
+            for (OrderDetail detail : cart.values()) {
+                if (detail.getProduct().getName().equals(productName)) {
+                    detail.setQuantity(detail.getQuantity() + 1);
+                    break;
+                }
+            }
+            displayCart();
+            onChangeCart();
+        });
+
+        // Handle "-"
+        decreaseButton.addActionListener(e -> {
+            if (selectedProductsTable.getCellEditor() != null) {
+                selectedProductsTable.getCellEditor().stopCellEditing();
+            }
+            String productName = (String) selectedProductsTableModel.getValueAt(row, 0);
+            Iterator<Map.Entry<Integer, OrderDetail>> iterator = cart.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Integer, OrderDetail> entry = iterator.next();
+                OrderDetail detail = entry.getValue();
+                if (detail.getProduct().getName().equals(productName)) {
+                    int newQty = detail.getQuantity() - 1;
+                    if (newQty <= 0) {
+                        iterator.remove();
+                    } else {
+                        detail.setQuantity(newQty);
+                    }
+                    break;
+                }
+            }
+            displayCart();
+            onChangeCart();
+        });
+
+        // Handle "Xóa"
+        removeButton.addActionListener(e -> {
+            if (selectedProductsTable.getCellEditor() != null) {
+                selectedProductsTable.getCellEditor().stopCellEditing();
+            }
+            String productName = (String) selectedProductsTableModel.getValueAt(row, 0);
+            cart.entrySet().removeIf(entry -> entry.getValue().getProduct().getName().equals(productName));
+            displayCart();
+            onChangeCart();
+        });
         }
 
         @Override
@@ -236,7 +405,7 @@ public class POSGUI extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         new POSGUI();
     }
 }

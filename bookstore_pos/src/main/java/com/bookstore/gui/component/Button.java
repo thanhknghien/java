@@ -18,7 +18,7 @@ public class Button extends JButton {
         setFocusPainted(false);
         setFont(new Font("Roboto", Font.BOLD, 14));
         ColorScheme.styleButton(this, false); // Áp dụng style mặc định
-
+        
         // Thêm hiệu ứng hover
         addMouseListener(new MouseAdapter() {
             @Override

@@ -2,74 +2,108 @@ package com.bookstore.gui.component;
 
 import com.bookstore.gui.util.ColorScheme;
 import com.bookstore.model.Product;
-import com.bookstore.util.NumberUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 
 public class ProductCard extends JPanel {
+    private JLabel lblName;
+    private JLabel lblPrice;
+    private JLabel lblAuthor;
+    private JLabel lblImage;
+    private Button btnAdd;
     private Product product;
-    private JLabel imageLabel;
+    private ArrayList<ActionListener> addToCartListeners = new ArrayList<>();
 
     public ProductCard(Product product) {
-        this.product = product;
+        this.product = product; // Gán product để sử dụng sau này
         setLayout(new BorderLayout(5, 5));
-        setBackground(ColorScheme.SURFACE); // Màu nền trắng
-        setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER)); // Viền xám trung
-        setPreferredSize(new Dimension(120, 150)); // Tăng chiều cao để chứa ảnh
-
+        setPreferredSize(new Dimension(180, 220));
+        setBackground(ColorScheme.SURFACE);
+        setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
+    
         // Ảnh sản phẩm
-        imageLabel = new JLabel();
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        loadProductImage();
-        add(imageLabel, BorderLayout.NORTH);
-
-        // Tên sản phẩm
-        JLabel nameLabel = new JLabel(product.getName(), SwingConstants.CENTER);
-        nameLabel.setFont(new Font("Roboto", Font.BOLD, 14));
-        nameLabel.setForeground(ColorScheme.TEXT_PRIMARY); // Chữ xám đậm
-        add(nameLabel, BorderLayout.CENTER);
-
-        // Giá sản phẩm
-        JLabel priceLabel = new JLabel(NumberUtil.formatNumber(product.getPrice()), SwingConstants.CENTER);
-        priceLabel.setFont(new Font("Roboto", Font.PLAIN, 12));
-        priceLabel.setForeground(ColorScheme.SECONDARY); // Chữ xanh lá nhạt
-        add(priceLabel, BorderLayout.SOUTH);
-
-        // Hiệu ứng hover
-        addMouseListener(new java.awt.event.MouseAdapter() {
+        lblImage = new JLabel();
+        lblImage.setHorizontalAlignment(SwingConstants.CENTER);
+        ImageIcon icon = loadImage(product.getImagePath());
+        lblImage.setIcon(icon);
+        add(lblImage, BorderLayout.NORTH);
+    
+        // Trung tâm: tên + tác giả + giá
+        JPanel infoPanel = new JPanel(new GridLayout(3, 1));
+        infoPanel.setOpaque(false);
+    
+        lblName = new JLabel(product.getName(), SwingConstants.CENTER);
+        lblAuthor = new JLabel("Tác giả: " + product.getAuthor(), SwingConstants.CENTER);
+        lblPrice = new JLabel(String.format("%.0f₫", product.getPrice()), SwingConstants.CENTER);
+        lblPrice.setForeground(ColorScheme.ERROR);
+    
+        ColorScheme.styleLabel(lblName, true);
+        ColorScheme.styleLabel(lblAuthor, false);
+        ColorScheme.styleLabel(lblPrice, true);
+    
+        infoPanel.add(lblName);
+        infoPanel.add(lblAuthor);
+        infoPanel.add(lblPrice);
+        add(infoPanel, BorderLayout.CENTER);
+    
+        // Nút thêm
+        btnAdd = new Button("Thêm");
+        ColorScheme.styleButton(btnAdd, true);
+        add(btnAdd, BorderLayout.SOUTH);
+    
+        // Gắn sự kiện cho nút "Thêm"
+        btnAdd.addActionListener(new ActionListener() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                setBackground(ColorScheme.SECONDARY); // Màu xanh lá nhạt khi hover
-                setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                setBackground(ColorScheme.SURFACE); // Trở lại màu trắng
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            public void actionPerformed(ActionEvent e) {
+                fireAddToCartEvent(); // Kích hoạt sự kiện "Thêm vào giỏ hàng"
             }
         });
     }
 
-    private void loadProductImage() {
-        String imagePath = product.getImagePath();
-        ImageIcon imageIcon;
+    public JButton getBtnAdd() {
+        return btnAdd;
+    }
 
-        if (imagePath != null && !imagePath.isEmpty() && new File(imagePath).exists()) {
-            imageIcon = new ImageIcon(imagePath);
+    private ImageIcon loadImage(String path) {
+        String finalPath;
+    
+        // Nếu null hoặc trống thì dùng ảnh mặc định
+        if (path == null || path.trim().isEmpty()) {
+            finalPath = "/product/default_img.png";  // Đường dẫn trong resources
         } else {
-            // Ảnh mặc định nếu không có ảnh sản phẩm
-            imageIcon = new ImageIcon("/product/default_img.png"); // Đường dẫn đến ảnh mặc định
+            File file = new File(path);
+            if (file.exists()) {
+                return new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(160, 100, Image.SCALE_SMOOTH));
+            } else {
+                finalPath = "product/defauly_img.png";  // fallback nếu đường dẫn không tồn tại
+            }
         }
+    
+        // Load từ resources
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource(finalPath));
+            Image scaled = icon.getImage().getScaledInstance(160, 100, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaled);
+        } catch (Exception e) {
+            // Trường hợp file trong resources bị thiếu
+            return new ImageIcon(new BufferedImage(160, 100, BufferedImage.TYPE_INT_RGB));
+        }
+    }
 
-        // Resize ảnh để vừa với kích thước của ProductCard
-        Image image = imageIcon.getImage();
-        Image scaledImage = image.getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-        imageIcon = new ImageIcon(scaledImage);
-        imageLabel.setIcon(imageIcon);
+    private void fireAddToCartEvent() {
+        ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "addToCart");
+        for (ActionListener listener : addToCartListeners) {
+            listener.actionPerformed(evt);
+        }
+    }
+    public void addAddToCartListener(ActionListener listener) {
+        addToCartListeners.add(listener);
     }
 
     public Product getProduct() {

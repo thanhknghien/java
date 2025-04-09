@@ -15,5 +15,18 @@ public class CategoryList extends JList<String> {
         setSelectionBackground(ColorScheme.PRIMARY); // Deep Blue
         setSelectionForeground(ColorScheme.TEXT_LIGHT); // White
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, 
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                
+                Button button = new Button(value.toString());
+                button.setSelected(isSelected);
+                
+                setPreferredSize(null); 
+                
+                return button;
+            }
+        });
     }
 }

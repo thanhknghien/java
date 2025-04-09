@@ -131,6 +131,11 @@ public class OrderBUS {
         System.out.println("Hóa đơn đã được tạo tại: " + outputPath);
     }
 
+    // Change Cart to Order
+    // public Order makeOrderFromCart(Map<Integer, OrderDetail> cart){
+
+
+    // }
 
     public static void main(String[] args) throws Exception {
         OrderBUS bus = new OrderBUS();
