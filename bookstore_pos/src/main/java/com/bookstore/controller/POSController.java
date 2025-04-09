@@ -3,10 +3,12 @@ package com.bookstore.controller;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Locale.Category;
 
 import javax.swing.JOptionPane;
 
 import com.bookstore.BUS.POSBUS;
+import com.bookstore.gui.component.CategoryList;
 import com.bookstore.gui.main.POSGUI;
 import com.bookstore.model.Customer;
 import com.bookstore.model.Product;
@@ -15,10 +17,11 @@ public class POSController {
     private POSGUI gui;
     private POSBUS bus;
 
-    public POSController(POSGUI gui){
+    public POSController(POSGUI gui) throws Exception{
         this.gui = gui;
         this.bus = new POSBUS();
     }
+
 
     public Map<String, ArrayList<Product>> loadingDataProducts() throws Exception{
         try {
