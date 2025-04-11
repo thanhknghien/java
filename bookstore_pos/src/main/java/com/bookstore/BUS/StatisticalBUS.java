@@ -1,12 +1,5 @@
 package com.bookstore.BUS;
 
-/*1. Tổng doanh thu theo ngày
-2. Tổng doanh thu theo nhân viên
-3. Sản phẩm bán chạy nhất
-4. Khách hàng có điểm thưởng cao nhất
-5. Doanh thu theo danh mục sản phẩm
-6. Số lượng đơn hàng theo tháng*/
-
 import com.bookstore.model.Order;
 import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Customer;
@@ -28,6 +21,8 @@ import com.bookstore.dao.UserDAO;
 import java.util.*;
 
 import org.jfree.data.category.DefaultCategoryDataset;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StatisticalBUS {
     private List<Product> products = new ArrayList<>();
@@ -72,82 +67,69 @@ public class StatisticalBUS {
     // Getter Map
     //tổng tiền đã chi tiêu của từng khách hàng
     public Map<Integer, Double> getTotalSpentMap() {
-        Map<Integer, Double> map = new HashMap<>();
-        for (Order order : orders) {
-            if (order.getCustomer() != null) {
-                int customerId = order.getCustomer().getId();
-                map.merge(customerId, order.getTotal(), Double::sum);
-            }
-        }
-        return map;
+        return orders.stream()
+            .filter(order -> order.getCustomer() != null)
+            .collect(Collectors.groupingBy(
+                order -> order.getCustomer().getId(),
+                Collectors.summingDouble(Order::getTotal)
+            ));
     }
     //tổng doanh thu của từng user
     public Map<Integer, Double> getTotalRevenueMap() {
-        Map<Integer, Double> map = new HashMap<>();
-        for (Order order : orders) {
-            if (order.getEmployee() != null) {
-                int userId = order.getEmployee().getId();
-                map.merge(userId, order.getTotal(), Double::sum);
-            }
-        }
-        return map;
+        return orders.stream()
+            .filter(order -> order.getEmployee() != null)
+            .collect(Collectors.groupingBy(
+                order -> order.getEmployee().getId(),
+                Collectors.summingDouble(Order::getTotal)
+            ));
     }
     //số lượng đã bán của từng sản phẩm
     public Map<Integer, Integer> getProductSalesMap() {
-        Map<Integer, Integer> map = new HashMap<>();
-    
-        for (Order order : orders) {
-            try {
-                for (OrderDetail orderDetail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                    int productId = orderDetail.getProduct().getId();
-                    int quantity = orderDetail.getQuantity();
-                    
-                    map.merge(productId, quantity, Integer::sum);  
+        return orders.stream()
+            .flatMap(order -> {
+                try {
+                    return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return Stream.empty();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return map;
+            })
+            .collect(Collectors.groupingBy(
+                detail -> detail.getProduct().getId(),
+                Collectors.summingInt(OrderDetail::getQuantity)
+            ));
     }
     //Doanh thu của từng sản phẩm
-    public  Map<Integer, Double> getProductRevenueMap() {
-        Map<Integer, Double> map = new HashMap<>();
-        for (Order order : orders) {
-            try {
-                for (OrderDetail orderDetail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                    int productId = orderDetail.getProduct().getId();
-                    double price = orderDetail.getProduct().getPrice();
-                    int quantity = orderDetail.getQuantity();
-                    
-                    map.merge(productId, price * quantity, Double::sum);
+    public Map<Integer, Double> getProductRevenueMap() {
+        return orders.stream()
+            .flatMap(order -> {
+                try {
+                    return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return Stream.empty();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return map;
+            })
+            .collect(Collectors.groupingBy(
+                detail -> detail.getProduct().getId(),
+                Collectors.summingDouble(detail -> detail.getProduct().getPrice() * detail.getQuantity())
+            ));
     }
     //số lượng đã bán danh muc
     public Map<Integer, Integer> getCategorySalesMap() {
-        Map<Integer, Integer> map = new HashMap<>();
-    
-        // Tính tổng số lượng bán theo danh mục
-        for (Order order : orders) {
-            try {
-                for (OrderDetail detail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                    Product product = detail.getProduct();
-                    int categoryId = product.getCategoryId();
-                    int quantity = detail.getQuantity();
-                    
-                    // Cộng dồn số lượng bán cho danh mục
-                    map.merge(categoryId, quantity, Integer::sum);
+        return orders.stream()
+            .flatMap(order -> {
+                try {
+                    return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return Stream.empty();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return map;
+            })
+            .collect(Collectors.groupingBy(
+                detail -> detail.getProduct().getCategoryId(),
+                Collectors.summingInt(OrderDetail::getQuantity)
+            ));
     }
     // =================================================================================================================
 
@@ -155,103 +137,75 @@ public class StatisticalBUS {
     //tổng tiền đã chi tiêu của từng khách hàng
     public Object[][] processCustomersResults() {
         DecimalFormat df = new DecimalFormat("#,###");
-        List<Customer> sortedCustomers = new ArrayList<>(customers);
-        sortedCustomers.sort((c1, c2) -> {
-            Double spent1 = totalSpentMap.getOrDefault(c1.getId(), 0.0);
-            Double spent2 = totalSpentMap.getOrDefault(c2.getId(), 0.0);
-            return spent2.compareTo(spent1); // Sắp xếp giảm dần
-        });
-    
-        // Giới hạn chỉ lấy 5 khách hàng
-        int size = Math.min(5, sortedCustomers.size());
-        Object[][] data = new Object[size][5];
-    
-        // Đổ dữ liệu vào mảng kết quả
-        for (int i = 0; i < size; i++) {
-            Customer customer = sortedCustomers.get(i);
-            data[i][0] = customer.getId();
-            data[i][1] = customer.getName();
-            data[i][2] = customer.getPhone();
-            data[i][3] = customer.getPoints();
-            data[i][4] = df.format(totalSpentMap.getOrDefault(customer.getId(), 0.0));
-        }
-    
-        return data;
+        return customers.stream()
+            .sorted((c1, c2) -> {
+                Double spent1 = totalSpentMap.getOrDefault(c1.getId(), 0.0);
+                Double spent2 = totalSpentMap.getOrDefault(c2.getId(), 0.0);
+                return spent2.compareTo(spent1);
+            })
+            .limit(5)
+            .map(customer -> new Object[]{
+                customer.getId(),
+                customer.getName(),
+                customer.getPhone(),
+                customer.getPoints(),
+                df.format(totalSpentMap.getOrDefault(customer.getId(), 0.0))
+            })
+            .toArray(Object[][]::new);
     }
     //tổng doanh thu của từng user
     public Object[][] processUsersResults() {
         DecimalFormat df = new DecimalFormat("#,###");
-        List<User> sortedUsers = new ArrayList<>(users);
-        sortedUsers.sort((u1, u2) -> {
-            Double revenue1 = totalRevenueMap.getOrDefault(u1.getId(), 0.0);
-            Double revenue2 = totalRevenueMap.getOrDefault(u2.getId(), 0.0);
-            return revenue2.compareTo(revenue1); // Sắp xếp giảm dần
-        });
-    
-        // Giới hạn chỉ lấy 5 nhân viên
-        int size = Math.min(5, sortedUsers.size());
-        Object[][] data = new Object[size][4];
-    
-        // Đổ dữ liệu vào mảng kết quả
-        for (int i = 0; i < size; i++) {
-            User user = sortedUsers.get(i);
-            data[i][0] = user.getId();
-            data[i][1] = user.getUsername();
-            data[i][2] = user.getPassword();
-            data[i][3] = df.format(totalRevenueMap.getOrDefault(user.getId(), 0.0));
-        }
-    
-        return data;
+        return users.stream()
+            .sorted((u1, u2) -> {
+                Double revenue1 = totalRevenueMap.getOrDefault(u1.getId(), 0.0);
+                Double revenue2 = totalRevenueMap.getOrDefault(u2.getId(), 0.0);
+                return revenue2.compareTo(revenue1);
+            })
+            .limit(5)
+            .map(user -> new Object[]{
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                df.format(totalRevenueMap.getOrDefault(user.getId(), 0.0))
+            })
+            .toArray(Object[][]::new);
     }
     //số lượng đã bán của từng sản phẩm + Doanh thu của từng sản phẩm
     public Object[][] processProductResults() {
         DecimalFormat df = new DecimalFormat("#,###");
-        List<Product> sortedProducts = new ArrayList<>(products);
-        sortedProducts.sort((p1, p2) -> {
-            Integer sales1 = productSalesMap.getOrDefault(p1.getId(), 0);
-            Integer sales2 = productSalesMap.getOrDefault(p2.getId(), 0);
-            return sales2.compareTo(sales1); // Sắp xếp giảm dần
-        });
-    
-        // Giới hạn chỉ lấy 5 sản phẩm
-        int size = Math.min(5, sortedProducts.size());
-        Object[][] data = new Object[size][6];
-    
-        // Đổ dữ liệu vào mảng kết quả
-        for (int i = 0; i < size; i++) {
-            Product product = sortedProducts.get(i);
-            data[i][0] = product.getId();
-            data[i][1] = product.getImagePath();
-            data[i][2] = product.getName();
-            data[i][3] = product.getPrice();
-            data[i][4] = productSalesMap.getOrDefault(product.getId(), 0);
-            data[i][5] = df.format(productRevenueMap.getOrDefault(product.getId(), 0.0));
-        }
-    
-        return data;
+        return products.stream()
+            .sorted((p1, p2) -> {
+                Integer sales1 = productSalesMap.getOrDefault(p1.getId(), 0);
+                Integer sales2 = productSalesMap.getOrDefault(p2.getId(), 0);
+                return sales2.compareTo(sales1);
+            })
+            .limit(5)
+            .map(product -> new Object[]{
+                product.getId(),
+                product.getImagePath(),
+                product.getName(),
+                product.getPrice(),
+                productSalesMap.getOrDefault(product.getId(), 0),
+                df.format(productRevenueMap.getOrDefault(product.getId(), 0.0))
+            })
+            .toArray(Object[][]::new);
     }
     //số lượng đã bán danh muc
     public Object[][] processCategorysResults() {
-        List<Category> sortedCategories = new ArrayList<>(categories);
-        sortedCategories.sort((c1, c2) -> {
-            Integer sales1 = categorySalesMap.getOrDefault(c1.getCategoryID(), 0);
-            Integer sales2 = categorySalesMap.getOrDefault(c2.getCategoryID(), 0);
-            return sales2.compareTo(sales1); // Sắp xếp giảm dần
-        });
-
-        // Giới hạn chỉ lấy 5 danh mục
-        int size = Math.min(5, sortedCategories.size());
-        Object[][] data = new Object[size][3];
-
-        // Đổ dữ liệu vào mảng kết quả
-        for (int i = 0; i < size; i++) {
-            Category category = sortedCategories.get(i);
-            data[i][0] = category.getCategoryID();
-            data[i][1] = category.getName();
-            data[i][2] = categorySalesMap.getOrDefault(category.getCategoryID(), 0);
-        }
-
-        return data;
+        return categories.stream()
+            .sorted((c1, c2) -> {
+                Integer sales1 = categorySalesMap.getOrDefault(c1.getCategoryID(), 0);
+                Integer sales2 = categorySalesMap.getOrDefault(c2.getCategoryID(), 0);
+                return sales2.compareTo(sales1);
+            })
+            .limit(5)
+            .map(category -> new Object[]{
+                category.getCategoryID(),
+                category.getName(),
+                categorySalesMap.getOrDefault(category.getCategoryID(), 0)
+            })
+            .toArray(Object[][]::new);
     }
     // =================================================================================================================
     
@@ -316,66 +270,74 @@ public class StatisticalBUS {
     }
     // Tạo dataset cho sản phẩm (Lấy 5)
     public DefaultCategoryDataset createDatasetGiveProductsQuantity() {
-        List<Product> sortedProducts = new ArrayList<>(products);
-        sortedProducts.sort((p1, p2) -> {
-            Integer sales1 = productSalesMap.getOrDefault(p1.getId(), 0);
-            Integer sales2 = productSalesMap.getOrDefault(p2.getId(), 0);
-            return sales2.compareTo(sales1); // Sắp xếp giảm dần
-        });
-    
-        // Tạo dataset và thêm 5 sản phẩm bán chạy nhất
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int count = Math.min(5, sortedProducts.size());
-        
-        for (int i = 0; i < count; i++) {
-            Product product = sortedProducts.get(i);
-            int totalSales = productSalesMap.getOrDefault(product.getId(), 0);
-            dataset.addValue(totalSales, "Số lượng bán", product.getName());
-        }
-    
-        return dataset;
-    }  
+        return products.stream()
+            .sorted((p1, p2) -> {
+                Integer sales1 = productSalesMap.getOrDefault(p1.getId(), 0);
+                Integer sales2 = productSalesMap.getOrDefault(p2.getId(), 0);
+                return sales2.compareTo(sales1);
+            })
+            .limit(5)
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                    list.forEach(product -> 
+                        dataset.addValue(
+                            productSalesMap.getOrDefault(product.getId(), 0),
+                            "Số lượng bán",
+                            product.getName()
+                        )
+                    );
+                    return dataset;
+                }
+            ));
+    }
     public DefaultCategoryDataset createDatasetGiveProductsRevenue() {
-        List<Product> sortedProducts = new ArrayList<>(products);
-        sortedProducts.sort((p1, p2) -> {
-            Double revenue1 = productRevenueMap.getOrDefault(p1.getId(), 0.0);
-            Double revenue2 = productRevenueMap.getOrDefault(p2.getId(), 0.0);
-            return revenue2.compareTo(revenue1); // Sắp xếp giảm dần
-        });
-    
-        // Tạo dataset và thêm 5 sản phẩm có doanh thu cao nhất
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int count = Math.min(5, sortedProducts.size());
-        
-        for (int i = 0; i < count; i++) {
-            Product product = sortedProducts.get(i);
-            double totalRevenue = productRevenueMap.getOrDefault(product.getId(), 0.0);
-            dataset.addValue(totalRevenue, "Doanh thu", product.getName());
-        }
-    
-        return dataset;
+        return products.stream()
+            .sorted((p1, p2) -> {
+                Double revenue1 = productRevenueMap.getOrDefault(p1.getId(), 0.0);
+                Double revenue2 = productRevenueMap.getOrDefault(p2.getId(), 0.0);
+                return revenue2.compareTo(revenue1);
+            })
+            .limit(5)
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                    list.forEach(product -> 
+                        dataset.addValue(
+                            productRevenueMap.getOrDefault(product.getId(), 0.0),
+                            "Doanh thu",
+                            product.getName()
+                        )
+                    );
+                    return dataset;
+                }
+            ));
     }
     // Tạo dataset cho danh mục sản phẩm (Lấy 5)
     public DefaultCategoryDataset createDatasetGiveCategory() {
-        List<Category> sortedCategories = new ArrayList<>(categories);
-        sortedCategories.sort((c1, c2) -> {
-            Integer sales1 = categorySalesMap.getOrDefault(c1.getCategoryID(), 0);
-            Integer sales2 = categorySalesMap.getOrDefault(c2.getCategoryID(), 0);
-            return sales2.compareTo(sales1); // Sắp xếp giảm dần
-        });
-
-        // Tạo dataset
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
-        // Thêm dữ liệu vào dataset
-        int count = Math.min(5, categories.size());
-        for (int i = 0; i < count; i++) {
-            Category category = sortedCategories.get(i);
-            int totalSales = categorySalesMap.getOrDefault(category.getCategoryID(), 0);
-            dataset.addValue(totalSales, "Số lượng bán", category.getName());
-        }
-    
-        return dataset;
+        return categories.stream()
+            .sorted((c1, c2) -> {
+                Integer sales1 = categorySalesMap.getOrDefault(c1.getCategoryID(), 0);
+                Integer sales2 = categorySalesMap.getOrDefault(c2.getCategoryID(), 0);
+                return sales2.compareTo(sales1);
+            })
+            .limit(5)
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                    list.forEach(category -> 
+                        dataset.addValue(
+                            categorySalesMap.getOrDefault(category.getCategoryID(), 0),
+                            "Số lượng bán",
+                            category.getName()
+                        )
+                    );
+                    return dataset;
+                }
+            ));
     }
     // =================================================================================================================
 
@@ -411,65 +373,54 @@ public class StatisticalBUS {
     }
     //số lượng đã bán của từng sản phẩm
     public void searchProductSalesMap(LocalDateTime frDate, LocalDateTime toDate) {
-        Map<Integer, Integer> map = new HashMap<>();
-        for (Order order : orders) {
-            if ((order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate)) &&
-                (order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))) {
-                try {
-                    for (OrderDetail orderDetail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                        int productId = orderDetail.getProduct().getId();
-                        int quantity = orderDetail.getQuantity();
-                        
-                        map.merge(productId, quantity, Integer::sum);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        productSalesMap = orders.parallelStream()
+        .filter(order -> order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate))
+        .filter(order -> order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))
+        .flatMap(order -> {
+            try {
+                return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+            } catch (SQLException e) {
+                return Stream.empty();
             }
-        }
-        productSalesMap = map;
+        })
+        .collect(Collectors.groupingBy(
+            detail -> detail.getProduct().getId(),
+            Collectors.summingInt(OrderDetail::getQuantity)
+        ));
     }
     //Doanh thu của từng sản phẩm
     public void searchProductRevenueMap(LocalDateTime frDate, LocalDateTime toDate) {
-        Map<Integer, Double> map = new HashMap<>();
-        for (Order order : orders) {
-            if ((order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate)) &&
-                (order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))) {
-                try {
-                    for (OrderDetail orderDetail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                        int productId = orderDetail.getProduct().getId();
-                        double price = orderDetail.getProduct().getPrice();
-                        int quantity = orderDetail.getQuantity();
-                        
-                        map.merge(productId, price * quantity, Double::sum);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        productRevenueMap = orders.parallelStream()
+        .filter(order -> order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate))
+        .filter(order -> order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))
+        .flatMap(order -> {
+            try {
+                return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+            } catch (SQLException e) {
+                return Stream.empty();
             }
-        }
-        productRevenueMap = map;
+        })
+        .collect(Collectors.groupingBy(
+            detail -> detail.getProduct().getId(),
+            Collectors.summingDouble(detail -> detail.getProduct().getPrice() * detail.getQuantity())
+        ));
     }
     //số lượng đã bán danh muc
     public void searchCategorySalesMap(LocalDateTime frDate, LocalDateTime toDate) {
-        Map<Integer, Integer> map = new HashMap<>();
-        for (Order order : orders) {
-            if ((order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate)) &&
-                (order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))) {
-                try {
-                    for (OrderDetail detail : orderDetailDAO.getOrderDetailsByOrderId(order.getId())) {
-                        Product product = detail.getProduct();
-                        int categoryId = product.getCategoryId();
-                        int quantity = detail.getQuantity();
-
-                        map.merge(categoryId, quantity, Integer::sum);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        categorySalesMap = orders.parallelStream()
+        .filter(order -> order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate))
+        .filter(order -> order.getDate().isBefore(toDate) || order.getDate().isEqual(toDate))
+        .flatMap(order -> {
+            try {
+                return orderDetailDAO.getOrderDetailsByOrderId(order.getId()).stream();
+            } catch (SQLException e) {
+                return Stream.empty();
             }
-        }
-        categorySalesMap = map;
+        })
+        .collect(Collectors.groupingBy(
+            detail -> detail.getProduct().getCategoryId(),
+            Collectors.summingInt(OrderDetail::getQuantity)
+        ));
     }
 
 
@@ -507,6 +458,7 @@ public class StatisticalBUS {
         data[0][2] = df.format(price);
         data[0][3] = String.valueOf(quantity);
         data[0][4] = df.format(price*quantity);
+        System.out.println(Arrays.deepToString(data));
         return data;
 
     }
@@ -612,14 +564,35 @@ public class StatisticalBUS {
     }
 
     public String searchCustomer(String keyword) {
-        String str= keyword;
+        
         for (Customer cus : customers) {
             if (String.valueOf(cus.getId()).equals(keyword)) {
-                str += " "+  cus.getName() + "\n" + cus.getPhone();
+                return  (keyword + " "+  cus.getName() + " " + cus.getPhone());
             }
         }
-        return str;
+        return "";
     }
+
+    public Boolean searchProduct(String keyword) {
+        
+        for (Product pr : products) {
+            if (String.valueOf(pr.getId()).equals(keyword)) {
+                return  true;
+            }
+        }
+        return false;
+    }
+
+    public Boolean searchUser(String keyword) {
+        
+        for (User us : users) {
+            if (String.valueOf(us.getId()).equals(keyword)) {
+                return  true;
+            }
+        }
+        return false;
+    }
+
 
     public String getQuantityCustomer() {
         return String.valueOf(customers.size());

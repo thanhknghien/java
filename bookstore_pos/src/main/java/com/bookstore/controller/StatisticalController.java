@@ -1,19 +1,16 @@
 package com.bookstore.controller;
 
-import java.util.*;
-import java.util.Date;
-
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.bookstore.BUS.StatisticalBUS;
 import com.bookstore.gui.panel.StatisticalPanel;
-import com.bookstore.model.Customer;
-import com.bookstore.model.Product;
-import java.sql.*;
-import java.time.LocalDate;
+
+import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 
+import com.bookstore.util.TimeUtil;
 
 
 public class StatisticalController {
@@ -23,6 +20,99 @@ public class StatisticalController {
         statisticalBUS = new StatisticalBUS();
     }
 
+    public ActionListener createAllRadio(StatisticalPanel view) {
+        return e -> {
+            System.out.println("Tất cả Radio");
+            view.removeChartTableRadio();
+            view.removeTablePanel();
+            view.addSearchField();
+        };
+    }
+
+    public ActionListener createTopRadio(StatisticalPanel view) {
+        return e -> {
+            System.out.println("Top");
+            view.removeSearchField();
+            view.addChartTableRadio();
+            view.removeTablePanel();
+        };
+    }
+
+    public ActionListener handleTypeSelection(StatisticalPanel view) {
+        return e -> {
+            view.getChartRadio().setEnabled(true);
+            view.getTablePanel().setEnabled(true);
+            view.getChartRadio().setSelected(true);
+
+        // Reset searchPanel
+            view.resetSearchPanel();
+            view.removeTablePanel();
+        };
+    }
+    
+    public ActionListener createDateRadio(StatisticalPanel view) {
+        return e -> {
+            view.removeMonthComboBox();
+            view.removeFourMonthComboBox();
+            view.removeThreeMonthComboBox();          
+            view.addDate();
+            view.addSearchButton();
+        };
+    }
+    
+    public ActionListener createThreeMonthRadio(StatisticalPanel view) {
+        return e -> {
+            view.removeFourMonthComboBox();
+            view.removeDate();  
+            view.addThreeMonthComboBox();
+            view.addMonthComboBox();
+            view.addSearchButton();
+        };
+    }
+    
+    public ActionListener createFourMonthRadio(StatisticalPanel view) {
+        return e -> {
+            view.removeThreeMonthComboBox();
+            view.removeDate();
+            view.addFourMonthComboBox();
+            view.addMonthComboBox();
+            view.addSearchButton();
+        };
+    }
+    
+    public ActionListener createSearchButton(StatisticalPanel view) {
+        return e -> {
+            buttonSearch(view);
+        };
+    }
+
+    public ActionListener createChartRadio(StatisticalPanel view) {
+        return e -> {
+            TimeUtil.start();
+            if (view.getProductRadio().isSelected()) {
+                loadProductsChart(view);
+            } else if (view.getCustomerRadio().isSelected()) {
+                loadCustomersChart(view);
+            } else if (view.getUserRadio().isSelected()) {
+                loadUsersChart(view);
+            }
+            TimeUtil.stop("loadChartRadio");
+        };
+    }
+
+    public ActionListener createTableRadio(StatisticalPanel view) {
+        return e -> {
+            TimeUtil.start();
+            if (view.getProductRadio().isSelected()) {
+                loadProductsTable(view);
+            } else if (view.getCustomerRadio().isSelected()) {
+                loadCustomersTable(view);
+            } else if (view.getUserRadio().isSelected()) {
+                loadUsersTable(view);
+            }
+            TimeUtil.stop("loadTableRadio");
+        };
+    }
     // ===== Top =====
     // ===== Biểu đồ =====
     // ===== Khách hàng =====
@@ -50,14 +140,11 @@ public class StatisticalController {
     }
     // ===== Sản phẩm =====
     public void loadProductsTable(StatisticalPanel view) {
-        long start = System.nanoTime();
+        TimeUtil.start();
         System.out.println("bang san pham");
         view.updateTableProductsTable(statisticalBUS.processProductResults(),
          statisticalBUS.processCategorysResults());
-        long end = System.nanoTime();
-        long duration = end - start;
-
-        System.out.println("Thời gian chạy: " + duration / 1_000_000 + " ms");
+        TimeUtil.stop("loadProductsTable");
     }
     // ===== Nhân viên =====
     public void loadUsersTable(StatisticalPanel view) {
@@ -72,7 +159,7 @@ public class StatisticalController {
     
     // ===== Tìm kiếm =====
     public void buttonSearch(StatisticalPanel view) {
-
+            TimeUtil.start();
         if (view.getProductRadio().isSelected()) {
             // Đang chọn sản phẩm
             System.out.println("Bang san pham");
@@ -106,6 +193,7 @@ public class StatisticalController {
                 searchIfChooseAll(view);
             }
         }
+        TimeUtil.stop("buttonSearch");
     }
 
     // ===== Tìm kiếm theo Top =====
@@ -119,23 +207,20 @@ public class StatisticalController {
         } else if (view.getRbKy().isSelected()) {
             // Đang chọn kỳ
             String selectedQuarter = (String) view.getFourMonthComboBox().getSelectedItem();
+            System.out.println(selectedQuarter + "ky");
             String selectedYearStr = (String) view.getMonthComboBox().getSelectedItem();
             int year = Integer.parseInt(selectedYearStr);
             switch (selectedQuarter) {
                 case "Kỳ 1":
                     fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-                    toDate = LocalDateTime.of(year, 3, 31, 23, 59);
+                    toDate = LocalDateTime.of(year, 4, 30, 23, 59);
                     break;
                 case "Kỳ 2":
-                    fromDate = LocalDateTime.of(year, 4, 1, 0, 0);
-                    toDate = LocalDateTime.of(year, 6, 30, 23, 59);
+                    fromDate = LocalDateTime.of(year, 5, 1, 0, 0);
+                    toDate = LocalDateTime.of(year, 8, 31, 23, 59);
                     break;
                 case "Kỳ 3":
-                    fromDate = LocalDateTime.of(year, 7, 1, 0, 0);
-                    toDate = LocalDateTime.of(year, 9, 30, 23, 59);
-                    break;
-                case "Kỳ 4":
-                    fromDate = LocalDateTime.of(year, 10, 1, 0, 0);
+                    fromDate = LocalDateTime.of(year, 9, 1, 0, 0);
                     toDate = LocalDateTime.of(year, 12, 31, 23, 59);
                     break;
                 case "Không":
@@ -148,26 +233,31 @@ public class StatisticalController {
         } else if (view.getRbQuy().isSelected()) {
             // Đang chọn quý
             String selectedTerm = (String) view.getThreeMonthComboBox().getSelectedItem();
+            System.out.println(selectedTerm+ "quy");
             String selectedYearStr = (String) view.getMonthComboBox().getSelectedItem();
             int year = Integer.parseInt(selectedYearStr);
             switch (selectedTerm) {
                 case "Quý 1":
                     fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-                    toDate = LocalDateTime.of(year, 4, 30, 23, 59);
+                    toDate = LocalDateTime.of(year, 3, 31, 23, 59);
                     break;
                 case "Quý 2":
-                    fromDate = LocalDateTime.of(year, 5, 1, 0, 0);
-                    toDate = LocalDateTime.of(year, 8, 31, 23, 59);
+                    fromDate = LocalDateTime.of(year, 4, 1, 0, 0);
+                    toDate = LocalDateTime.of(year, 6, 30, 23, 59);
                     break;
-                case "Quý 3": // Chú ý chữ "ỳ" và "ì" khác nhau!
-                    fromDate = LocalDateTime.of(year, 9, 1, 0, 0);
+                case "Quý 3":
+                    fromDate = LocalDateTime.of(year, 7, 1, 0, 0);
+                    toDate = LocalDateTime.of(year, 9, 30, 23, 59);
+                    break;
+                case "Quý 4":
+                    fromDate = LocalDateTime.of(year, 10, 1, 0, 0);
                     toDate = LocalDateTime.of(year, 12, 31, 23, 59);
                     break;
                 case "Không":
                 default:
                     fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
                     toDate = LocalDateTime.of(year, 12, 31, 23, 59);
-                    break;
+                    break;    
             }
         }
         System.out.println(fromDate + "  ||  " + toDate);
@@ -197,18 +287,14 @@ public class StatisticalController {
                 switch (selectedQuarter) {
                     case "Kỳ 1":
                         fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-                        toDate = LocalDateTime.of(year, 3, 31, 23, 59);
+                        toDate = LocalDateTime.of(year, 4, 30, 23, 59);
                         break;
                     case "Kỳ 2":
-                        fromDate = LocalDateTime.of(year, 4, 1, 0, 0);
-                        toDate = LocalDateTime.of(year, 6, 30, 23, 59);
+                        fromDate = LocalDateTime.of(year, 5, 1, 0, 0);
+                        toDate = LocalDateTime.of(year, 8, 31, 23, 59);
                         break;
                     case "Kỳ 3":
-                        fromDate = LocalDateTime.of(year, 7, 1, 0, 0);
-                        toDate = LocalDateTime.of(year, 9, 30, 23, 59);
-                        break;
-                    case "Kỳ 4":
-                        fromDate = LocalDateTime.of(year, 10, 1, 0, 0);
+                        fromDate = LocalDateTime.of(year, 9, 1, 0, 0);
                         toDate = LocalDateTime.of(year, 12, 31, 23, 59);
                         break;
                     case "Không":
@@ -226,14 +312,18 @@ public class StatisticalController {
                 switch (selectedTerm) {
                     case "Quý 1":
                         fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-                        toDate = LocalDateTime.of(year, 4, 30, 23, 59);
+                        toDate = LocalDateTime.of(year, 3, 31, 23, 59);
                         break;
                     case "Quý 2":
-                        fromDate = LocalDateTime.of(year, 5, 1, 0, 0);
-                        toDate = LocalDateTime.of(year, 8, 31, 23, 59);
+                        fromDate = LocalDateTime.of(year, 4, 1, 0, 0);
+                        toDate = LocalDateTime.of(year, 6, 30, 23, 59);
                         break;
-                    case "Quý 3": // Chú ý chữ "ỳ" và "ì" khác nhau!
-                        fromDate = LocalDateTime.of(year, 9, 1, 0, 0);
+                    case "Quý 3":
+                        fromDate = LocalDateTime.of(year, 7, 1, 0, 0);
+                        toDate = LocalDateTime.of(year, 9, 30, 23, 59);
+                        break;
+                    case "Quý 4":
+                        fromDate = LocalDateTime.of(year, 10, 1, 0, 0);
                         toDate = LocalDateTime.of(year, 12, 31, 23, 59);
                         break;
                     case "Không":
@@ -273,12 +363,24 @@ public class StatisticalController {
 
         view.removeChartTableRadio();
         if (view.getProductRadio().isSelected()){
+            if (!statisticalBUS.searchProduct(keyword)){
+                JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             view.printTableProduct(statisticalBUS.searchProduct(fromDate, toDate, keyword));
         } else if (view.getCustomerRadio().isSelected()) {
+            if (statisticalBUS.searchCustomer(keyword) == "") {
+                JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             view.printTableCustomer(statisticalBUS.searchCustomer(fromDate, toDate, keyword),
             statisticalBUS.totalSpent(), 
             statisticalBUS.searchCustomer(keyword));
         } else if (view.getUserRadio().isSelected()) {
+            if (!statisticalBUS.searchUser(keyword)) {
+                JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             view.printTableUser(statisticalBUS.searchUser(fromDate, toDate, keyword), 
             statisticalBUS.totalRevenue(), 
             keyword);
@@ -306,7 +408,7 @@ public class StatisticalController {
         view.add(box);
     }
 
-    public void exportPDF() {
+    // public ActionListener exportPDF() {
 
-    }
+    // }
 }
