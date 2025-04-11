@@ -37,7 +37,7 @@ public class OrderBUS {
     }
 
     // Create New Order
-    public void createOrder(ArrayList<OrderDetail> details, User employee, Customer customer)throws Exception{
+    public Order createOrder(ArrayList<OrderDetail> details, User employee, Customer customer)throws Exception{
         if (details == null || details.isEmpty()) {
             throw new Exception("Danh sách sản phẩm không được rỗng!");
         }
@@ -60,7 +60,11 @@ public class OrderBUS {
 
         Order order = new Order();
         order.setDate(LocalDateTime.now()); 
-        order.setCustomer(customer);
+        if(customer.getName() == null){
+            order.setCustomer(null);
+        }else{
+            order.setCustomer(customer);
+        }
         order.setEmployee(employee);
         order.setTotal(total);
 
@@ -70,6 +74,7 @@ public class OrderBUS {
             detail.setOrderId(orderId);
             orderDetailDAO.addOrderDetail(detail);
         }
+        return order;
     }
 
     // Get All Order
@@ -83,7 +88,7 @@ public class OrderBUS {
     }
 
     // Print PDF
-    public void printReceipt(int orderId, String templatePath, String outputPath, double moneyReceived) throws Exception {
+    public boolean printReceipt(int orderId, String templatePath, String outputPath, double moneyReceived) throws Exception {
         Map<String, String> criteria = new HashMap<>();
         criteria.put("id", String.valueOf(orderId));
         ArrayList<Order> orders = searchOrders(criteria);
@@ -129,13 +134,16 @@ public class OrderBUS {
 
         HtmlConverter.convertToPdf(finalHtml, new FileOutputStream(outputPath));
         System.out.println("Hóa đơn đã được tạo tại: " + outputPath);
+        return true;
     }
 
-    // Change Cart to Order
-    // public Order makeOrderFromCart(Map<Integer, OrderDetail> cart){
-
-
-    // }
+    public Map<Order, ArrayList<OrderDetail>> viewOrder(int orderId) throws SQLException{
+        Map<Order, ArrayList<OrderDetail>> order = new HashMap<>();
+        Map<String, String> criteria = new HashMap<>();
+        criteria.put("id", String.valueOf(orderId));
+        order.put(orderDAO.getOrderById(orderId), orderDetailDAO.getOrderDetailsByOrderId(orderId));
+        return order;
+    }
 
     public static void main(String[] args) throws Exception {
         OrderBUS bus = new OrderBUS();

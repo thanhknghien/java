@@ -61,7 +61,7 @@ public class ProductCard extends JPanel {
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fireAddToCartEvent(); // Kích hoạt sự kiện "Thêm vào giỏ hàng"
+                fireAddToCartEvent(); 
             }
         });
     }

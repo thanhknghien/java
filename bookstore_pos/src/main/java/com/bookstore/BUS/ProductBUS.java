@@ -30,7 +30,7 @@ public class ProductBUS {
     }
 
     // Filter with Name or Author's name
-    public ArrayList<Product> searhProducts(ArrayList<Product> list, String value){
+    public ArrayList<Product> searchProducts(ArrayList<Product> list, String value){
         ArrayList<Product> resuls = new ArrayList<>();
         value = NomalizeVietnamese.normalizeVietnamese(value).toLowerCase();
         for(Product l : list){
