@@ -1,5 +1,9 @@
 package com.bookstore.gui.panel;
 
+import com.bookstore.controller.ProductController;
+import com.bookstore.dao.ProductDAO;
+import com.bookstore.model.Product;
+
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.CustomTable;
@@ -10,9 +14,12 @@ import java.awt.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-
+import java.util.List; 
 public class ProductPanel extends JPanel {
 
+    private ProductDAO productDAO;
+    private ProductController controller;
+    
     private TextField productID;
     private TextField productName;
     private TextField author;
@@ -27,7 +34,10 @@ public class ProductPanel extends JPanel {
     private DefaultTableModel productsTableModel;
 
     public ProductPanel() {
+        controller = new ProductController();
+        productDAO = new ProductDAO(); 
         initializeUI();
+        loadProductData();
     }
 
     private void initializeUI() {
@@ -132,6 +142,7 @@ public class ProductPanel extends JPanel {
         btnReset.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
+        btnReset.addActionListener(e -> loadProductData());
 
         gbcR.insets = new Insets(5, 0, 2, 10); // Giảm khoảng cách
         gbcR.gridx = 1;
@@ -151,6 +162,7 @@ public class ProductPanel extends JPanel {
         btnClear.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnClear, false);
         rightPanel.add(btnClear, gbcR);
+        btnClear.addActionListener(e -> clearTextField());
 
         gbcR.gridx = 2;
         gbcR.gridy = 2;
@@ -209,10 +221,25 @@ public class ProductPanel extends JPanel {
         this.add(centerPanel, BorderLayout.CENTER);
     }
     
-    public void getAllProducts(){
-        
+    public void loadProductData(){
+        productsTableModel.setRowCount(0);
+        List<Product> products = controller.getAllProduct();
+        for(Product product : products){
+            productsTableModel.addRow(new Object[]{product.getId(), product.getName(), product.getAuthor(),
+                product.getPrice(), product.getCategoryId(), product.getImagePath()} );
+        }
     }
-
+    
+    public void clearTextField(){
+        productID.setText("");
+        productName.setText("");
+        author.setText("");
+        price.setText("");
+        categoryId.setText("");
+        imagePath.setText("");
+        searchProduct.setText("");
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý sản phẩm");
