@@ -1,104 +1,180 @@
 package com.bookstore.dao;
 
-import com.bookstore.config.DataBaseConfig;
 import com.bookstore.model.Order;
+import com.bookstore.config.DataBaseConfig;
+import com.bookstore.model.Customer;
+import com.bookstore.model.User;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class OrderDAO {
-    private Connection conn;
+    private CustomerDAO customerDAO = new CustomerDAO();
+    private UserDAO userDAO = new UserDAO();
 
-    public OrderDAO() {
-        try {
-            conn = DataBaseConfig.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public int addOrder(Order order) throws SQLException {
+        String sql = "INSERT INTO orders (date, customer_id, employee_id, total) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setObject(1, order.getDate()); // Lưu LocalDateTime
+            if (order.getCustomer() != null) {
+                stmt.setInt(2, order.getCustomer().getId());
+            } else {
+                stmt.setNull(2, Types.INTEGER);
+            }
+            stmt.setInt(3, order.getEmployee().getId());
+            stmt.setDouble(4, order.getTotal());
+            stmt.executeUpdate();
+
+            // Lấy ID của đơn hàng vừa tạo
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int orderId = rs.getInt(1);
+                    order.setId(orderId);
+                    return orderId;
+                }
+            }
         }
+        throw new SQLException("Không thể lấy ID của đơn hàng vừa tạo!");
     }
 
-    // Xem tất cả đơn hàng
-    public List<Order> getAllOrders() throws SQLException {
-        List<Order> orders = new ArrayList<>();
-        String query = "SELECT * FROM orders";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+    public ArrayList<Order> getAllOrders() throws SQLException {
+        ArrayList<Order> orders = new ArrayList<>();
+        String sql = "SELECT * FROM orders";
+        try (Connection conn = DataBaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setId(rs.getInt("id"));
-                order.setDate(rs.getTimestamp("date").toLocalDateTime());
-                order.setEmployeeId(rs.getObject("employee_id") != null ? rs.getInt("employee_id") : null);
+                order.setDate(rs.getObject("date", LocalDateTime.class));
                 order.setTotal(rs.getDouble("total"));
+
+                int customerId = rs.getInt("customer_id");
+                if (!rs.wasNull()) {
+                    Customer customer = customerDAO.getAllCustomers().stream()
+                            .filter(c -> c.getId() == customerId)
+                            .findFirst()
+                            .orElse(null);
+                    order.setCustomer(customer);
+                }
+
+                int employeeId = rs.getInt("employee_id");
+                if (!rs.wasNull()) {
+                    User employee = userDAO.getAllUsers().stream()
+                            .filter(u -> u.getId() == employeeId)
+                            .findFirst()
+                            .orElse(null);
+                    order.setEmployee(employee);
+                }
+
                 orders.add(order);
             }
         }
         return orders;
     }
 
-    // Thêm đơn hàng
-    public void addOrder(Order order) throws SQLException {
-        String query = "INSERT INTO orders (date, employee_id, total) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setTimestamp(1, Timestamp.valueOf(order.getDate()));
-            if (order.getEmployeeId() != null) {
-                stmt.setInt(2, order.getEmployeeId());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
-            stmt.setDouble(3, order.getTotal());
-            stmt.executeUpdate();
+    public ArrayList<Order> searchOrders(Map<String, String> criteria) throws SQLException {
+        ArrayList<Order> orders = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT o.* FROM orders o LEFT JOIN customers c ON o.customer_id = c.id WHERE 1=1");
+        ArrayList<String> params = new ArrayList<>();
 
-            // Lấy ID của đơn hàng vừa thêm
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                order.setId(rs.getInt(1));
-            }
+        if (criteria.containsKey("id")) {
+            sql.append(" AND o.id = ?");
+            params.add(criteria.get("id"));
         }
-    }
+        if (criteria.containsKey("customer_name")) {
+            sql.append(" AND c.name LIKE ?");
+            params.add("%" + criteria.get("customer_name") + "%");
+        }
+        if (criteria.containsKey("date")) {
+            sql.append(" AND DATE(o.date) = ?");
+            params.add(criteria.get("date"));
+        }
+        if (criteria.containsKey("total_min")) {
+            sql.append(" AND o.total >= ?");
+            params.add(criteria.get("total_min"));
+        }
+        if (criteria.containsKey("total_max")) {
+            sql.append(" AND o.total <= ?");
+            params.add(criteria.get("total_max"));
+        }
+        if (criteria.containsKey("employee_id")) {
+            sql.append(" AND o.employee_id = ?");
+            params.add(criteria.get("employee_id"));
+        }
 
-    // Sửa đơn hàng
-    public void updateOrder(Order order) throws SQLException {
-        String query = "UPDATE orders SET date = ?, employee_id = ?, total = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setTimestamp(1, Timestamp.valueOf(order.getDate()));
-            if (order.getEmployeeId() != null) {
-                stmt.setInt(2, order.getEmployeeId());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setString(i + 1, params.get(i));
             }
-            stmt.setDouble(3, order.getTotal());
-            stmt.setInt(4, order.getId());
-            stmt.executeUpdate();
-        }
-    }
 
-    // Xóa đơn hàng
-    public void deleteOrder(int id) throws SQLException {
-        String query = "DELETE FROM orders WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setId(rs.getInt("id"));
+                    order.setDate(rs.getObject("date", LocalDateTime.class));
+                    order.setTotal(rs.getDouble("total"));
 
-    // Tìm kiếm đơn hàng theo ngày
-    public List<Order> searchOrdersByDate(LocalDateTime startDate, LocalDateTime endDate) throws SQLException {
-        List<Order> orders = new ArrayList<>();
-        String query = "SELECT * FROM orders WHERE date BETWEEN ? AND ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setTimestamp(1, Timestamp.valueOf(startDate));
-            stmt.setTimestamp(2, Timestamp.valueOf(endDate));
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Order order = new Order();
-                order.setId(rs.getInt("id"));
-                order.setDate(rs.getTimestamp("date").toLocalDateTime());
-                order.setEmployeeId(rs.getObject("employee_id") != null ? rs.getInt("employee_id") : null);
-                order.setTotal(rs.getDouble("total"));
-                orders.add(order);
+                    int customerId = rs.getInt("customer_id");
+                    if (!rs.wasNull()) {
+                        Customer customer = customerDAO.getAllCustomers().stream()
+                                .filter(c -> c.getId() == customerId)
+                                .findFirst()
+                                .orElse(null);
+                        order.setCustomer(customer);
+                    }
+
+                    int employeeId = rs.getInt("employee_id");
+                    if (!rs.wasNull()) {
+                        User employee = userDAO.getAllUsers().stream()
+                                .filter(u -> u.getId() == employeeId)
+                                .findFirst()
+                                .orElse(null);
+                        order.setEmployee(employee);
+                    }
+
+                    orders.add(order);
+                }
             }
         }
         return orders;
+    }
+
+    public Order getOrderById(int id) throws SQLException{
+        String sql = "SELECT * FROM orders WHERE id =  ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+                    stmt.setInt(1, id);
+                    if (rs.next()) {
+                        Order order = new Order();
+                        order.setId(rs.getInt("id"));
+                        order.setDate(rs.getObject("date", LocalDateTime.class));
+                        order.setTotal(rs.getDouble("total"));
+
+                        int customerId = rs.getInt("customer_id");
+                        if (!rs.wasNull()) {
+                            Customer customer = customerDAO.getAllCustomers().stream()
+                                .filter(c -> c.getId() == customerId)
+                                .findFirst()
+                                .orElse(null);
+                            order.setCustomer(customer);
+                        }
+
+                    int employeeId = rs.getInt("employee_id");
+                    if (!rs.wasNull()) {
+                        User employee = userDAO.getAllUsers().stream()
+                            .filter(u -> u.getId() == employeeId)
+                            .findFirst()
+                            .orElse(null);
+                        order.setEmployee(employee);
+                    }
+            }
+        }
+        return null;
     }
 }

@@ -8,27 +8,48 @@ CREATE TABLE roles (
     name VARCHAR(50) UNIQUE NOT NULL -- (Nhân viên, Quản lý, Admin)
 );
 
--- Bảng nhóm quyền (Permission Groups)
-CREATE TABLE permission_groups (
+-- Bảng quản lý người dùng (User Management)
+CREATE TABLE user_management (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL -- (Quản lý Sản phẩm, Quản lý Đơn hàng, ...)
-);
-
--- Bảng quyền chi tiết (Permissions)
-CREATE TABLE permissions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    group_id INT,
-    name ENUM('Chỉnh sửa', 'Chỉ xem') NOT NULL,
-    FOREIGN KEY (group_id) REFERENCES permission_groups(id) ON DELETE CASCADE
-);
-
--- Bảng ánh xạ quyền cho từng vai trò (Role-Permissions)
-CREATE TABLE role_permissions (
     role_id INT,
-    permission_id INT,
-    PRIMARY KEY (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Bảng quản lý hóa đơn (Invoice Management)
+CREATE TABLE invoice_management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Bảng quản lý sản phẩm (Product Management)
+CREATE TABLE product_management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Bảng quản lý đơn hàng (Order Management)
+CREATE TABLE order_management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
 -- Bảng người dùng (Users)
@@ -44,7 +65,10 @@ CREATE TABLE users (
 -- Bảng danh mục sản phẩm
 CREATE TABLE category (
     categoryid INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Bảng sản phẩm
@@ -55,6 +79,10 @@ CREATE TABLE products (
     price DECIMAL(10,2) NOT NULL,
     categoryid INT NOT NULL,
     imagePath VARCHAR(255),
+    description TEXT,
+    stock INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
 );
 
@@ -63,7 +91,11 @@ CREATE TABLE customers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(15) UNIQUE NOT NULL,
-    points INT DEFAULT 0
+    email VARCHAR(100),
+    address TEXT,
+    points INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Bảng đơn hàng
@@ -73,8 +105,12 @@ CREATE TABLE orders (
     customer_id INT,
     employee_id INT,
     total DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES users(id),
-    FOREIGN KEY (customer_id) REFERENCES customers(id)
+    status ENUM('Chờ xác nhận', 'Đã xác nhận', 'Đã giao', 'Đã hủy') DEFAULT 'Chờ xác nhận',
+    payment_method ENUM('Tiền mặt', 'Chuyển khoản', 'Thẻ tín dụng') DEFAULT 'Tiền mặt',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (employee_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- Bảng chi tiết đơn hàng
@@ -84,15 +120,18 @@ CREATE TABLE order_details (
     product_id INT,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 -- Xóa dữ liệu cũ nếu có
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE role_permissions;
-TRUNCATE TABLE permissions;
-TRUNCATE TABLE permission_groups;
+TRUNCATE TABLE order_management;
+TRUNCATE TABLE product_management;
+TRUNCATE TABLE invoice_management;
+TRUNCATE TABLE user_management;
 TRUNCATE TABLE order_details;
 TRUNCATE TABLE orders;
 TRUNCATE TABLE products;
@@ -102,70 +141,69 @@ TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Thêm dữ liệu mẫu
-INSERT INTO roles (name) VALUES
+-- Thêm vai trò
+INSERT INTO roles (name) VALUES 
 ('Nhân viên'),
 ('Quản lý'),
 ('Admin');
 
-INSERT INTO permission_groups (name) VALUES
-('Quản lý Sản phẩm'),
-('Quản lý Đơn hàng'),
-('Quản lý Khách hàng'),
-('Quản lý Người dùng');
+-- Thêm quyền quản lý người dùng
+INSERT INTO user_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, false, false, false, true),  -- Nhân viên chỉ xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
-INSERT INTO permissions (group_id, name) VALUES
-(1, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Sản phẩm
-(1, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Sản phẩm
-(2, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Đơn hàng
-(2, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Đơn hàng
-(3, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Khách hàng
-(3, 'Chỉ xem'),   -- Quyền chỉ xem cho Quản lý Khách hàng
-(4, 'Chỉnh sửa'), -- Quyền chỉnh sửa cho Quản lý Người dùng
-(4, 'Chỉ xem');   -- Quyền chỉ xem cho Quản lý Người dùng
+-- Thêm quyền quản lý hóa đơn
+INSERT INTO invoice_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, true, false, false, true),  -- Nhân viên thêm và xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
-INSERT INTO role_permissions (role_id, permission_id) VALUES
--- Nhân viên (role_id = 1)
-(1, 2), -- Chỉ xem Quản lý Sản phẩm
-(1, 4), -- Chỉ xem Quản lý Đơn hàng
-(1, 6), -- Chỉ xem Quản lý Khách hàng
--- Quản lý (role_id = 2)
-(2, 1), -- Chỉnh sửa Quản lý Sản phẩm
-(2, 3), -- Chỉnh sửa Quản lý Đơn hàng
-(2, 5), -- Chỉnh sửa Quản lý Khách hàng
-(2, 8), -- Chỉ xem Quản lý Người dùng
--- Admin (role_id = 3)
-(3, 1), -- Chỉnh sửa Quản lý Sản phẩm
-(3, 3), -- Chỉnh sửa Quản lý Đơn hàng
-(3, 5), -- Chỉnh sửa Quản lý Khách hàng
-(3, 7); -- Chỉnh sửa Quản lý Người dùng
+-- Thêm quyền quản lý sản phẩm
+INSERT INTO product_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, false, false, false, true), -- Nhân viên chỉ xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
-INSERT INTO users (username, password, role_id, status) VALUES
-('employee1', 'emp123', 1, true),
-('manager1', 'mgr123', 2, true),
-('admin1', 'adm123', 3, true);
+-- Thêm quyền quản lý đơn hàng
+INSERT INTO order_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, true, true, false, true),   -- Nhân viên thêm, sửa, xem
+(2, true, true, true, true),    -- Quản lý đầy đủ quyền
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
-INSERT INTO category (name) VALUES
-('Sách Văn học'),
-('Sách Khoa học'),
-('Sách Thiếu nhi');
+-- Thêm users
+INSERT INTO users (username, password, role_id, status) VALUES 
+('nhanvien1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 1, true),
+('quanly1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 2, true),
+('admin1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 3, true);
 
-INSERT INTO products (name, author, price, categoryid) VALUES
-('Nhà giả kim', 'Paulo Coelho', 120000, 1),
-('Đắc nhân tâm', 'Dale Carnegie', 150000, 1),
-('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2),
-('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2),
-('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3);
+-- Thêm danh mục
+INSERT INTO category (name, description) VALUES
+('Sách Văn học', 'Các tác phẩm văn học trong và ngoài nước'),
+('Sách Khoa học', 'Sách về các lĩnh vực khoa học'),
+('Sách Thiếu nhi', 'Sách dành cho trẻ em');
 
-INSERT INTO customers (name, phone, points) VALUES
-('Nguyễn Văn A', '0905123456', 50),
-('Trần Thị B', '0915123456', 30),
-('Lê Văn C', '0925123456', 20);
+-- Thêm sản phẩm
+INSERT INTO products (name, author, price, categoryid, description, stock) VALUES
+('Nhà giả kim', 'Paulo Coelho', 120000, 1, 'Tiểu thuyết nổi tiếng của Paulo Coelho', 50),
+('Đắc nhân tâm', 'Dale Carnegie', 150000, 1, 'Sách về kỹ năng giao tiếp', 30),
+('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2, 'Sách về vật lý thiên văn', 20),
+('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2, 'Sách về tâm linh và triết học', 25),
+('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3, 'Truyện thiếu nhi nổi tiếng', 100);
 
-INSERT INTO orders (customer_id, employee_id, total) VALUES
-(1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
-(2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
-(3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
+-- Thêm khách hàng
+INSERT INTO customers (name, phone, email, address, points) VALUES
+('Nguyễn Văn A', '0905123456', 'nguyenvana@example.com', '123 Đường ABC, Quận 1, TP.HCM', 50),
+('Trần Thị B', '0915123456', 'tranthib@example.com', '456 Đường XYZ, Quận 2, TP.HCM', 30),
+('Lê Văn C', '0925123456', 'levanc@example.com', '789 Đường DEF, Quận 3, TP.HCM', 20);
 
+-- Thêm đơn hàng
+INSERT INTO orders (customer_id, employee_id, total, status, payment_method) VALUES
+(1, 1, 270000, 'Đã giao', 'Tiền mặt'), -- Đơn hàng của Nguyễn Văn A, nhân viên nhanvien1
+(2, 2, 380000, 'Đã giao', 'Chuyển khoản'), -- Đơn hàng của Trần Thị B, quản lý quanly1
+(3, 3, 160000, 'Đã giao', 'Thẻ tín dụng'); -- Đơn hàng của Lê Văn C, admin admin1
+
+-- Thêm chi tiết đơn hàng
 INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
 -- Đơn hàng 1
 (1, 1, 1, 120000), -- Nhà giả kim

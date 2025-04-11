@@ -6,6 +6,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class FrameUtils {
+    public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public static int screenWidth = screenSize.width;
+    public static int screenHeight = screenSize.height;
     
     public static void setResizable(JFrame frame) {
         frame.setResizable(false);

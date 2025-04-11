@@ -5,97 +5,176 @@ import com.bookstore.model.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProductDAO {
-    private Connection conn;
 
-    public ProductDAO() {
-        try {
-            conn = DataBaseConfig.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Xem tất cả sách
-    public List<Product> getAllProducts() throws SQLException {
-        List<Product> products = new ArrayList<>();
-        String query = "SELECT * FROM products";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+    // Lấy tất cả sản phẩm
+    public ArrayList<Product> getAllProducts() throws SQLException {
+        ArrayList<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products";
+        try (Connection conn = DataBaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Product product = new Product();
                 product.setId(rs.getInt("id"));
                 product.setName(rs.getString("name"));
-                product.setPrice(rs.getDouble("price"));
-                product.setStock(rs.getInt("stock"));
-                product.setCategory(rs.getString("category"));
-                product.setAuthor(rs.getString("author"));  
-                product.setImage(rs.getString("image"));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    // Thêm sách
-    public void addProduct(Product product) throws SQLException {
-        String query = "INSERT INTO products (name, price, stock, category, author, image) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, product.getName());
-            stmt.setDouble(2, product.getPrice());
-            stmt.setInt(3, product.getStock());
-            stmt.setString(4, product.getCategory());
-            stmt.setString(5, product.getAuthor());
-            stmt.setString(6, product.getImage());
-            stmt.executeUpdate();
-        }
-    }
-
-    // Sửa sách
-    public void updateProduct(Product product) throws SQLException {
-        String query = "UPDATE products SET name = ?, price = ?, stock = ?, category = ?, author = ?, image = ? WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, product.getName());
-            stmt.setDouble(2, product.getPrice());
-            stmt.setInt(3, product.getStock());
-            stmt.setString(4, product.getCategory());
-            stmt.setString(5, product.getAuthor());
-            stmt.setString(6, product.getImage());
-            stmt.setInt(7, product.getId());
-            stmt.executeUpdate();
-        }
-    }
-
-    // Xóa sách
-    public void deleteProduct(int id) throws SQLException {
-        String query = "DELETE FROM products WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
-
-    // Tìm kiếm sách theo tên hoặc tác giả
-    public List<Product> searchProducts(String keyword) throws SQLException {
-        List<Product> products = new ArrayList<>();
-        String query = "SELECT * FROM products WHERE name LIKE ? OR author LIKE ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, "%" + keyword + "%");
-            stmt.setString(2, "%" + keyword + "%");
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Product product = new Product();
-                product.setId(rs.getInt("id"));
-                product.setName(rs.getString("name"));
-                product.setPrice(rs.getDouble("price"));
-                product.setStock(rs.getInt("stock"));
-                product.setCategory(rs.getString("category"));
                 product.setAuthor(rs.getString("author"));
-                product.setImage(rs.getString("image"));
+                product.setPrice(rs.getDouble("price"));
+                product.setCategoryId(rs.getInt("categoryid"));
+                product.setImagePath(rs.getString("imagePath"));
                 products.add(product);
             }
         }
         return products;
     }
+
+    // Lấy sản phẩm theo ID
+    public Product getProductById(int id) throws SQLException {
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Product product = new Product();
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setAuthor(rs.getString("author"));
+                    product.setPrice(rs.getDouble("price"));
+                    product.setCategoryId(rs.getInt("categoryid"));
+                    product.setImagePath(rs.getString("imagePath"));
+                    return product;
+                }
+            }
+        }
+        return null;
+    }
+
+    // Thêm sản phẩm mới
+    public int addProduct(Product product) throws SQLException {
+        String sql = "INSERT INTO products (name, author, price, categoryid, imagePath) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getAuthor());
+            stmt.setDouble(3, product.getPrice());
+            stmt.setInt(4, product.getCategoryId());
+            stmt.setString(5, product.getImagePath());
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // Trả về ID của sản phẩm vừa thêm
+                }
+            }
+        }
+        throw new SQLException("Không thể lấy ID của sản phẩm vừa thêm!");
+    }
+
+    // Cập nhật sản phẩm
+    public void updateProduct(Product product) throws SQLException {
+        String sql = "UPDATE products SET name = ?, author = ?, price = ?, categoryid = ?, imagePath = ? WHERE id = ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getAuthor());
+            stmt.setDouble(3, product.getPrice());
+            stmt.setInt(4, product.getCategoryId());
+            stmt.setString(5, product.getImagePath());
+            stmt.setInt(6, product.getId());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Không tìm thấy sản phẩm với ID: " + product.getId());
+            }
+        }
+    }
+
+    // Xóa sản phẩm
+    public void deleteProduct(int id) throws SQLException {
+        String sql = "DELETE FROM products WHERE id = ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Không tìm thấy sản phẩm với ID: " + id);
+            }
+        }
+    }
+
+    public Map<String, ArrayList<Product>> getAllProductsByCategory() throws SQLException {
+        Map<String, ArrayList<Product>> categoryProductMap = new HashMap<>();
+        String sql =  "SELECT p.id, p.name, p.author, p.price, p.categoryid, p.imagePath, c.name AS categoryName " +
+                "FROM products p " +
+                "JOIN category c ON p.categoryid = c.categoryid";
+        try (Connection conn = DataBaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    String categoryName = rs.getString("categoryName");
+                    Product product = new Product();
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setAuthor(rs.getString("author"));
+                    product.setPrice(rs.getDouble("price"));
+                    product.setCategoryId(rs.getInt("categoryid"));
+                    product.setImagePath(rs.getString("imagePath"));
+                    categoryProductMap.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(product);
+            }
+        }
+        return categoryProductMap;
+    }
+
+    // Search Product By Criteria
+    public ArrayList<Product> searchProducts(Map<String, String> criteria) throws SQLException {
+        ArrayList<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN category c ON p.categoryid = c.categoryid WHERE 1=1");
+        ArrayList<String> params = new ArrayList<>();
+    
+        if (criteria.containsKey("name")) {
+            sql.append(" AND p.name LIKE ?");
+            params.add("%" + criteria.get("name") + "%");
+        }
+        if (criteria.containsKey("author")) {
+            sql.append(" AND p.author LIKE ?");
+            params.add("%" + criteria.get("author") + "%");
+        }
+        if (criteria.containsKey("category_id")) {
+            sql.append(" AND p.categoryid = ?");
+            params.add(criteria.get("category_id"));
+        }
+        if (criteria.containsKey("price_min")) {
+            sql.append(" AND p.price >= ?");
+            params.add(criteria.get("price_min"));
+        }
+        if (criteria.containsKey("price_max")) {
+            sql.append(" AND p.price <= ?");
+            params.add(criteria.get("price_max"));
+        }
+    
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setString(i + 1, params.get(i));
+            }
+    
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Product product = new Product();
+                    product.setId(rs.getInt("id"));
+                    product.setName(rs.getString("name"));
+                    product.setAuthor(rs.getString("author"));
+                    product.setPrice(rs.getDouble("price"));
+                    product.setCategoryId(rs.getInt("categoryid"));
+                    product.setImagePath(rs.getString("imagePath"));
+                    products.add(product);
+                }
+            }
+        }
+        return products;
+    }
+    
 }

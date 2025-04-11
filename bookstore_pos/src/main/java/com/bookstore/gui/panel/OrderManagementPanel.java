@@ -1,5 +1,7 @@
 package com.bookstore.gui.panel;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
 import java.awt.TextField;
 
 import javax.swing.JPanel;
@@ -7,6 +9,8 @@ import javax.swing.table.DefaultTableModel;
 
 import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.CustomTable;
+import com.bookstore.gui.component.PanelCover;
+import com.bookstore.gui.util.FrameUtils;
 
 public class OrderManagementPanel extends JPanel {
     // North Panel
@@ -24,13 +28,17 @@ public class OrderManagementPanel extends JPanel {
     private Button addBtn;
     private Button deleteBtn;
     private Button updateBtn;
+
     private Button viewDetailBtn;
     private Button refreshBtn;
+    private Button clearBtn;
+
     private Button printPDFBtn;
     private Button exportExcelBtn;
     private Button importExcelbtn;
 
     // Main Panel
+    private PanelCover mainPanel;
     private CustomTable ordersTable;
     private DefaultTableModel ordersTableModel;
     
@@ -40,7 +48,14 @@ public class OrderManagementPanel extends JPanel {
 
     // Init Components
     private void initializeUI(){
+        // North Panel
+        northPanel = new JPanel(new GridBagLayout());
         
+
+
+
+
+
     }
 
 

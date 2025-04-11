@@ -5,7 +5,6 @@ import com.bookstore.model.Customer;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class CustomerDAO {
     private Connection conn;
@@ -19,8 +18,8 @@ public class CustomerDAO {
     }
 
     // Xem tất cả khách hàng
-    public List<Customer> getAllCustomers() throws SQLException {
-        List<Customer> customers = new ArrayList<>();
+    public ArrayList<Customer> getAllCustomers() throws SQLException {
+        ArrayList<Customer> customers = new ArrayList<>();
         String query = "SELECT * FROM customers";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
@@ -68,8 +67,8 @@ public class CustomerDAO {
     }
 
     // Tìm kiếm khách hàng theo tên hoặc số điện thoại
-    public List<Customer> searchCustomers(String keyword) throws SQLException {
-        List<Customer> customers = new ArrayList<>();
+    public ArrayList<Customer> searchCustomers(String keyword) throws SQLException {
+        ArrayList<Customer> customers = new ArrayList<>();
         String query = "SELECT * FROM customers WHERE name LIKE ? OR phone LIKE ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, "%" + keyword + "%");
