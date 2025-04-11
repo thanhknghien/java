@@ -143,4 +143,38 @@ public class OrderDAO {
         }
         return orders;
     }
+
+    public Order getOrderById(int id) throws SQLException{
+        String sql = "SELECT * FROM orders WHERE id =  ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+                    stmt.setInt(1, id);
+                    if (rs.next()) {
+                        Order order = new Order();
+                        order.setId(rs.getInt("id"));
+                        order.setDate(rs.getObject("date", LocalDateTime.class));
+                        order.setTotal(rs.getDouble("total"));
+
+                        int customerId = rs.getInt("customer_id");
+                        if (!rs.wasNull()) {
+                            Customer customer = customerDAO.getAllCustomers().stream()
+                                .filter(c -> c.getId() == customerId)
+                                .findFirst()
+                                .orElse(null);
+                            order.setCustomer(customer);
+                        }
+
+                    int employeeId = rs.getInt("employee_id");
+                    if (!rs.wasNull()) {
+                        User employee = userDAO.getAllUsers().stream()
+                            .filter(u -> u.getId() == employeeId)
+                            .findFirst()
+                            .orElse(null);
+                        order.setEmployee(employee);
+                    }
+            }
+        }
+        return null;
+    }
 }

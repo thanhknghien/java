@@ -1,27 +1,34 @@
 package com.bookstore.gui.component;
 
-import com.bookstore.model.Product;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class ProductGridPanel extends JPanel {
-    private ActionListener cartListener;
+    private static final int COLUMNS = 4;
+    private int itemCount = 0;
 
     public ProductGridPanel() {
-        this.cartListener = cartListener;
-        setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        setLayout(new GridBagLayout());
         setBackground(Color.WHITE);
     }
 
-    public void displayProducts(ArrayList<Product> products) {
+    @Override
+    public Component add(Component comp) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = itemCount % COLUMNS; 
+        gbc.gridy = itemCount / COLUMNS; 
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        itemCount++;
+        super.add(comp, gbc);
+        revalidate();
+        repaint();
+        return comp;
+    }
+
+    public void clearItems() {
         removeAll();
-        for (Product p : products) {
-            ProductCard card = new ProductCard(p);
-            card.addAddToCartListener(cartListener);
-            add(card);
-        }
+        itemCount = 0;
         revalidate();
         repaint();
     }

@@ -39,6 +39,10 @@ public class OrderDetail {
         return product;
     }
 
+    public String getProductName(){
+        return product.getName();
+    }
+
     public void setProduct(Product product) {
         this.product = product;
     }

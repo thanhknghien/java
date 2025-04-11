@@ -6,19 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bookstore.model.Customer;
+import com.bookstore.model.Order;
+import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Product;
+import com.bookstore.model.User;
 
 public class POSBUS {
     private ProductBUS productBUS;
-    private OrderBUS orderBUS;
     private CustomerBUS customerBUS;
-    private ArrayList<Product> products;
-    private ArrayList<Customer> customers;
+    private ArrayList<Product> productList;
+    private ArrayList<Customer> customerList;
 
-    public POSBUS(){
+    public POSBUS() throws SQLException{
         productBUS = new ProductBUS();
-        orderBUS = new OrderBUS();
-        customerBUS = new CustomerBUS();
+        this.productList = productBUS.getAllProducts();
     }
 
     // Loading Category
@@ -30,26 +31,28 @@ public class POSBUS {
         }
     }
 
-    // loading Product By Category
-    public ArrayList<Product> loadingProducts(Map<String, ArrayList<Product>> filterProducts, String categoryName){
-        ArrayList<Product> products = filterProducts.get(categoryName);
-        return products;
+    public Map<String, ArrayList<Product>> getAllProductFilterByCategory() throws SQLException{
+        return productBUS.getAllProductsByCategory();
     }
 
-    // Filter Product By Name or Author
-    public ArrayList<Product> getProductByName(ArrayList<Product> products, String value ) throws SQLException{
-        return productBUS.searhProducts(products, value);
+    public ArrayList<Product> searchProduct(String value){
+        return productBUS.searchProducts(productList, value);
     }
 
-    // get all customers
-    public ArrayList<Customer> getAllCustomers() throws SQLException{
-        return customerBUS.getALlCustomers();
+    public boolean checkout(ArrayList<OrderDetail> details, User employee, Customer customer, double moneyReceived) throws Exception{
+        OrderBUS orderBUS = new OrderBUS();
+        Order order = orderBUS.createOrder(details, employee, customer);
+        return orderBUS.printReceipt(order.getId(), "templates/order.html", "HoaDon"+String.valueOf(order.getId())+".pdf", moneyReceived);
     }
 
-    // Search Customer
-    public ArrayList<Customer> searchCustomers(ArrayList<Customer> list, String value) throws SQLException{
-        return customerBUS.searchCustomer(list, value);
+    public ArrayList<OrderDetail> changeCartToOrder(Map<Integer, OrderDetail> cart){
+        return new ArrayList<>(cart.values());
     }
+
+    // public Customer searchCustomer(String value){
+
+    // }
+
 
     
 }
