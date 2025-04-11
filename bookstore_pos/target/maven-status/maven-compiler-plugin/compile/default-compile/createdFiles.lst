@@ -11,6 +11,7 @@ com\bookstore\BUS\CategoryBUS.class
 com\bookstore\model\Permission.class
 com\bookstore\gui\component\TextField.class
 com\bookstore\controller\UserManagementController$2.class
+com\bookstore\controller\ProductController.class
 com\bookstore\gui\main\POSGUI$ButtonRenderer.class
 com\bookstore\model\Product.class
 com\bookstore\Main.class
@@ -20,7 +21,6 @@ com\bookstore\controller\UserManagementController$6.class
 com\bookstore\dao\PermissionDAO.class
 com\bookstore\util\DateUtil.class
 com\bookstore\util\TableUtil$RowDataExtractor.class
-com\bookstore\gui\component\ProductGridPanel$1.class
 com\bookstore\controller\OrderController.class
 com\bookstore\gui\panel\UserManagementPanel.class
 com\bookstore\util\NumberUtil.class
