@@ -3,9 +3,13 @@ package com.bookstore.gui.component;
 import com.bookstore.gui.util.ColorScheme;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.function.Consumer;
 
 public class TextField extends JTextField {
     private String placeholder;
@@ -31,6 +35,25 @@ public class TextField extends JTextField {
             public void focusLost(FocusEvent e) {
                 isFocused = false;
                 repaint();
+            }
+        });
+    }
+
+    public void addInputListener(Consumer<String> listener) {
+        getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                listener.accept(getText());
+            }
+    
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                listener.accept(getText());
+            }
+    
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                listener.accept(getText());
             }
         });
     }

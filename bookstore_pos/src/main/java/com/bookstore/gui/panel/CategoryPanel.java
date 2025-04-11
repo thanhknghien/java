@@ -329,7 +329,6 @@ public class CategoryPanel extends JPanel {
         categoryID.setText("");
         name.setText("");
     }
-    // Nếu muốn test lại bạn có thể dùng như sau:
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý danh mục");
