@@ -15,6 +15,8 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CategoryPanel extends JPanel {
     private CategoryDAO categoryDAO;
@@ -163,10 +165,12 @@ public class CategoryPanel extends JPanel {
                 return false;
             }
         };
+        
         categorysTable.setModel(categorysTableModel);
-        categorysTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        categorysTable.getTableHeader().setReorderingAllowed(false);
+        categorysTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 if (evt.getClickCount() == 2 && !evt.isConsumed()) {
                     int row = categorysTable.getSelectedRow();
                     if (row >= 0) {

@@ -32,6 +32,7 @@ D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\Cust
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\InvoicePanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\PanelCover.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\Password.java
+D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\PaymentDialog.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\ProductCard.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\ProductGridPanel.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\gui\component\TextField.java
@@ -63,4 +64,5 @@ D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\MessageUtil.j
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\NomalizeVietnamese.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\NumberUtil.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\TableUtil.java
+D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\TimeUtil.java
 D:\projectjava\java\bookstore_pos\src\main\java\com\bookstore\util\ValidationUtil.java

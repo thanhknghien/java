@@ -15,6 +15,8 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.util.List; 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 public class ProductPanel extends JPanel {
 
     private ProductDAO productDAO;
@@ -27,7 +29,7 @@ public class ProductPanel extends JPanel {
     private TextField categoryId;
     private TextField imagePath;
     private TextField searchProduct;
-    private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnReset, btnClear, btnImportFile, btnExportFile;
+    private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnReset, btnClear, btnImportFile, btnExportFile, btnImagePath;
     private JComboBox<String> cboSearchType;
 
     private CustomTable productsTable;
@@ -47,20 +49,20 @@ public class ProductPanel extends JPanel {
 
         // Left panel
         JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setPreferredSize(new Dimension(580, 0)); // Tăng chiều rộng lên 450px
+        leftPanel.setPreferredSize(new Dimension(580, 0)); 
         Border thickBorder = new LineBorder(ColorScheme.BORDER, 2);
         leftPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Nhập thông tin"));
 
         // Phần bên trái: Viền để chứa ảnh
         JPanel imagePanel = new JPanel();
-        imagePanel.setPreferredSize(new Dimension(220, 0)); // Chiều rộng 150px
-        imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1)); // Viền đen đơn giản
+        imagePanel.setPreferredSize(new Dimension(165, 0)); 
+        imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1)); 
         leftPanel.add(imagePanel, BorderLayout.WEST);
 
-        // Phần bên phải: Các ô TextField (2 cột)
+        // Phần bên phải: Các ô TextField 
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbcL = new GridBagConstraints();
-        gbcL.insets = new Insets(5, 5, 2, 5); // Giảm khoảng cách bên trái/phải
+        gbcL.insets = new Insets(5, 5, 2, 5); 
         gbcL.fill = GridBagConstraints.HORIZONTAL;
 
         // Cột 1
@@ -109,8 +111,14 @@ public class ProductPanel extends JPanel {
         imagePath.setPreferredSize(new Dimension(150, 25));
         ColorScheme.styleTextField(imagePath);
         fieldsPanel.add(imagePath, gbcL);
-
+        
+        gbcL.gridx = 2;
+        btnImagePath = new Button("File");
+        btnImagePath.setPreferredSize(new Dimension(60, 25));
+        ColorScheme.styleButton(btnImagePath, false);
+        fieldsPanel.add(btnImagePath, gbcL);
         leftPanel.add(fieldsPanel, BorderLayout.CENTER);
+        
 
         // Right panel (giảm kích thước)
         JPanel rightPanel = new JPanel(new GridBagLayout());
@@ -133,13 +141,13 @@ public class ProductPanel extends JPanel {
         gbcR.anchor = GridBagConstraints.WEST;
         gbcR.gridwidth = 1;
         btnAdd = new Button("Thêm sản phẩm");
-        btnAdd.setPreferredSize(buttonSize);
+        btnAdd.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
 
         gbcR.gridy = 1;
         btnReset = new Button("Làm mới bảng");
-        btnReset.setPreferredSize(buttonSize);
+        btnReset.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
         btnReset.addActionListener(e -> loadProductData());
@@ -206,7 +214,18 @@ public class ProductPanel extends JPanel {
             }
         };
         productsTable.setModel(productsTableModel);
-
+        productsTable.getTableHeader().setReorderingAllowed(false);
+        productsTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getClickCount() == 2 && !evt.isConsumed()) { // Nhấp đúp
+                    int row = productsTable.getSelectedRow();
+                    if (row >= 0) {
+                        fillTextFieldsFromSelectedRow(row);
+                    }
+                }
+            }
+        });
         JScrollPane productsScrollPane = new JScrollPane(productsTable);
         productsScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
         productsScrollPane.setPreferredSize(new Dimension(800, 400));
@@ -228,6 +247,23 @@ public class ProductPanel extends JPanel {
             productsTableModel.addRow(new Object[]{product.getId(), product.getName(), product.getAuthor(),
                 product.getPrice(), product.getCategoryId(), product.getImagePath()} );
         }
+    }
+    
+    public void fillTextFieldsFromSelectedRow(int row){
+        Object productIdValue = productsTableModel.getValueAt(row, 0);
+        Object nameValue = productsTableModel.getValueAt(row, 1);
+        Object authorValue = productsTableModel.getValueAt(row, 2);
+        Object priceValue = productsTableModel.getValueAt(row, 3);
+        Object categoryIdValue = productsTableModel.getValueAt(row, 4);
+        Object imagePathValue = productsTableModel.getValueAt(row, 5);
+        
+        productID.setText(productIdValue.toString());
+        productName.setText(nameValue.toString());
+        author.setText(authorValue.toString());
+        price.setText(priceValue.toString());
+        categoryId.setText(categoryIdValue.toString());
+        imagePath.setText(imagePathValue.toString());
+        
     }
     
     public void clearTextField(){
