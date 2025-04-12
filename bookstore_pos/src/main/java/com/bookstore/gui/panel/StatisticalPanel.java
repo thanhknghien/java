@@ -5,12 +5,14 @@ import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.util.ColorScheme;
 import javax.swing.*;
-
+import com.bookstore.util.TimeUtil;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.*;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import org.jfree.chart.ChartFactory;
@@ -116,7 +118,7 @@ public class StatisticalPanel extends JPanel{
         dateFrom = new JLabel("Từ ngày:");
         fromDatePicker = new JSpinner(new SpinnerDateModel());
         fromDatePicker.setEditor(new JSpinner.DateEditor(fromDatePicker, "dd/MM/yyyy"));
-        fromDatePicker.setValue(new Date(110, Calendar.JANUARY, 1)); // Set default value to 01/01/2010
+        fromDatePicker.setValue(new Date(110, Calendar.JANUARY, 1)); 
         
         dateTo = new JLabel("Đến ngày:");
         toDatePicker = new JSpinner(new SpinnerDateModel());
@@ -159,73 +161,17 @@ public class StatisticalPanel extends JPanel{
 
         mPanel.setPreferredSize(new Dimension(700, 300));
         this.add(mPanel, BorderLayout.CENTER);
-        
-        all.addActionListener(e -> {
-            System.out.println("Tất cả");
-            topAndAllPanel.add(searchField);
-            removeChartTableRadio();
-            removeTablePanel();
-            topAndAllPanel.revalidate();
-            topAndAllPanel.repaint();
-        });
-
-        top.addActionListener(e -> {
-            System.out.println("Top");
-            topAndAllPanel.remove(searchField);
-            addChartTableRadio();
-            removeTablePanel();
-            topAndAllPanel.revalidate();
-            topAndAllPanel.repaint();
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
-
-        rbNgay.addActionListener(e -> {
-            datePanel.remove(monthComboBox);
-            datePanel.remove(fourMonthComboBox);
-            datePanel.remove(threeMonthComboBox);          
-            datePanel.add(dateFrom);
-            datePanel.add(fromDatePicker);
-            datePanel.add(dateTo);
-            datePanel.add(toDatePicker);
-            datePanel.add(searchButton);
-            datePanel.revalidate();
-            datePanel.repaint();
-        });
-
-        rbQuy.addActionListener(e -> {
-            datePanel.remove(fourMonthComboBox);
-            datePanel.remove(dateFrom);
-            datePanel.remove(fromDatePicker);
-            datePanel.remove(dateTo);
-            datePanel.remove(toDatePicker);  
-            datePanel.add(threeMonthComboBox);
-            datePanel.add(monthComboBox);
-            datePanel.add(searchButton);
-            datePanel.revalidate();
-            datePanel.repaint();
-        });
-
-        rbKy.addActionListener(e -> {
-            datePanel.remove(threeMonthComboBox);
-            datePanel.remove(dateFrom);
-            datePanel.remove(fromDatePicker);
-            datePanel.remove(dateTo);
-            datePanel.remove(toDatePicker);
-            datePanel.add(fourMonthComboBox);
-            datePanel.add(monthComboBox);
-            datePanel.add(searchButton);
-            datePanel.revalidate();
-            datePanel.repaint();
-        });
 
         // Gán sự kiện
-        customerRadio.addActionListener(e -> handleTypeSelection("Khách hàng"));
-        productRadio.addActionListener(e -> handleTypeSelection("Sản phẩm"));
-        userRadio.addActionListener(e -> handleTypeSelection("Nhân viên"));
-        searchButton.addActionListener(e -> {
-            controller.buttonSearch(this);
-        });
+        all.addActionListener(controller.createAllRadio(this));
+        top.addActionListener(controller.createTopRadio(this));
+        rbNgay.addActionListener(controller.createDateRadio(this));
+        rbQuy.addActionListener(controller.createThreeMonthRadio(this));
+        rbKy.addActionListener(controller.createFourMonthRadio(this));      
+        customerRadio.addActionListener(controller.handleTypeSelection(this));
+        productRadio.addActionListener(controller.handleTypeSelection(this));
+        userRadio.addActionListener(controller.handleTypeSelection(this));
+        searchButton.addActionListener(controller.createSearchButton(this));
     }
 
     private void initComponentsEast() {
@@ -284,48 +230,8 @@ public class StatisticalPanel extends JPanel{
         contentPanel.setPreferredSize(new Dimension(0, 500));
         this.add(contentPanel, BorderLayout.SOUTH);
 
-        chartRadio.addActionListener(e -> {
-            if (productRadio.isSelected()) {
-                controller.loadProductsChart(this);
-            } else if (customerRadio.isSelected()) {
-                controller.loadCustomersChart(this);
-            } else if (userRadio.isSelected()) {
-                controller.loadUsersChart(this);
-            }
-        });
-        tableRadio.addActionListener(e -> {
-            if (productRadio.isSelected()) {
-                controller.loadProductsTable(this);
-            } else if (customerRadio.isSelected()) {
-                controller.loadCustomersTable(this);
-            } else if (userRadio.isSelected()) {
-                controller.loadUsersTable(this);
-            }
-        });
-        
-    }
-
-    // Các sự kiện
-    private void handleTypeSelection(String type) {
-        chartRadio.setEnabled(true);
-        tableRadio.setEnabled(true);
-        chartRadio.setSelected(true);
-
-        // Reset searchPanel
-        resetSearchPanel();
-        removeTablePanel();
-        
-        // switch (type) {
-        //     case "Khách hàng":
-        //         controller.loadCustomersChart(this);
-        //         break;
-        //     case "Sản phẩm":
-        //         controller.loadProductsChart(this);
-        //         break;
-        //     case "Nhân viên":
-        //         controller.loadUsersChart(this);
-        //         break;
-        // }
+        chartRadio.addActionListener(controller.createChartRadio(this));
+        tableRadio.addActionListener(controller.createTableRadio(this));
         
     }
 
@@ -344,7 +250,7 @@ public class StatisticalPanel extends JPanel{
     public void updateTableProductsTable(Object[][] data, Object[][] data1) {
         tablePanel.removeAll();
         String[] columnNames = {"ID", "Ảnh", "Tên sản phẩm", "Giá", "Số lượng đã bán", "Doanh thu"};
-    
+        
         // Tạo custom table với render hình ảnh
         CustomTable table = new CustomTable(columnNames) {
             @Override
@@ -360,52 +266,87 @@ public class StatisticalPanel extends JPanel{
                 return false; // Không cho phép edit
             }
         };
-
-        // Xử lý dữ liệu và hình ảnh
-        for (Object[] row : data) {
-            String imagePath = (String) row[1];
-            ImageIcon imageIcon;
-            
-            if (imagePath != null && !imagePath.isEmpty() && new File(imagePath).exists()) {
-                imageIcon = new ImageIcon(imagePath);
-            } else {
-                imageIcon = new ImageIcon(getClass().getResource("/product/default_img.png"));
+    
+        // Sử dụng SwingWorker để load ảnh trong background
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                // Tạo một map để cache ảnh đã load
+                Map<String, ImageIcon> imageCache = new HashMap<>();
+                
+                // Xử lý dữ liệu và hình ảnh trong background
+                for (Object[] row : data) {
+                    String imagePath = (String) row[1];
+                    ImageIcon imageIcon;
+                    
+                    // Kiểm tra cache trước
+                    if (imageCache.containsKey(imagePath)) {
+                        imageIcon = imageCache.get(imagePath);
+                    } else {
+                        if (imagePath != null && !imagePath.isEmpty() && new File(imagePath).exists()) {
+                            // Load ảnh gốc
+                            imageIcon = new ImageIcon(imagePath);
+                            
+                            // Resize ảnh trong background
+                            Image image = imageIcon.getImage();
+                            Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                            imageIcon = new ImageIcon(scaledImage);
+                            
+                            // Cache ảnh đã resize
+                            imageCache.put(imagePath, imageIcon);
+                        } else {
+                            // Sử dụng ảnh mặc định
+                            imageIcon = new ImageIcon(getClass().getResource("/product/default_img.png"));
+                            Image image = imageIcon.getImage();
+                            Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                            imageIcon = new ImageIcon(scaledImage);
+                        }
+                    }
+                    
+                    // Cập nhật dữ liệu trong EDT
+                    final ImageIcon finalImageIcon = imageIcon;
+                    final Object[] finalRow = row;
+                    SwingUtilities.invokeLater(() -> {
+                        finalRow[1] = finalImageIcon;
+                    });
+                }
+                
+                return null;
             }
-
-            // Resize ảnh
-            Image image = imageIcon.getImage();
-            Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-            row[1] = new ImageIcon(scaledImage);
-        }
-
-        // Cập nhật dữ liệu cho bảng
-        table.refreshTable(data);
-        
-        // Set row height để hiển thị ảnh đẹp hơn
-        table.setRowHeight(55);
-
-        // Đặt kích thước cho các cột
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);  // Ảnh
-        table.getColumnModel().getColumn(2).setPreferredWidth(200); // Tên
-        table.getColumnModel().getColumn(3).setPreferredWidth(100); // Giá
-        table.getColumnModel().getColumn(4).setPreferredWidth(100); // Số lượng
-        table.getColumnModel().getColumn(5).setPreferredWidth(100); // Doanh thu
-        
-        // Thêm table vào scroll pane
-        JScrollPane scrollPane = new JScrollPane(table);
-        tablePanel.add(scrollPane);
-
-        String[] columnNames1 = {"ID", "Tên danh mục", "Số lượng đã bán"};
-        CustomTable table1 = new CustomTable(columnNames1);
-        table1.setPreferredSize(new Dimension(1200, 400));
-        table1.refreshTable(data1);
-        JScrollPane scrollPane1 = new JScrollPane(table1);
-        tablePanel.add(scrollPane1);
-        
-        // Refresh giao diện
-        tablePanel.revalidate();
-        tablePanel.repaint();
+            
+            @Override
+            protected void done() {
+                // Cập nhật bảng sau khi load xong ảnh
+                table.refreshTable(data);
+                
+                // Set row height để hiển thị ảnh đẹp hơn
+                table.setRowHeight(55);
+    
+                // Đặt kích thước cho các cột
+                table.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
+                table.getColumnModel().getColumn(1).setPreferredWidth(60);  // Ảnh
+                table.getColumnModel().getColumn(2).setPreferredWidth(200); // Tên
+                table.getColumnModel().getColumn(3).setPreferredWidth(100); // Giá
+                table.getColumnModel().getColumn(4).setPreferredWidth(100); // Số lượng
+                table.getColumnModel().getColumn(5).setPreferredWidth(100); // Doanh thu
+                
+                // Thêm table vào scroll pane
+                JScrollPane scrollPane = new JScrollPane(table);
+                tablePanel.add(scrollPane);
+    
+                // Thêm bảng danh mục
+                String[] columnNames1 = {"ID", "Tên danh mục", "Số lượng đã bán"};
+                CustomTable table1 = new CustomTable(columnNames1);
+                table1.setPreferredSize(new Dimension(1200, 400));
+                table1.refreshTable(data1);
+                JScrollPane scrollPane1 = new JScrollPane(table1);
+                tablePanel.add(scrollPane1);
+                
+                // Refresh giao diện
+                tablePanel.revalidate();
+                tablePanel.repaint();
+            }
+        }.execute();
     }
 
     public void updateTableUsersTable(Object[][] data) {
@@ -447,40 +388,73 @@ public class StatisticalPanel extends JPanel{
     }
 
     public void updateTableProductsChart(DefaultCategoryDataset data1, DefaultCategoryDataset data2, DefaultCategoryDataset data3) {
-        tablePanel.removeAll();
-        JFreeChart chartRevenue = ChartFactory.createBarChart(
-            "Top 5 sản phẩm", 
-            "Số lượng bán", 
-            "Sản phẩm", 
-            data1
-            );
-
-        JFreeChart chartQuantity = ChartFactory.createBarChart(
-            "Top 5 sản phẩm", 
-            "Doanh thu", 
-            "Sản phẩm", 
-            data2
-            );
-
-        JFreeChart chartCategory = ChartFactory.createBarChart(
-            "Top 5 danh mục", 
-            "Số lượng bán", 
-            "Thể loại", 
-            data3
-            );
-
-        JPanel chartPanel1 = new ChartPanel(chartRevenue);
-        JPanel chartPanel2 = new ChartPanel(chartQuantity);
-        JPanel chartPanel3 = new ChartPanel(chartCategory);
-        
-        chartPanel1.setPreferredSize(new Dimension(550, 350)); 
-        chartPanel2.setPreferredSize(new Dimension(550, 350));
-        chartPanel3.setPreferredSize(new Dimension(550, 350)); 
-        tablePanel.add(chartPanel1);
-        tablePanel.add(chartPanel2);
-        tablePanel.add(chartPanel3);
-        tablePanel.revalidate();
-        tablePanel.repaint();
+        // Sử dụng SwingWorker để load biểu đồ trong background
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                // Tạo biểu đồ trong background
+                JFreeChart chartRevenue = ChartFactory.createBarChart(
+                    "Top 5 sản phẩm", 
+                    "Số lượng bán", 
+                    "Sản phẩm", 
+                    data1
+                );
+    
+                JFreeChart chartQuantity = ChartFactory.createBarChart(
+                    "Top 5 sản phẩm", 
+                    "Doanh thu", 
+                    "Sản phẩm", 
+                    data2
+                );
+    
+                JFreeChart chartCategory = ChartFactory.createBarChart(
+                    "Top 5 danh mục", 
+                    "Số lượng bán", 
+                    "Thể loại", 
+                    data3
+                );
+    
+                // Tối ưu hiệu suất cho biểu đồ
+                chartRevenue.setAntiAlias(true);
+                chartQuantity.setAntiAlias(true);
+                chartCategory.setAntiAlias(true);
+    
+                // Tạo các panel chứa biểu đồ
+                JPanel chartPanel1 = new ChartPanel(chartRevenue) {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(400, 350);
+                    }
+                };
+                
+                JPanel chartPanel2 = new ChartPanel(chartQuantity) {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(400, 350);
+                    }
+                };
+                
+                JPanel chartPanel3 = new ChartPanel(chartCategory) {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(400, 350);
+                    }
+                };
+    
+                // Cập nhật UI trong EDT
+                SwingUtilities.invokeLater(() -> {
+                    tablePanel.removeAll();
+                    tablePanel.setLayout(new GridLayout(1, 3));
+                    tablePanel.add(chartPanel1);
+                    tablePanel.add(chartPanel2);
+                    tablePanel.add(chartPanel3);
+                    tablePanel.revalidate();
+                    tablePanel.repaint();
+                });
+    
+                return null;
+            }
+        }.execute();
     }
 
     public void updateTableUsersChart(DefaultCategoryDataset data) {
@@ -501,7 +475,7 @@ public class StatisticalPanel extends JPanel{
 
     public void printTableProduct(Object[][] data) {
         tablePanel.removeAll();
-
+        System.out.println(Arrays.deepToString(data));
         String[] columnNames = {"ID", "Tên sản phẩm", "Giá", "Số lượng đã bán", "Doanh thu"};
     
         // Tạo custom table với render hình ảnh
@@ -599,16 +573,11 @@ public class StatisticalPanel extends JPanel{
 
     public void resetDatePanel() {
         rbNgay.setSelected(true);
-        datePanel.remove(monthComboBox);
-        datePanel.remove(fourMonthComboBox);
-        datePanel.remove(threeMonthComboBox);          
-        datePanel.add(dateFrom);
-        datePanel.add(fromDatePicker);
-        datePanel.add(dateTo);
-        datePanel.add(toDatePicker);
-        datePanel.add(searchButton);
-        datePanel.revalidate();
-        datePanel.repaint();
+        removeMonthComboBox();
+        removeFourMonthComboBox();
+        removeThreeMonthComboBox();         
+        addDate();
+        addSearchButton();
     }
 
     public void removeChartTableRadio() {
@@ -632,6 +601,85 @@ public class StatisticalPanel extends JPanel{
         tablePanel.revalidate();
         tablePanel.repaint();
     }
+    
+    public void addDate() {
+        datePanel.add(dateFrom);
+        datePanel.add(fromDatePicker);
+        datePanel.add(dateTo);
+        datePanel.add(toDatePicker);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void removeDate() {
+        datePanel.remove(dateFrom);
+        datePanel.remove(fromDatePicker);
+        datePanel.remove(dateTo);
+        datePanel.remove(toDatePicker);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void addSearchButton() {
+        datePanel.add(searchButton);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void removeSearchButton() {
+        datePanel.remove(searchButton);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void addThreeMonthComboBox() {
+        datePanel.add(threeMonthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+    
+    public void removeThreeMonthComboBox() {
+        datePanel.remove(threeMonthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void addFourMonthComboBox() {
+        datePanel.add(fourMonthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void removeFourMonthComboBox() {
+        datePanel.remove(fourMonthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void addMonthComboBox() {
+        datePanel.add(monthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void removeMonthComboBox() {
+        datePanel.remove(monthComboBox);
+        datePanel.revalidate();
+        datePanel.repaint();
+    }
+
+    public void removeSearchField() {
+        topAndAllPanel.remove(searchField);
+        topAndAllPanel.revalidate();
+        topAndAllPanel.repaint();
+    }
+
+    public void addSearchField() {
+        topAndAllPanel.add(searchField);
+        topAndAllPanel.revalidate();
+        topAndAllPanel.repaint();
+    }
+
     // Getter
     public JPanel getTablePanel() {
         return tablePanel;
@@ -655,6 +703,10 @@ public class StatisticalPanel extends JPanel{
     
     public JRadioButton getChartRadio() {
         return chartRadio;
+    }
+
+    public JRadioButton getTableRadio() {
+        return tableRadio;
     }
 
     public JRadioButton getTopRadio() {

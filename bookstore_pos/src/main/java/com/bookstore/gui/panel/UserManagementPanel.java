@@ -1,6 +1,7 @@
 package com.bookstore.gui.panel;
 
 import com.bookstore.BUS.UserManagementBUS;
+
 import com.bookstore.dao.RoleDAO;
 import com.bookstore.dao.UserDAO;
 import com.bookstore.gui.component.Button;
@@ -21,8 +22,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserManagementPanel extends PanelCover {
+    private JSplitPane jsplitpanel ;
     private JPanel northPanel;
-    private JPanel centerPanel;
+    private JPanel eastPanel;
+    private JPanel westPanel;
     private JPanel southPanel;
     
     // North components
@@ -61,196 +64,190 @@ public class UserManagementPanel extends PanelCover {
     private static final String STATUS_ACTIVE = "Hoạt động";
     private static final String STATUS_INACTIVE = "Ngưng hoạt động";
     
+    private boolean isAdding = false;
+    
     public UserManagementPanel() {
         super();
-        initData();
-        initComponents();
+        initializeComponents();
         setupLayout();
         setupListeners();
-        loadUserData();
+        loadInitialData();
         
-        // Set fixed size
         setPreferredSize(new Dimension(1200, 800));
         setMinimumSize(new Dimension(1200, 800));
         setMaximumSize(new Dimension(1200, 800));
     }
     
-    private void initData() {
+    private void initializeComponents() {
+        // Initialize DAOs and BUS
         userDAO = new UserDAO();
         roleDAO = new RoleDAO();
-        currentUser = null;
         bus = new UserManagementBUS(this);
-    }
-    
-    private void initComponents() {
+
         // Initialize panels
         northPanel = new JPanel();
-        centerPanel = new JPanel();
+        northPanel.setLayout(new GridLayout(1, 2)); // Divide horizontally into 2 equal parts
+        
+        westPanel = new JPanel();
+        eastPanel = new JPanel();
+        northPanel.add(westPanel);
+        northPanel.add(eastPanel);
+        
         southPanel = new JPanel();
         
-        // North components
+        // Initialize north panel components with adjusted sizes
         addButton = new Button("Thêm");
         editButton = new Button("Sửa");
         deleteButton = new Button("Xóa");
-        
         filterRoleComboBox = new JComboBox<>();
-        filterRoleComboBox.addItem("Tất cả vai trò");
-        loadRoleComboBox(filterRoleComboBox);
-        
-        filterStatusComboBox = new JComboBox<>();
-        filterStatusComboBox.addItem("Tất cả");
-        filterStatusComboBox.addItem(STATUS_ACTIVE);
-        filterStatusComboBox.addItem(STATUS_INACTIVE);
-        
+        filterRoleComboBox.setPreferredSize(new Dimension(150, 30));
+        filterStatusComboBox = new JComboBox<>(new String[]{"Tất cả", STATUS_ACTIVE, STATUS_INACTIVE});
+        filterStatusComboBox.setPreferredSize(new Dimension(150, 30));
         searchField = new TextField();
-        searchField.setPlaceholder("Tìm kiếm theo tên người dùng");
-        searchField.setPreferredSize(new Dimension(200, 35));
-        
+        searchField.setPreferredSize(new Dimension(200, 30));
         searchButton = new Button("Tìm kiếm");
         
-        // Center components
+        // Initialize center panel components
         usernameField = new TextField();
-        usernameField.setPlaceholder("Tên người dùng");
-        usernameField.setPreferredSize(new Dimension(300, 35));
-        
         passwordField = new JPasswordField();
-        passwordField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        passwordField.setPreferredSize(new Dimension(300, 35));
-        
         roleComboBox = new JComboBox<>();
-        roleComboBox.setPreferredSize(new Dimension(300, 35));
-        loadRoleComboBox(roleComboBox);
-        
-        statusCheckBox = new JCheckBox(STATUS_ACTIVE);
-        statusCheckBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        statusCheckBox.setSelected(true);
-        
+        statusCheckBox = new JCheckBox("Hoạt động", true);
         saveButton = new Button("Lưu");
-        clearButton = new Button("Hủy");
+        clearButton = new Button("Xóa form");
         
-        // South components
-        String[] columnNames = {"ID", "Tên người dùng", "Mật khẩu", "Vai trò", "Trạng thái"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        
+        // Initialize table components
+        String[] columnNames = {"ID", "Tên đăng nhập", "Mật khẩu", "Vai trò", "Trạng thái"};
         userTable = new CustomTable(columnNames);
-        userTable.setModel(tableModel);
-        userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userTable.setRowHeight(30);
-        userTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        userTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tableModel = (DefaultTableModel) userTable.getModel();
+        tableModel.setRowCount(0);
+        
+        // Load role data
+        loadRoleComboBox(roleComboBox);
+        loadRoleComboBox(filterRoleComboBox);
+        filterRoleComboBox.insertItemAt("Tất cả vai trò", 0);
+        filterRoleComboBox.setSelectedIndex(0);
+        
+        // Make the table non-editable
+        userTable.setDefaultEditor(Object.class, null);
     }
     
     private void setupLayout() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        // North Panel (MenuBar)
-        northPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        northPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        northPanel.setBackground(ColorScheme.PRIMARY);
+        // Setup west panel (left side of north panel)
+        westPanel.setLayout(new BorderLayout(10, 5));
+       
+        westPanel.setPreferredSize(new Dimension(590, 250)); // Increased height
+        westPanel.setMinimumSize(new Dimension(590, 250)); // Increased height
         
-        northPanel.add(addButton);
-        northPanel.add(editButton);
-        northPanel.add(deleteButton);
-        northPanel.add(new JLabel("Vai trò:"));
-        northPanel.add(filterRoleComboBox);
-        northPanel.add(new JLabel("Trạng thái:"));
-        northPanel.add(filterStatusComboBox);
-        northPanel.add(searchField);
-        northPanel.add(searchButton);
+        // Setup east panel (right side of north panel)
+        eastPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        eastPanel.setBorder(BorderFactory.createTitledBorder("Bộ lọc"));
+        eastPanel.setPreferredSize(new Dimension(590, 250)); // Increased height
+        eastPanel.setMinimumSize(new Dimension(590, 250)); // Increased height
         
-        // Center Panel (Form)
-        centerPanel.setLayout(new GridBagLayout());
-        centerPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        centerPanel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
+        // Add components to west panel (left side)
+        eastPanel.add(addButton);
+        eastPanel.add(editButton);
+        eastPanel.add(deleteButton);
+        
+        // Add components to east panel (right side)
+        eastPanel.add(new JLabel("Vai trò:"));
+        eastPanel.add(filterRoleComboBox);
+        eastPanel.add(Box.createHorizontalStrut(10));
+        eastPanel.add(new JLabel("Trạng thái:"));
+        eastPanel.add(filterStatusComboBox);
+        eastPanel.add(Box.createHorizontalStrut(20));
+        eastPanel.add(new JLabel("Tìm kiếm:"));
+        eastPanel.add(searchField);
+        eastPanel.add(searchButton);
+        
+        // Setup form components in westPanel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin người dùng"));
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Username field
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        centerPanel.add(new JLabel("Tên người dùng:"), gbc);
-        
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Tên đăng nhập:"), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        centerPanel.add(usernameField, gbc);
+        formPanel.add(usernameField, gbc);
         
-        // Password field
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        centerPanel.add(new JLabel("Mật khẩu:"), gbc);
-        
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("Mật khẩu:"), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        centerPanel.add(passwordField, gbc);
+        formPanel.add(passwordField, gbc);
         
-        // Role combobox
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        centerPanel.add(new JLabel("Vai trò:"), gbc);
-        
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("Vai trò:"), gbc);
         gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        centerPanel.add(roleComboBox, gbc);
+        formPanel.add(roleComboBox, gbc);
         
-        // Status checkbox
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 1;
-        centerPanel.add(new JLabel("Trạng thái:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(statusCheckBox, gbc);
         
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        centerPanel.add(statusCheckBox, gbc);
-        
-        // Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setOpaque(false);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         buttonPanel.add(saveButton);
         buttonPanel.add(clearButton);
         
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 3;
-        centerPanel.add(buttonPanel, gbc);
+        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        formPanel.add(buttonPanel, gbc);
         
-        // South Panel (Table)
+        // Add form panel to westPanel in the center
+        westPanel.add(formPanel, BorderLayout.CENTER);
+        
+        // Setup south panel (table section)
         southPanel.setLayout(new BorderLayout());
-        southPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        southPanel.setBorder(BorderFactory.createTitledBorder("Danh sách người dùng"));
+        southPanel.setPreferredSize(new Dimension(1180, 450)); // Reduced height to make room for top panel
+        southPanel.setMinimumSize(new Dimension(1180, 450)); // Reduced height to make room for top panel
+        
         JScrollPane scrollPane = new JScrollPane(userTable);
+        scrollPane.setPreferredSize(new Dimension(1180, 450)); // Adjusted to match southPanel
         southPanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Add panels to main panel
+        // Add all panels to main panel
         add(northPanel, BorderLayout.NORTH);
-        add(centerPanel, BorderLayout.CENTER);
         add(southPanel, BorderLayout.SOUTH);
     }
     
     private void setupListeners() {
         // Add button listener
-        addButton.addActionListener(e -> bus.handleAdd());
+        addButton.addActionListener(e -> {
+            isAdding = true;
+            isEditing = false;
+            clearForm();
+            enableForm(true);
+            saveButton.setEnabled(true);
+            addButton.setEnabled(false);
+            editButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+            userTable.setEnabled(false);
+        });
         
         // Edit button listener
         editButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
             if (selectedRow >= 0) {
+                isAdding = false;
+                isEditing = true;
                 int userId = Integer.parseInt(userTable.getValueAt(selectedRow, 0).toString());
                 bus.handleEdit(userId);
+                enableForm(true);
+                saveButton.setEnabled(true);
+                addButton.setEnabled(false);
+                editButton.setEnabled(false);
+                deleteButton.setEnabled(false);
+                userTable.setEnabled(false);
             } else {
-                JOptionPane.showMessageDialog(null, "Vui lòng chọn một người dùng để sửa", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, 
+                    "Vui lòng chọn một người dùng để sửa", 
+                    "Thông báo", 
+                    JOptionPane.INFORMATION_MESSAGE);
             }
         });
         
@@ -278,19 +275,65 @@ public class UserManagementPanel extends PanelCover {
         
         // Save button listener
         saveButton.addActionListener(e -> {
-            String username = usernameField.getText().trim();
-            String password = new String(passwordField.getPassword());
-            Integer roleId = null;
-            String selectedRole = (String) roleComboBox.getSelectedItem();
-            if (selectedRole != null && !selectedRole.isEmpty()) {
-                roleId = Integer.parseInt(selectedRole.split(":")[0]);
+            if (isAdding) {
+                // Xử lý thêm mới
+                String username = usernameField.getText().trim();
+                String password = new String(passwordField.getPassword());
+                
+                if (username.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                        "Vui lòng nhập đầy đủ thông tin",
+                        "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                Integer roleId = null;
+                String selectedRole = (String) roleComboBox.getSelectedItem();
+                if (selectedRole != null && !selectedRole.isEmpty()) {
+                    roleId = Integer.parseInt(selectedRole.split(":")[0]);
+                }
+                boolean status = statusCheckBox.isSelected();
+                
+                try {
+                    User newUser = new User();
+                    newUser.setUsername(username);
+                    newUser.setPassword(password);
+                    newUser.setRoleId(roleId);
+                    newUser.setStatus(status);
+                    
+                    userDAO.addUser(newUser);
+                    loadUserData(); // Tải lại dữ liệu
+                    
+                    JOptionPane.showMessageDialog(this,
+                        "Thêm người dùng thành công",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                    
+                    // Reset form và trạng thái
+                    resetFormState();
+                } catch (SQLException ex) {
+                    handleError("Lỗi khi thêm người dùng", ex);
+                }
+            } else if (isEditing) {
+                // Xử lý cập nhật (giữ nguyên code cũ)
+                String username = usernameField.getText().trim();
+                String password = new String(passwordField.getPassword());
+                Integer roleId = null;
+                String selectedRole = (String) roleComboBox.getSelectedItem();
+                if (selectedRole != null && !selectedRole.isEmpty()) {
+                    roleId = Integer.parseInt(selectedRole.split(":")[0]);
+                }
+                boolean status = statusCheckBox.isSelected();
+                bus.handleSave(username, password, roleId, status);
             }
-            boolean status = statusCheckBox.isSelected();
-            bus.handleSave(username, password, roleId, status);
         });
         
         // Clear button listener
-        clearButton.addActionListener(e -> bus.handleClear());
+        clearButton.addActionListener(e -> {
+            clearForm();
+            resetFormState();
+        });
         
         // Search button listener
         searchButton.addActionListener(e -> applyFilters());
@@ -302,6 +345,10 @@ public class UserManagementPanel extends PanelCover {
         filterStatusComboBox.addActionListener(e -> applyFilters());
     }
     
+    private void loadInitialData() {
+        loadUserData();
+    }
+    
     private void loadRoleComboBox(JComboBox<String> comboBox) {
         try {
             List<Role> roles = roleDAO.getAllRoles();
@@ -309,37 +356,43 @@ public class UserManagementPanel extends PanelCover {
                 comboBox.addItem(role.getId() + ": " + role.getName());
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi tải danh sách vai trò: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            handleError("Lỗi khi tải danh sách vai trò", e);
         }
     }
     
     public void loadUserData() {
         try {
             List<User> users = userDAO.getAllUsers();
-            tableModel.setRowCount(0);
-            
-            for (User user : users) {
-                String roleName = "N/A";
-                if (user.getRoleId() != null) {
+            updateTableWithUsers(users);
+        } catch (SQLException e) {
+            handleError("Lỗi khi tải dữ liệu người dùng", e);
+        }
+    }
+    
+    public void updateTableWithUsers(List<User> users) {
+        tableModel.setRowCount(0);
+        for (User user : users) {
+            String roleName = "N/A";
+            if (user.getRoleId() != null) {
+                try {
                     Role role = roleDAO.getRoleById(user.getRoleId());
                     if (role != null) {
                         roleName = role.getName();
                     }
+                } catch (SQLException e) {
+                    // Log error but continue processing other users
+                    System.err.println("Lỗi khi lấy thông tin vai trò: " + e.getMessage());
                 }
-                
-                Object[] row = {
-                    user.getId(),
-                    user.getUsername(),
-                    user.getPassword(),
-                    roleName,
-                    user.isStatus() ? STATUS_ACTIVE : STATUS_INACTIVE
-                };
-                tableModel.addRow(row);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu người dùng: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            
+            Object[] row = {
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                roleName,
+                user.isStatus() ? STATUS_ACTIVE : STATUS_INACTIVE
+            };
+            tableModel.addRow(row);
         }
     }
     
@@ -366,8 +419,6 @@ public class UserManagementPanel extends PanelCover {
         if (roleComboBox.getItemCount() > 0) {
             roleComboBox.setSelectedIndex(0);
         }
-        isEditing = false;
-        currentUser = null;
     }
     
     private void applyFilters() {
@@ -387,7 +438,6 @@ public class UserManagementPanel extends PanelCover {
                 
                 // Filter by role
                 if (!"Tất cả vai trò".equals(selectedRole)) {
-                    // Extract role name from the selected item (format: "ID: Name")
                     String selectedRoleName = selectedRole.substring(selectedRole.indexOf(":") + 2);
                     Role role = roleDAO.getRoleById(user.getRoleId());
                     if (role == null || !role.getName().equals(selectedRoleName)) {
@@ -421,11 +471,20 @@ public class UserManagementPanel extends PanelCover {
                 };
                 tableModel.addRow(row);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lọc dữ liệu: " + ex.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            handleError("Lỗi khi lọc dữ liệu", e);
         }
+    }
+    
+    private void handleError(String title, Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.trim().isEmpty()) {
+            message = "Đã xảy ra lỗi không xác định";
+        }
+        JOptionPane.showMessageDialog(this, 
+            title + ": " + message, 
+            "Lỗi", 
+            JOptionPane.ERROR_MESSAGE);
     }
     
     // Getters and setters
@@ -448,34 +507,26 @@ public class UserManagementPanel extends PanelCover {
     public DefaultTableModel getTableModel() {
         return tableModel;
     }
-
-    public void updateTableWithUsers(List<User> users) {
-        try {
-            tableModel.setRowCount(0);
-            
-            for (User user : users) {
-                String roleName = "N/A";
-                if (user.getRoleId() != null) {
-                    Role role = roleDAO.getRoleById(user.getRoleId());
-                    if (role != null) {
-                        roleName = role.getName();
-                    }
-                }
-                
-                Object[] row = {
-                    user.getId(),
-                    user.getUsername(),
-                    user.getPassword(),
-                    roleName,
-                    user.isStatus() ? STATUS_ACTIVE : STATUS_INACTIVE
-                };
-                tableModel.addRow(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu người dùng: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
+    
+    private void enableForm(boolean enable) {
+        usernameField.setEnabled(enable);
+        passwordField.setEnabled(enable);
+        roleComboBox.setEnabled(enable);
+        statusCheckBox.setEnabled(enable);
+        saveButton.setEnabled(enable);
+        clearButton.setEnabled(enable);
+    }
+    
+    private void resetFormState() {
+        isAdding = false;
+        isEditing = false;
+        clearForm();
+        enableForm(false);
+        saveButton.setEnabled(false);
+        addButton.setEnabled(true);
+        editButton.setEnabled(true);
+        deleteButton.setEnabled(true);
+        userTable.setEnabled(true);
     }
 }
     

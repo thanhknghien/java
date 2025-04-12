@@ -22,7 +22,7 @@ public class TimeUtil {
         System.out.println(message);
 
         // Ghi log vào file
-        logToFile(taskName, duration);
+        //logToFile(taskName, duration);
     }
 
     private static void logToFile(String taskName, double duration) {

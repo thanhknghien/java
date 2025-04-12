@@ -1,10 +1,17 @@
-package com.bookstore;
-
-import com.bookstore.gui.panel.UserManagementPanel;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.bookstore.gui.main;
 
 import javax.swing.*;
-import java.awt.*;
+import com.bookstore.gui.panel.UserManagementPanel;
+import java.awt.Dimension;
 
+/**
+ *
+ * @author HP
+ */
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

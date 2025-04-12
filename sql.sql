@@ -8,18 +8,48 @@ CREATE TABLE roles (
     name VARCHAR(50) UNIQUE NOT NULL -- (Nhân viên, Quản lý, Admin)
 );
 
--- Bảng nhóm quyền (Permission Groups)
-CREATE TABLE permission_groups (
+-- Bảng quản lý người dùng (User Management)
+CREATE TABLE user_management (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL -- (Quản lý Sản phẩm, Quản lý Đơn hàng, Quản lý Hóa đơn, ...)
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
--- Bảng quyền chi tiết (Permissions)
-CREATE TABLE permissions (
+-- Bảng quản lý hóa đơn (Invoice Management)
+CREATE TABLE invoice_management (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    group_id INT,
-    name ENUM('Chỉnh sửa', 'Chỉ xem') NOT NULL,
-    FOREIGN KEY (group_id) REFERENCES permission_groups(id) ON DELETE CASCADE
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Bảng quản lý sản phẩm (Product Management)
+CREATE TABLE product_management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Bảng quản lý đơn hàng (Order Management)
+CREATE TABLE order_management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT,
+    can_add BOOLEAN DEFAULT false,
+    can_edit BOOLEAN DEFAULT false,
+    can_delete BOOLEAN DEFAULT false,
+    can_view BOOLEAN DEFAULT false,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
 -- Bảng người dùng (Users)
@@ -30,15 +60,6 @@ CREATE TABLE users (
     role_id INT,
     status BOOLEAN DEFAULT true,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
-);
-
--- Bảng ánh xạ quyền cho từng user (User-Permissions)
-CREATE TABLE user_permissions (
-    user_id INT,
-    permission_id INT,
-    PRIMARY KEY (user_id, permission_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
 );
 
 -- Bảng danh mục sản phẩm
@@ -72,7 +93,7 @@ CREATE TABLE orders (
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     customer_id INT,
     employee_id INT,
-    total DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,1) NOT NULL,
     FOREIGN KEY (employee_id) REFERENCES users(id),
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
@@ -90,9 +111,10 @@ CREATE TABLE order_details (
 
 -- Xóa dữ liệu cũ nếu có
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE role_permissions;
-TRUNCATE TABLE permissions;
-TRUNCATE TABLE permission_groups;
+TRUNCATE TABLE order_management;
+TRUNCATE TABLE product_management;
+TRUNCATE TABLE invoice_management;
+TRUNCATE TABLE user_management;
 TRUNCATE TABLE order_details;
 TRUNCATE TABLE orders;
 TRUNCATE TABLE products;
@@ -108,27 +130,35 @@ INSERT INTO roles (name) VALUES
 ('Quản lý'),
 ('Admin');
 
--- Thêm nhóm quyền
-INSERT INTO permission_groups (name) VALUES 
-('Quản lý Sản phẩm'),
-('Quản lý Đơn hàng'),
-('Quản lý Hóa đơn');
+-- Thêm quyền quản lý người dùng
+INSERT INTO user_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, false, false, false, true),  -- Nhân viên chỉ xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
--- Thêm quyền chi tiết
-INSERT INTO permissions (group_id, name) VALUES 
-(1, 'Chỉnh sửa'), -- Quản lý Sản phẩm - Chỉnh sửa
-(1, 'Chỉ xem'),   -- Quản lý Sản phẩm - Chỉ xem
-(2, 'Chỉnh sửa'), -- Quản lý Đơn hàng - Chỉnh sửa
-(2, 'Chỉ xem'),   -- Quản lý Đơn hàng - Chỉ xem
-(3, 'Chỉnh sửa'), -- Quản lý Hóa đơn - Chỉnh sửa
-(3, 'Chỉ xem');   -- Quản lý Hóa đơn - Chỉ xem
+-- Thêm quyền quản lý hóa đơn
+INSERT INTO invoice_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, true, false, false, true),  -- Nhân viên thêm và xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
--- Thêm user hiện có: nhanvien1 (Nhân viên, quyền Chỉ xem Quản lý Sản phẩm)
-INSERT INTO users (username, password, role_id, status) 
-VALUES ('nhanvien1', 'hashed_password1', 1, true); -- role_id 1 là "Nhân viên"
+-- Thêm quyền quản lý sản phẩm
+INSERT INTO product_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, false, false, false, true), -- Nhân viên chỉ xem
+(2, true, true, false, true),   -- Quản lý thêm, sửa, xem
+(3, true, true, true, true);    -- Admin đầy đủ quyền
 
-INSERT INTO user_permissions (user_id, permission_id) 
-VALUES (1, 2); -- user_id 1 là nhanvien1, permission_id 2 là "Chỉ xem" Quản lý Sản phẩm
+-- Thêm quyền quản lý đơn hàng
+INSERT INTO order_management (role_id, can_add, can_edit, can_delete, can_view) VALUES
+(1, true, true, false, true),   -- Nhân viên thêm, sửa, xem
+(2, true, true, true, true),    -- Quản lý đầy đủ quyền
+(3, true, true, true, true);    -- Admin đầy đủ quyền
+
+-- Thêm users
+INSERT INTO users (username, password, role_id, status) VALUES 
+('nhanvien1', '123', 1, true),
+('quanly1', '123', 2, true),
+('admin1', '123', 3, true);
 
 INSERT INTO category (name) VALUES
 ('Sách Văn học'),
@@ -149,8 +179,8 @@ INSERT INTO customers (name, phone, points) VALUES
 
 INSERT INTO orders (customer_id, employee_id, total) VALUES
 (1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
-(2, 2, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
-(3, 3, 160000); -- Đơn hàng của Lê Văn C, admin admin1
+(2, 1, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
+(3, 1, 160000); -- Đơn hàng của Lê Văn C, admin admin1
 
 INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
 -- Đơn hàng 1
