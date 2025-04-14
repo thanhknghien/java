@@ -107,17 +107,28 @@ public class CategoryDAO {
         return false;
     }
     public boolean deleteCategory(int id) {
-    String query = "DELETE FROM Category WHERE CategoryID = ?";
+        String query = "DELETE FROM Category WHERE CategoryID = ?";
 
-    try (Connection conn = DataBaseConfig.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-        pstmt.setInt(1, id);
-        return pstmt.executeUpdate() > 0;
-    } catch (SQLException e) {
-         e.printStackTrace();
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+             e.printStackTrace();
+        }
+        return false;
     }
-    return false;
-}
+    public boolean exists(int id) throws SQLException {
+        String sql = "SELECT 1 FROM category WHERE CategoryID = ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next(); // true nếu có dòng nào khớp
+            }
+        }
+    }
+
 
 }

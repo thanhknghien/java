@@ -6,14 +6,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bookstore.dao.ProductDAO;
+import com.bookstore.dao.CategoryDAO;
 import com.bookstore.model.Product;
 import com.bookstore.util.NomalizeVietnamese;
 
 public class ProductBUS {
     private ProductDAO productDAO;
+    private CategoryDAO categoryDAO;
 
     public ProductBUS(){
         productDAO = new ProductDAO();
+        categoryDAO = new CategoryDAO();
     }
 
     public ArrayList<Product> getAllProducts() throws SQLException{
@@ -51,5 +54,38 @@ public class ProductBUS {
         criteria.put("price_min", min);
         criteria.put("price_max", max);
         return productDAO.searchProducts(criteria);
+    }
+    
+    public int addProduct(Product product) throws SQLException{
+        if(product == null){
+            throw new IllegalArgumentException("Sản phẩm không được null");
+        }
+        if(product.getName() == null || product.getName().trim().isEmpty()){
+            throw new IllegalArgumentException("Tên sản phẩm không được để trống!");
+        }
+        if(product.getAuthor() == null || product.getAuthor().trim().isEmpty()){
+            throw new IllegalArgumentException("Tên tác giả không được để trống!");
+        }
+        if(product.getPrice() < 0){
+            throw new IllegalArgumentException("Giá sản phẩm không được âm!");
+        }
+        if(product.getCategoryId() <= 0){
+            throw new IllegalArgumentException("ID danh mục không hợp lệ!");
+        }
+        if (!categoryDAO.exists(product.getCategoryId())) {
+            throw new IllegalArgumentException("ID danh mục không tồn tại trong hệ thống.");
+        }
+        return productDAO.addProduct(product);
+    }
+    
+    public boolean deleteProduct(int id) throws SQLException{
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID sản phẩm không hợp lệ.");
+        }
+        if (!productDAO.exists(id)) {
+            return false;
+        }
+        productDAO.deleteProduct(id);
+        return true;
     }
 }

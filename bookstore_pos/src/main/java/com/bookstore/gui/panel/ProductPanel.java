@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List; 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 public class ProductPanel extends JPanel {
 
     private ProductDAO productDAO;
@@ -144,6 +145,7 @@ public class ProductPanel extends JPanel {
         btnAdd.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
+        btnAdd.addActionListener(e -> addProduct());
 
         gbcR.gridy = 1;
         btnReset = new Button("Làm mới bảng");
@@ -276,6 +278,54 @@ public class ProductPanel extends JPanel {
         searchProduct.setText("");
     }
     
+    public void addProduct() {
+        String productName = this.productName.getText().trim();
+        String author = this.author.getText().trim();
+        String priceText = this.price.getText().trim();
+        String categoryIdText = this.categoryId.getText().trim();
+        String imagePath = this.imagePath.getText().trim();
+
+        // Kiểm tra đầu vào
+        if (productName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (author.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên tác giả!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (priceText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập giá sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (categoryIdText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập ID danh mục!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            double price = Double.parseDouble(priceText);
+            int categoryId = Integer.parseInt(categoryIdText);
+
+            // Tạo đối tượng Product
+            Product newProduct = new Product(0, productName, author, price, categoryId, imagePath); // ID = 0 vì tự tăng
+
+            // Gọi controller
+            int newProductId = controller.addProduct(newProduct);
+
+            // Làm mới bảng
+            loadProductData();
+            // Xóa các ô nhập liệu
+            clearTextField();
+            JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công! ID: " + newProductId, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Giá hoặc ID danh mục không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý sản phẩm");

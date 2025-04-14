@@ -27,5 +27,13 @@ public class ProductController {
             return new ArrayList<>(); 
         }
     }
+    public int addProduct(Product product) 
+        throws SQLException, IllegalArgumentException {
+        return productBUS.addProduct(product);
+    }
+    
+    public boolean deleteProduct(int id) throws SQLException{
+        return productBUS.deleteProduct(id);
+    }
 
 }

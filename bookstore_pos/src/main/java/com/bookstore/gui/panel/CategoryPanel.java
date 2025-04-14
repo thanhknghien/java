@@ -17,6 +17,10 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import java.io.File;
 
 public class CategoryPanel extends JPanel {
     private CategoryDAO categoryDAO;
@@ -149,6 +153,7 @@ public class CategoryPanel extends JPanel {
         btnExportFile.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnExportFile, false);
         rightPanel.add(btnExportFile, gbcR);
+        btnExportFile.addActionListener(e -> exportTableToPDF());
 
         northPanel.add(leftPanel, BorderLayout.WEST);
         northPanel.add(rightPanel, BorderLayout.EAST);
@@ -327,6 +332,10 @@ public class CategoryPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi khi tìm kiếm: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    public void exportTableToPDF() {
+        
     }
     
     public void clearTextField(){

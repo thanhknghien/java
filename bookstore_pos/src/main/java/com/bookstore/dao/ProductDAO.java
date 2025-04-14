@@ -54,25 +54,25 @@ public class ProductDAO {
     }
 
     // Thêm sản phẩm mới
-    public int addProduct(Product product) throws SQLException {
-        String sql = "INSERT INTO products (name, author, price, categoryid, imagePath) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DataBaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, product.getName());
-            stmt.setString(2, product.getAuthor());
-            stmt.setDouble(3, product.getPrice());
-            stmt.setInt(4, product.getCategoryId());
-            stmt.setString(5, product.getImagePath());
-            stmt.executeUpdate();
+        public int addProduct(Product product) throws SQLException {
+            String sql = "INSERT INTO products (name, author, price, categoryid, imagePath) VALUES (?, ?, ?, ?, ?)";
+            try (Connection conn = DataBaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, product.getName());
+                stmt.setString(2, product.getAuthor());
+                stmt.setDouble(3, product.getPrice());
+                stmt.setInt(4, product.getCategoryId());
+                stmt.setString(5, product.getImagePath());
+                stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1); // Trả về ID của sản phẩm vừa thêm
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1); // Trả về ID của sản phẩm vừa thêm
+                    }
                 }
             }
+            throw new SQLException("Không thể lấy ID của sản phẩm vừa thêm!");
         }
-        throw new SQLException("Không thể lấy ID của sản phẩm vừa thêm!");
-    }
 
     // Cập nhật sản phẩm
     public void updateProduct(Product product) throws SQLException {
@@ -176,5 +176,17 @@ public class ProductDAO {
         }
         return products;
     }
+    
+    public boolean exists(int productId) throws SQLException {
+        String sql = "SELECT 1 FROM products WHERE id = ?";
+        try (Connection conn = DataBaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, productId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next(); // true nếu tìm thấy sản phẩm
+            }
+        }
+    }
+
     
 }
