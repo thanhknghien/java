@@ -60,7 +60,7 @@ public class OrderBUS {
 
         Order order = new Order();
         order.setDate(LocalDateTime.now()); 
-        if(customer.getName() == null){
+        if(customer == null || customer.getName() == null){
             order.setCustomer(null);
         }else{
             order.setCustomer(customer);
@@ -145,24 +145,4 @@ public class OrderBUS {
         return order;
     }
 
-    public static void main(String[] args) throws Exception {
-        OrderBUS bus = new OrderBUS();
-        ArrayList<OrderDetail> list = new ArrayList<>();
-        // list.add(new OrderDetail(null, null, new Product(1, null, 123, 1, null, "abc", null), 12, 123));
-        // try {
-        //     bus.createOrder(list, new User(1,"thanh", "thanh",1, true), null);
-        // } catch (Exception e) {-
-        //     System.out.println(e);
-        // }
-        // ArrayList<Order> list2 = new ArrayList<>();
-        // Map<String,String> criteria = new HashMap<>();
-        //     criteria.put("customer_name", "");
-        //     //criteria.put("total_max", "4000");
-        // list2 = bus.searchOrders(criteria);
-        // for( Order l : list2){
-        //     System.out.println(l.getId());
-        // }
-        bus.printReceipt(4, "templates/order.html", "test-printPDF.pdf", 1000000);
-
-    }
 }

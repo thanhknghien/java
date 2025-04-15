@@ -2,6 +2,7 @@ package com.bookstore.gui.component;
 
 import com.bookstore.gui.util.ColorScheme;
 import com.bookstore.model.Product;
+import com.bookstore.util.NumberUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +39,7 @@ public class ProductCard extends JPanel {
     
         lblName = new JLabel(product.getName(), SwingConstants.CENTER);
         lblAuthor = new JLabel("Tác giả: " + product.getAuthor(), SwingConstants.CENTER);
-        lblPrice = new JLabel(String.format("%.0f₫", product.getPrice()), SwingConstants.CENTER);
+        lblPrice = new JLabel( NumberUtil.formatNumber(product.getPrice()) + " Đ", SwingConstants.CENTER);
         lblPrice.setForeground(ColorScheme.ERROR);
     
         infoPanel.add(lblName);
