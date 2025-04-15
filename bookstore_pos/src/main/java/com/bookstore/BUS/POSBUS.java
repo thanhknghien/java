@@ -16,10 +16,12 @@ public class POSBUS {
     private CustomerBUS customerBUS;
     private ArrayList<Product> productList;
     private ArrayList<Customer> customerList;
+    private Map<String, ArrayList<Product>> categoryAndProduct;
 
     public POSBUS() throws SQLException{
         productBUS = new ProductBUS();
         this.productList = productBUS.getAllProducts();
+        this.categoryAndProduct = productBUS.getAllProductsByCategory();
     }
 
     // Loading Category
@@ -49,9 +51,11 @@ public class POSBUS {
         return new ArrayList<>(cart.values());
     }
 
-    // public Customer searchCustomer(String value){
+    public Map<String, ArrayList<Product>> getCategoryAndProduct() {
+        return categoryAndProduct;
+    }
 
-    // }
+    
 
 
     

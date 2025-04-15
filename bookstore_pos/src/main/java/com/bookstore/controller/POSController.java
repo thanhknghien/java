@@ -80,7 +80,7 @@ public class POSController {
   
 
     public void displayProductOnCategory(String value) throws SQLException{
-        gui.displayProduct(bus.getAllProductFilterByCategory(), value);
+        gui.displayProduct(bus.getCategoryAndProduct(), value);
     }
 
 

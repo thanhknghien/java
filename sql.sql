@@ -160,18 +160,6 @@ INSERT INTO users (username, password, role_id, status) VALUES
 ('quanly1', '123', 2, true),
 ('admin1', '123', 3, true);
 
-INSERT INTO category (name) VALUES
-('Sách Văn học'),
-('Sách Khoa học'),
-('Sách Thiếu nhi');
-
-INSERT INTO products (name, author, price, categoryid) VALUES
-('Nhà giả kim', 'Paulo Coelho', 120000, 1),
-('Đắc nhân tâm', 'Dale Carnegie', 150000, 1),
-('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2),
-('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2),
-('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3);
-
 INSERT INTO customers (name, phone, points) VALUES
 ('Nguyễn Văn A', '0905123456', 50),
 ('Trần Thị B', '0915123456', 30),
@@ -184,10 +172,10 @@ INSERT INTO orders (customer_id, employee_id, total) VALUES
 
 INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
 -- Đơn hàng 1
-(1, 1, 1, 120000), -- Nhà giả kim
-(1, 2, 1, 150000), -- Đắc nhân tâm
+(1, 1, 1, 120000), 
+(1, 2, 1, 150000),
 -- Đơn hàng 2
-(2, 3, 1, 200000), -- Vũ trụ trong một hạt cát
-(2, 4, 1, 180000), -- Hành trình về phương Đông
+(2, 3, 1, 200000), 
+(2, 4, 1, 180000), 
 -- Đơn hàng 3
-(3, 5, 2, 80000);  -- Dế mèn phiêu lưu ký (2 cuốn)
+(3, 5, 2, 80000); 

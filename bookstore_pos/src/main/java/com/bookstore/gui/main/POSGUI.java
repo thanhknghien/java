@@ -233,7 +233,7 @@ public class POSGUI extends JFrame {
             }
         }else{
             productGridPanel.add(new JLabel("Danh sách rỗng!"));
-        }
+        }   
     }
 
     // Display Checkout Dialog
@@ -266,7 +266,9 @@ public class POSGUI extends JFrame {
                 String selectedCategory = categoryList.getSelectedValue();
                 if (selectedCategory != null) {
                     try {
+                        TimeUtil.start();
                         controller.displayProductOnCategory(selectedCategory);
+                        TimeUtil.stop("hiển thị danh mục");
                     } catch (SQLException e1) {
                         e1.printStackTrace();
                     }
@@ -306,7 +308,6 @@ public class POSGUI extends JFrame {
     public void exitFrame(){
         dispose();
     }
-    
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
         private Button increaseButton;
