@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 
 public class ProductCard extends JPanel {
@@ -21,7 +20,7 @@ public class ProductCard extends JPanel {
     private ArrayList<ActionListener> addToCartListeners = new ArrayList<>();
 
     public ProductCard(Product product) {
-        this.product = product; // Gán product để sử dụng sau này
+        this.product = product; 
         setLayout(new BorderLayout(5, 5));
         setPreferredSize(new Dimension(180, 220));
         setBackground(ColorScheme.SURFACE);
@@ -34,7 +33,6 @@ public class ProductCard extends JPanel {
         lblImage.setIcon(icon);
         add(lblImage, BorderLayout.NORTH);
     
-        // Trung tâm: tên + tác giả + giá
         JPanel infoPanel = new JPanel(new GridLayout(3, 1));
         infoPanel.setOpaque(false);
     
@@ -43,10 +41,6 @@ public class ProductCard extends JPanel {
         lblPrice = new JLabel(String.format("%.0f₫", product.getPrice()), SwingConstants.CENTER);
         lblPrice.setForeground(ColorScheme.ERROR);
     
-        ColorScheme.styleLabel(lblName, true);
-        ColorScheme.styleLabel(lblAuthor, false);
-        ColorScheme.styleLabel(lblPrice, true);
-    
         infoPanel.add(lblName);
         infoPanel.add(lblAuthor);
         infoPanel.add(lblPrice);
@@ -54,7 +48,6 @@ public class ProductCard extends JPanel {
     
         // Nút thêm
         btnAdd = new Button("Thêm");
-        ColorScheme.styleButton(btnAdd, true);
         add(btnAdd, BorderLayout.SOUTH);
     
         // Gắn sự kiện cho nút "Thêm"
@@ -71,28 +64,40 @@ public class ProductCard extends JPanel {
     }
 
     private ImageIcon loadImage(String path) {
-        String finalPath;
+        final int WIDTH = 160;
+        final int HEIGHT = 100;
+        final String DEFAULT_IMAGE_PATH = "product/default_img.png";
     
-        // Nếu null hoặc trống thì dùng ảnh mặc định
-        if (path == null || path.trim().isEmpty()) {
-            finalPath = "/product/default_img.png";  // Đường dẫn trong resources
-        } else {
-            File file = new File(path);
-            if (file.exists()) {
-                return new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(160, 100, Image.SCALE_SMOOTH));
-            } else {
-                finalPath = "product/defauly_img.png";  // fallback nếu đường dẫn không tồn tại
-            }
-        }
-    
-        // Load từ resources
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource(finalPath));
-            Image scaled = icon.getImage().getScaledInstance(160, 100, Image.SCALE_SMOOTH);
-            return new ImageIcon(scaled);
+            String finalPath = path;
+
+            if (path == null || path.trim().isEmpty()) {
+                finalPath = DEFAULT_IMAGE_PATH;
+            }
+
+            java.net.URL imageUrl = getClass().getClassLoader().getResource(finalPath);
+            if (imageUrl == null) {
+                finalPath = DEFAULT_IMAGE_PATH;
+                imageUrl = getClass().getClassLoader().getResource(finalPath);
+            }
+
+            if (imageUrl == null) {
+                BufferedImage emptyImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+                return new ImageIcon(emptyImage);
+            }
+    
+            ImageIcon icon = new ImageIcon(imageUrl);
+            Image scaledImage = icon.getImage().getScaledInstance(WIDTH, HEIGHT, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaledImage);
+    
         } catch (Exception e) {
-            // Trường hợp file trong resources bị thiếu
-            return new ImageIcon(new BufferedImage(160, 100, BufferedImage.TYPE_INT_RGB));
+            System.err.println("Error loading image: " + path + " - " + e.getMessage());
+            BufferedImage emptyImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = emptyImage.createGraphics();
+            g2d.setColor(Color.GRAY);
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+            g2d.dispose();
+            return new ImageIcon(emptyImage);
         }
     }
 
