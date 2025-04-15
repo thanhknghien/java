@@ -1,7 +1,6 @@
 package com.bookstore.gui.panel;
 
 import com.bookstore.controller.ProductController;
-import com.bookstore.dao.ProductDAO;
 import com.bookstore.model.Product;
 
 import com.bookstore.gui.component.TextField;
@@ -20,7 +19,6 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 public class ProductPanel extends JPanel {
 
-    private ProductDAO productDAO;
     private ProductController controller;
     
     private TextField productID;
@@ -38,7 +36,6 @@ public class ProductPanel extends JPanel {
 
     public ProductPanel() {
         controller = new ProductController();
-        productDAO = new ProductDAO(); 
         initializeUI();
         loadProductData();
     }
@@ -161,6 +158,7 @@ public class ProductPanel extends JPanel {
         btnUpdate.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
+        btnUpdate.addActionListener(e -> updateProduct());
 
         gbcR.insets = new Insets(5, 0, 2, 10);
         cboSearchType = new JComboBox<>(new String[]{"Tìm theo ID", "Tìm theo tên", "Tìm theo tác giả"});
@@ -180,6 +178,7 @@ public class ProductPanel extends JPanel {
         btnDelete.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnDelete, false);
         rightPanel.add(btnDelete, gbcR);
+        btnDelete.addActionListener(e -> deleteProduct());
 
         gbcR.gridy = 1;
         btnImportFile = new Button("Nhập File 📥");
@@ -326,6 +325,99 @@ public class ProductPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    public void deleteProduct() {
+        String idText = productID.getText().trim();
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            int id = Integer.parseInt(idText);
+            boolean succes = controller.deleteProduct(id);
+            if (succes) {
+                productsTableModel.setRowCount(0);
+                loadProductData();
+                clearTextField();
+                JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể xóa sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {  // Bắt SQLException khi tương tác với CSDL
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void updateProduct(){
+        String idText = productID.getText().trim();
+        String nameText = productName.getText().trim();
+        String priceText = price.getText().trim();
+        String authorText = author.getText().trim();
+        String categoryIdText = categoryId.getText().trim();
+        String imagePathText = imagePath.getText().trim();
+        
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (nameText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên sản phẩm không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (authorText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên tác giả không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (priceText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Giá sản phẩm không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (categoryIdText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mã danh mục không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+//        if (imagePathText.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Đường dẫn ảnh không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+        
+        try {
+            int id = Integer.parseInt(idText); 
+            String name = nameText; 
+            String authorValue = authorText;
+            double priceValue = Double.parseDouble(priceText); 
+            int categoryIdValue = Integer.parseInt(categoryIdText); 
+            String image = imagePathText;
+
+            // Tạo đối tượng Product mới
+            Product updatedProduct = new Product(id, name, authorValue, priceValue, categoryIdValue, image);
+
+            // Gọi controller để cập nhật sản phẩm
+            boolean success = controller.updateProduct(updatedProduct);
+            if (success) {
+                loadProductData(); // Làm mới bảng
+                clearTextField();  // Xóa các ô nhập
+                JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID, giá hoặc mã danh mục không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý sản phẩm");

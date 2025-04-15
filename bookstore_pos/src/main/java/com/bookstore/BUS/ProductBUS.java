@@ -79,13 +79,12 @@ public class ProductBUS {
     }
     
     public boolean deleteProduct(int id) throws SQLException{
-        if (id <= 0) {
-            throw new IllegalArgumentException("ID sản phẩm không hợp lệ.");
-        }
-        if (!productDAO.exists(id)) {
-            return false;
-        }
         productDAO.deleteProduct(id);
         return true;
+    }
+    
+    public boolean updateProduct(Product product) throws SQLException{
+       productDAO.updateProduct(product);
+       return true;
     }
 }

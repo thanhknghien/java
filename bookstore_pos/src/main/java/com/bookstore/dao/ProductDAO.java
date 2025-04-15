@@ -177,16 +177,5 @@ public class ProductDAO {
         return products;
     }
     
-    public boolean exists(int productId) throws SQLException {
-        String sql = "SELECT 1 FROM products WHERE id = ?";
-        try (Connection conn = DataBaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // true nếu tìm thấy sản phẩm
-            }
-        }
-    }
 
-    
 }

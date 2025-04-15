@@ -1,6 +1,6 @@
 package com.bookstore.gui.panel;
 
-import com.bookstore.dao.CategoryDAO;
+//import com.bookstore.dao.CategoryDAO;
 import com.bookstore.model.Category;
 import com.bookstore.controller.CategoryController;
 
@@ -23,7 +23,6 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import java.io.File;
 
 public class CategoryPanel extends JPanel {
-    private CategoryDAO categoryDAO;
     private CategoryController controller;
 
     private TextField categoryID;
@@ -36,7 +35,6 @@ public class CategoryPanel extends JPanel {
     private DefaultTableModel categorysTableModel;
 
     public CategoryPanel() {
-        categoryDAO = new CategoryDAO();
         controller = new CategoryController();
         initializeUI();
         loadCategoriesData();

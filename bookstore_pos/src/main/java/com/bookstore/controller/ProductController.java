@@ -35,5 +35,9 @@ public class ProductController {
     public boolean deleteProduct(int id) throws SQLException{
         return productBUS.deleteProduct(id);
     }
+    
+    public boolean updateProduct(Product product) throws SQLException{
+        return productBUS.updateProduct(product);
+    }
 
 }
