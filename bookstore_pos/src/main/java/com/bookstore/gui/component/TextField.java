@@ -98,4 +98,8 @@ public class TextField extends JTextField {
         g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, 5);
         g2d.dispose();
     }
+
+    public Object setText() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

@@ -1,7 +1,6 @@
 package com.bookstore.gui.panel;
 
 import com.bookstore.controller.ProductController;
-import com.bookstore.dao.ProductDAO;
 import com.bookstore.model.Product;
 
 import com.bookstore.gui.component.TextField;
@@ -15,9 +14,11 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.util.List; 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 public class ProductPanel extends JPanel {
 
-    private ProductDAO productDAO;
     private ProductController controller;
     
     private TextField productID;
@@ -27,7 +28,7 @@ public class ProductPanel extends JPanel {
     private TextField categoryId;
     private TextField imagePath;
     private TextField searchProduct;
-    private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnReset, btnClear, btnImportFile, btnExportFile;
+    private Button btnSearch, btnAdd, btnUpdate, btnDelete, btnReset, btnClear, btnImportFile, btnExportFile, btnImagePath;
     private JComboBox<String> cboSearchType;
 
     private CustomTable productsTable;
@@ -35,7 +36,6 @@ public class ProductPanel extends JPanel {
 
     public ProductPanel() {
         controller = new ProductController();
-        productDAO = new ProductDAO(); 
         initializeUI();
         loadProductData();
     }
@@ -47,20 +47,20 @@ public class ProductPanel extends JPanel {
 
         // Left panel
         JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setPreferredSize(new Dimension(580, 0)); // Tăng chiều rộng lên 450px
+        leftPanel.setPreferredSize(new Dimension(580, 0)); 
         Border thickBorder = new LineBorder(ColorScheme.BORDER, 2);
         leftPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Nhập thông tin"));
 
         // Phần bên trái: Viền để chứa ảnh
         JPanel imagePanel = new JPanel();
-        imagePanel.setPreferredSize(new Dimension(220, 0)); // Chiều rộng 150px
-        imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1)); // Viền đen đơn giản
+        imagePanel.setPreferredSize(new Dimension(165, 0)); 
+        imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1)); 
         leftPanel.add(imagePanel, BorderLayout.WEST);
 
-        // Phần bên phải: Các ô TextField (2 cột)
+        // Phần bên phải: Các ô TextField 
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbcL = new GridBagConstraints();
-        gbcL.insets = new Insets(5, 5, 2, 5); // Giảm khoảng cách bên trái/phải
+        gbcL.insets = new Insets(5, 5, 2, 5); 
         gbcL.fill = GridBagConstraints.HORIZONTAL;
 
         // Cột 1
@@ -109,8 +109,14 @@ public class ProductPanel extends JPanel {
         imagePath.setPreferredSize(new Dimension(150, 25));
         ColorScheme.styleTextField(imagePath);
         fieldsPanel.add(imagePath, gbcL);
-
+        
+        gbcL.gridx = 2;
+        btnImagePath = new Button("File");
+        btnImagePath.setPreferredSize(new Dimension(60, 25));
+        ColorScheme.styleButton(btnImagePath, false);
+        fieldsPanel.add(btnImagePath, gbcL);
         leftPanel.add(fieldsPanel, BorderLayout.CENTER);
+        
 
         // Right panel (giảm kích thước)
         JPanel rightPanel = new JPanel(new GridBagLayout());
@@ -133,13 +139,14 @@ public class ProductPanel extends JPanel {
         gbcR.anchor = GridBagConstraints.WEST;
         gbcR.gridwidth = 1;
         btnAdd = new Button("Thêm sản phẩm");
-        btnAdd.setPreferredSize(buttonSize);
+        btnAdd.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
+        btnAdd.addActionListener(e -> addProduct());
 
         gbcR.gridy = 1;
         btnReset = new Button("Làm mới bảng");
-        btnReset.setPreferredSize(buttonSize);
+        btnReset.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
         btnReset.addActionListener(e -> loadProductData());
@@ -151,6 +158,7 @@ public class ProductPanel extends JPanel {
         btnUpdate.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
+        btnUpdate.addActionListener(e -> updateProduct());
 
         gbcR.insets = new Insets(5, 0, 2, 10);
         cboSearchType = new JComboBox<>(new String[]{"Tìm theo ID", "Tìm theo tên", "Tìm theo tác giả"});
@@ -170,6 +178,7 @@ public class ProductPanel extends JPanel {
         btnDelete.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnDelete, false);
         rightPanel.add(btnDelete, gbcR);
+        btnDelete.addActionListener(e -> deleteProduct());
 
         gbcR.gridy = 1;
         btnImportFile = new Button("Nhập File 📥");
@@ -206,7 +215,18 @@ public class ProductPanel extends JPanel {
             }
         };
         productsTable.setModel(productsTableModel);
-
+        productsTable.getTableHeader().setReorderingAllowed(false);
+        productsTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getClickCount() == 2 && !evt.isConsumed()) { // Nhấp đúp
+                    int row = productsTable.getSelectedRow();
+                    if (row >= 0) {
+                        fillTextFieldsFromSelectedRow(row);
+                    }
+                }
+            }
+        });
         JScrollPane productsScrollPane = new JScrollPane(productsTable);
         productsScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
         productsScrollPane.setPreferredSize(new Dimension(800, 400));
@@ -230,6 +250,23 @@ public class ProductPanel extends JPanel {
         }
     }
     
+    public void fillTextFieldsFromSelectedRow(int row){
+        Object productIdValue = productsTableModel.getValueAt(row, 0);
+        Object nameValue = productsTableModel.getValueAt(row, 1);
+        Object authorValue = productsTableModel.getValueAt(row, 2);
+        Object priceValue = productsTableModel.getValueAt(row, 3);
+        Object categoryIdValue = productsTableModel.getValueAt(row, 4);
+        Object imagePathValue = productsTableModel.getValueAt(row, 5);
+        
+        productID.setText(productIdValue.toString());
+        productName.setText(nameValue.toString());
+        author.setText(authorValue.toString());
+        price.setText(priceValue.toString());
+        categoryId.setText(categoryIdValue.toString());
+        imagePath.setText(imagePathValue.toString());
+        
+    }
+    
     public void clearTextField(){
         productID.setText("");
         productName.setText("");
@@ -238,6 +275,147 @@ public class ProductPanel extends JPanel {
         categoryId.setText("");
         imagePath.setText("");
         searchProduct.setText("");
+    }
+    
+    public void addProduct() {
+        String productName = this.productName.getText().trim();
+        String author = this.author.getText().trim();
+        String priceText = this.price.getText().trim();
+        String categoryIdText = this.categoryId.getText().trim();
+        String imagePath = this.imagePath.getText().trim();
+
+        // Kiểm tra đầu vào
+        if (productName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (author.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên tác giả!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (priceText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập giá sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (categoryIdText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập ID danh mục!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            double price = Double.parseDouble(priceText);
+            int categoryId = Integer.parseInt(categoryIdText);
+
+            // Tạo đối tượng Product
+            Product newProduct = new Product(0, productName, author, price, categoryId, imagePath); // ID = 0 vì tự tăng
+
+            // Gọi controller
+            int newProductId = controller.addProduct(newProduct);
+
+            // Làm mới bảng
+            loadProductData();
+            // Xóa các ô nhập liệu
+            clearTextField();
+            JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công! ID: " + newProductId, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Giá hoặc ID danh mục không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void deleteProduct() {
+        String idText = productID.getText().trim();
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            int id = Integer.parseInt(idText);
+            boolean succes = controller.deleteProduct(id);
+            if (succes) {
+                productsTableModel.setRowCount(0);
+                loadProductData();
+                clearTextField();
+                JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể xóa sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {  // Bắt SQLException khi tương tác với CSDL
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void updateProduct(){
+        String idText = productID.getText().trim();
+        String nameText = productName.getText().trim();
+        String priceText = price.getText().trim();
+        String authorText = author.getText().trim();
+        String categoryIdText = categoryId.getText().trim();
+        String imagePathText = imagePath.getText().trim();
+        
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (nameText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên sản phẩm không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (authorText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên tác giả không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (priceText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Giá sản phẩm không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (categoryIdText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mã danh mục không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+//        if (imagePathText.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Đường dẫn ảnh không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+        
+        try {
+            int id = Integer.parseInt(idText); 
+            String name = nameText; 
+            String authorValue = authorText;
+            double priceValue = Double.parseDouble(priceText); 
+            int categoryIdValue = Integer.parseInt(categoryIdText); 
+            String image = imagePathText;
+
+            // Tạo đối tượng Product mới
+            Product updatedProduct = new Product(id, name, authorValue, priceValue, categoryIdValue, image);
+
+            // Gọi controller để cập nhật sản phẩm
+            boolean success = controller.updateProduct(updatedProduct);
+            if (success) {
+                loadProductData(); // Làm mới bảng
+                clearTextField();  // Xóa các ô nhập
+                JOptionPane.showMessageDialog(this, "Cập nhật sản phẩm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID, giá hoặc mã danh mục không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public static void main(String[] args) {

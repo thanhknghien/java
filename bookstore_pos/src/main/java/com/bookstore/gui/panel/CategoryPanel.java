@@ -1,6 +1,6 @@
 package com.bookstore.gui.panel;
 
-import com.bookstore.dao.CategoryDAO;
+//import com.bookstore.dao.CategoryDAO;
 import com.bookstore.model.Category;
 import com.bookstore.controller.CategoryController;
 
@@ -15,9 +15,14 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import java.io.File;
 
 public class CategoryPanel extends JPanel {
-    private CategoryDAO categoryDAO;
     private CategoryController controller;
 
     private TextField categoryID;
@@ -30,7 +35,6 @@ public class CategoryPanel extends JPanel {
     private DefaultTableModel categorysTableModel;
 
     public CategoryPanel() {
-        categoryDAO = new CategoryDAO();
         controller = new CategoryController();
         initializeUI();
         loadCategoriesData();
@@ -147,6 +151,7 @@ public class CategoryPanel extends JPanel {
         btnExportFile.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnExportFile, false);
         rightPanel.add(btnExportFile, gbcR);
+        btnExportFile.addActionListener(e -> exportTableToPDF());
 
         northPanel.add(leftPanel, BorderLayout.WEST);
         northPanel.add(rightPanel, BorderLayout.EAST);
@@ -163,10 +168,12 @@ public class CategoryPanel extends JPanel {
                 return false;
             }
         };
+        
         categorysTable.setModel(categorysTableModel);
-        categorysTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        categorysTable.getTableHeader().setReorderingAllowed(false);
+        categorysTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 if (evt.getClickCount() == 2 && !evt.isConsumed()) {
                     int row = categorysTable.getSelectedRow();
                     if (row >= 0) {
@@ -323,6 +330,10 @@ public class CategoryPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi khi tìm kiếm: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    public void exportTableToPDF() {
+        
     }
     
     public void clearTextField(){

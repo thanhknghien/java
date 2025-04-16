@@ -2,7 +2,6 @@ package com.bookstore.BUS;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.bookstore.model.Customer;
@@ -16,10 +15,14 @@ public class POSBUS {
     private CustomerBUS customerBUS;
     private ArrayList<Product> productList;
     private ArrayList<Customer> customerList;
+    private Map<String, ArrayList<Product>> categoryAndProduct;
 
     public POSBUS() throws SQLException{
         productBUS = new ProductBUS();
+        customerBUS = new CustomerBUS();
         this.productList = productBUS.getAllProducts();
+        this.categoryAndProduct = productBUS.getAllProductsByCategory();
+        this.customerList = customerBUS.getALlCustomers();
     }
 
     // Loading Category
@@ -49,9 +52,23 @@ public class POSBUS {
         return new ArrayList<>(cart.values());
     }
 
-    // public Customer searchCustomer(String value){
+    public Map<String, ArrayList<Product>> getCategoryAndProduct() {
+        return categoryAndProduct;
+    }
 
-    // }
+    public ArrayList<Customer> seachCustomer(String value){
+        return customerBUS.searchCustomer(customerList, value);
+    }
+
+    public ArrayList<Customer> getCustomerList() {
+        return customerList;
+    }
+
+    public boolean addNewCustomer(Customer newCustomer) throws SQLException{
+        boolean bo = customerBUS.addCustomer(newCustomer);
+        this.customerList = customerBUS.getALlCustomers();
+        return bo;
+    }
 
 
     

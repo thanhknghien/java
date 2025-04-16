@@ -2,18 +2,14 @@ package com.bookstore.controller;
 
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Map;
 
-import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.bookstore.BUS.POSBUS;
-import com.bookstore.gui.component.CategoryList;
+import com.bookstore.gui.component.CustomerDialog;
 import com.bookstore.gui.component.ProductCard;
 import com.bookstore.gui.main.POSGUI;
-import com.bookstore.model.Customer;
 import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Product;
 
@@ -75,16 +71,26 @@ public class POSController {
     public void handleCheckout(double moneyReceived) throws Exception{
         if(bus.checkout(bus.changeCartToOrder(gui.getCart()), gui.getEmployee(), gui.getSelectedCustomer(), moneyReceived)){   
             gui.getCart().clear();
+            gui.displayCart();
         }
     }
   
 
     public void displayProductOnCategory(String value) throws SQLException{
-        gui.displayProduct(bus.getAllProductFilterByCategory(), value);
+        gui.displayProduct(bus.getCategoryAndProduct(), value);
     }
 
+    public void handleSearchCustomer(){
+        CustomerDialog dialog = new CustomerDialog(gui, bus.getCustomerList());
+        gui.setSelectedCustomer(dialog.getSelectedCustomer());
+        gui.displayCustomerSelected(gui.getSelectedCustomer());
+    }
 
-
-
+    public void handleAddCustomer() throws SQLException{
+        CustomerDialog dialog = new CustomerDialog(bus.getCustomerList() ,gui);
+        bus.addNewCustomer(dialog.getSelectedCustomer());
+        gui.setSelectedCustomer(dialog.getSelectedCustomer());
+        gui.displayCustomerSelected(gui.getSelectedCustomer());
+    }
     
 }

@@ -9,7 +9,6 @@ import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Product;
 import com.bookstore.model.User;
 import com.bookstore.util.NumberUtil;
-import com.bookstore.util.TimeUtil;
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.component.Button;
 
@@ -40,8 +39,9 @@ public class POSGUI extends JFrame {
     private ProductGridPanel productGridPanel;
 
     // Right Panel 
-    private CustomComboBox<String> searchCustomerField;
+    private Button searchButton;
     private Button addCustomerButton;
+    private JPanel searchJPanel;
     private CustomTable selectedProductsTable;
     private DefaultTableModel selectedProductsTableModel;
 
@@ -51,16 +51,14 @@ public class POSGUI extends JFrame {
     private Button checkoutButton;
 
 
-    public POSGUI() throws Exception {
-        TimeUtil.start();
+    public POSGUI(User user) throws Exception {
+        this.employee = user;
         this.controller = new POSController(this);
         this.cart = new HashMap<>();
         this.selectedCustomer = new Customer();
-        this.employee = new User(1, "thanh", "thanh", null, true);
         initializeUI();
         controller.displayAllData();
         setVisible(true);
-        TimeUtil.stop("dựng ");
     }
 
     private void initializeUI() {
@@ -106,19 +104,19 @@ public class POSGUI extends JFrame {
         JPanel customerPanel = new JPanel(new BorderLayout());
         customerPanel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
 
-        JPanel searchCustomerPanel = new JPanel(new BorderLayout());
-        searchCustomerPanel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
-
-        this.searchCustomerField = new CustomComboBox();
-        this.searchCustomerField.setPlaceholder("Tìm kiếm khách hàng...");
-        searchCustomerPanel.add(searchCustomerField, BorderLayout.CENTER);
-
-        customerPanel.add(displayCustomerSelected(selectedCustomer), BorderLayout.SOUTH);
-        customerPanel.add(searchCustomerPanel, BorderLayout.CENTER);
-
+        this.searchButton = new Button("Tìm kiếm");
         this.addCustomerButton = new Button("Thêm khách hàng");
         ColorScheme.styleButton(addCustomerButton, false);
-        customerPanel.add(addCustomerButton, BorderLayout.EAST);
+        ColorScheme.styleButton(searchButton, false);
+        JPanel funcPanel = new JPanel();
+        funcPanel.add(searchButton); funcPanel.add(addCustomerButton);
+        onSearchCustomer();
+        onAddCustomer();
+        searchJPanel = new JPanel();
+        searchJPanel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
+        displayCustomerSelected(selectedCustomer);
+        customerPanel.add(searchJPanel, BorderLayout.SOUTH);
+        customerPanel.add(funcPanel, BorderLayout.CENTER);
 
         rightPanel.add(customerPanel, BorderLayout.NORTH);
 
@@ -193,8 +191,8 @@ public class POSGUI extends JFrame {
             selectedProductsTableModel.addRow(new Object[]{
                 product.getName(),
                 quantity,
-                String.format("%.0f", price),
-                String.format("%.0f", total),
+                NumberUtil.formatNumber(price) + " Đ",
+                NumberUtil.formatNumber(total) + " Đ",
                 "Xóa" 
             });
         }
@@ -202,23 +200,33 @@ public class POSGUI extends JFrame {
     }
 
     // Display Customer
-    public JPanel displayCustomerSelected(Customer customer){
-        JPanel selectedCustomerLabel = new JPanel();
-        selectedCustomerLabel.setBackground(ColorScheme.BACKGROUND_SECONDARY);
+    public void displayCustomerSelected(Customer customer){
+        this.searchJPanel.removeAll();
+        this.searchJPanel.revalidate();
+        this.searchJPanel.repaint();
+
+        if(customer == null){
+            searchJPanel.add(new JLabel("Chưa có khách hàng được chọn !"));
+            return;
+        }
+
         if(customer.getName() == null){
-            selectedCustomerLabel.add(new JLabel("Chưa có khách hàng được chọn !"));
-            return selectedCustomerLabel;
+            searchJPanel.add(new JLabel("Chưa có khách hàng được chọn !"));
         }else{
             CustomLabel nameCustomerSelectedLabel = new CustomLabel("Khách hàng: "+ customer.getName());
             CustomLabel phoneCustomerSelectedLabel = new CustomLabel("SĐT: "+ customer.getPhone());
             Button deleteSelectedCustomerBtn = new Button("X");
+            deleteSelectedCustomerBtn.addActionListener(e -> {
+                setSelectedCustomer(new Customer());
+                displayCustomerSelected(getSelectedCustomer());
+                return;
+            });
             ColorScheme.styleButton(deleteSelectedCustomerBtn, true);
         
-            selectedCustomerLabel.add(nameCustomerSelectedLabel);
-            selectedCustomerLabel.add(phoneCustomerSelectedLabel);
-            selectedCustomerLabel.add(deleteSelectedCustomerBtn);
+            searchJPanel.add(nameCustomerSelectedLabel);
+            searchJPanel.add(phoneCustomerSelectedLabel);
+            searchJPanel.add(deleteSelectedCustomerBtn);
 
-            return selectedCustomerLabel;
         }
     }
 
@@ -233,7 +241,7 @@ public class POSGUI extends JFrame {
             }
         }else{
             productGridPanel.add(new JLabel("Danh sách rỗng!"));
-        }
+        }   
     }
 
     // Display Checkout Dialog
@@ -275,7 +283,23 @@ public class POSGUI extends JFrame {
         });
     }
 
+    // Handle search Customer
+    public void onSearchCustomer(){
+        this.searchButton.addActionListener(e -> {
+            controller.handleSearchCustomer();
+        });
+    }
 
+    // Handle add Customer
+    public void onAddCustomer(){
+        this.addCustomerButton.addActionListener(e -> {
+            try {
+                controller.handleAddCustomer();
+            } catch (SQLException e1) {
+                JOptionPane.showMessageDialog(this, e, "Số điện thoại sai định dạng", ABORT);
+            }
+        });
+    }
 
     // Getter Cart
     public Map<Integer, OrderDetail> getCart() {
@@ -302,11 +326,16 @@ public class POSGUI extends JFrame {
         this.cart = cart;
     }
 
+
+
     // Exit POS
     public void exitFrame(){
         dispose();
     }
-    
+
+    public void setSelectedCustomer(Customer selectedCustomer) {
+        this.selectedCustomer = selectedCustomer;
+    }
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
         private Button increaseButton;
@@ -420,6 +449,6 @@ public class POSGUI extends JFrame {
     }
 
     public static void main(String[] args) throws Exception {
-        new POSGUI();
+        new POSGUI(new User(2,"quanly1" , "123", null, true));
     }
 }

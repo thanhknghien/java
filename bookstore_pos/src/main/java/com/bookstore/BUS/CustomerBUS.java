@@ -29,4 +29,13 @@ public class CustomerBUS {
         }
         return result;
     }
+
+    public boolean addCustomer(Customer customer){
+        try {
+            customerDAO.addCustomer(customer);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

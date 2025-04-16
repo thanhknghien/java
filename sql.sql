@@ -65,10 +65,7 @@ CREATE TABLE users (
 -- Bảng danh mục sản phẩm
 CREATE TABLE category (
     categoryid INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL
 );
 
 -- Bảng sản phẩm
@@ -79,10 +76,6 @@ CREATE TABLE products (
     price DECIMAL(10,2) NOT NULL,
     categoryid INT NOT NULL,
     imagePath VARCHAR(255),
-    description TEXT,
-    stock INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (categoryid) REFERENCES category(categoryid) ON DELETE CASCADE
 );
 
@@ -91,11 +84,7 @@ CREATE TABLE customers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(15) UNIQUE NOT NULL,
-    email VARCHAR(100),
-    address TEXT,
-    points INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    points INT DEFAULT 0
 );
 
 -- Bảng đơn hàng
@@ -104,13 +93,9 @@ CREATE TABLE orders (
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     customer_id INT,
     employee_id INT,
-    total DECIMAL(10,2) NOT NULL,
-    status ENUM('Chờ xác nhận', 'Đã xác nhận', 'Đã giao', 'Đã hủy') DEFAULT 'Chờ xác nhận',
-    payment_method ENUM('Tiền mặt', 'Chuyển khoản', 'Thẻ tín dụng') DEFAULT 'Tiền mặt',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (employee_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+    total DECIMAL(10,1) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES users(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 -- Bảng chi tiết đơn hàng
@@ -120,10 +105,8 @@ CREATE TABLE order_details (
     product_id INT,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 -- Xóa dữ liệu cũ nếu có
@@ -173,43 +156,26 @@ INSERT INTO order_management (role_id, can_add, can_edit, can_delete, can_view) 
 
 -- Thêm users
 INSERT INTO users (username, password, role_id, status) VALUES 
-('nhanvien1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 1, true),
-('quanly1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 2, true),
-('admin1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EHsM8', 3, true);
+('nhanvien1', '123', 1, true),
+('quanly1', '123', 2, true),
+('admin1', '123', 3, true);
 
--- Thêm danh mục
-INSERT INTO category (name, description) VALUES
-('Sách Văn học', 'Các tác phẩm văn học trong và ngoài nước'),
-('Sách Khoa học', 'Sách về các lĩnh vực khoa học'),
-('Sách Thiếu nhi', 'Sách dành cho trẻ em');
+INSERT INTO customers (name, phone, points) VALUES
+('Nguyễn Văn A', '0905123456', 50),
+('Trần Thị B', '0915123456', 30),
+('Lê Văn C', '0925123456', 20);
 
--- Thêm sản phẩm
-INSERT INTO products (name, author, price, categoryid, description, stock) VALUES
-('Nhà giả kim', 'Paulo Coelho', 120000, 1, 'Tiểu thuyết nổi tiếng của Paulo Coelho', 50),
-('Đắc nhân tâm', 'Dale Carnegie', 150000, 1, 'Sách về kỹ năng giao tiếp', 30),
-('Vũ trụ trong một hạt cát', 'Stephen Hawking', 200000, 2, 'Sách về vật lý thiên văn', 20),
-('Hành trình về phương Đông', 'Baird T. Spalding', 180000, 2, 'Sách về tâm linh và triết học', 25),
-('Dế mèn phiêu lưu ký', 'Tô Hoài', 80000, 3, 'Truyện thiếu nhi nổi tiếng', 100);
+INSERT INTO orders (customer_id, employee_id, total) VALUES
+(1, 1, 240000), -- Đơn hàng của Nguyễn Văn A, nhân viên employee1
+(2, 1, 350000), -- Đơn hàng của Trần Thị B, quản lý manager1
+(3, 1, 160000); -- Đơn hàng của Lê Văn C, admin admin1
 
--- Thêm khách hàng
-INSERT INTO customers (name, phone, email, address, points) VALUES
-('Nguyễn Văn A', '0905123456', 'nguyenvana@example.com', '123 Đường ABC, Quận 1, TP.HCM', 50),
-('Trần Thị B', '0915123456', 'tranthib@example.com', '456 Đường XYZ, Quận 2, TP.HCM', 30),
-('Lê Văn C', '0925123456', 'levanc@example.com', '789 Đường DEF, Quận 3, TP.HCM', 20);
-
--- Thêm đơn hàng
-INSERT INTO orders (customer_id, employee_id, total, status, payment_method) VALUES
-(1, 1, 270000, 'Đã giao', 'Tiền mặt'), -- Đơn hàng của Nguyễn Văn A, nhân viên nhanvien1
-(2, 2, 380000, 'Đã giao', 'Chuyển khoản'), -- Đơn hàng của Trần Thị B, quản lý quanly1
-(3, 3, 160000, 'Đã giao', 'Thẻ tín dụng'); -- Đơn hàng của Lê Văn C, admin admin1
-
--- Thêm chi tiết đơn hàng
 INSERT INTO order_details (order_id, product_id, quantity, price) VALUES
 -- Đơn hàng 1
-(1, 1, 1, 120000), -- Nhà giả kim
-(1, 2, 1, 150000), -- Đắc nhân tâm
+(1, 1, 1, 120000), 
+(1, 2, 1, 150000),
 -- Đơn hàng 2
-(2, 3, 1, 200000), -- Vũ trụ trong một hạt cát
-(2, 4, 1, 180000), -- Hành trình về phương Đông
+(2, 3, 1, 200000), 
+(2, 4, 1, 180000), 
 -- Đơn hàng 3
-(3, 5, 2, 80000);  -- Dế mèn phiêu lưu ký (2 cuốn)
+(3, 5, 2, 80000); 
