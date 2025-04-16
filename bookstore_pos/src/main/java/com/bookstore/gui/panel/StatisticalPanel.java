@@ -44,6 +44,8 @@ public class StatisticalPanel extends JPanel{
     private JFreeChart chart;
     private ChartPanel chartPanel;
 
+    private boolean searchPerformed = false;
+
     public StatisticalPanel() {
         setLayout(new BorderLayout());
         initComponentsCenter();
@@ -198,6 +200,7 @@ public class StatisticalPanel extends JPanel{
         chartRadio = new JRadioButton("Biểu đồ", true);
         tableRadio = new JRadioButton("Bảng");
         exportPDF = new JButton("Xuất PDF");
+        exportPDF.addActionListener(controller.createExportPDFButton(this));
 
         ButtonGroup datGroup = new ButtonGroup();
         datGroup.add(chartRadio);
@@ -559,6 +562,8 @@ public class StatisticalPanel extends JPanel{
 
     public void removeContent() {
         contentPanel.removeAll();
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
 
     public void resetSearchPanel() {
@@ -569,6 +574,7 @@ public class StatisticalPanel extends JPanel{
         topAndAllPanel.remove(searchField);
         topAndAllPanel.revalidate();
         topAndAllPanel.repaint();
+        searchPerformed = false;
     }
 
     public void resetDatePanel() {
@@ -679,8 +685,47 @@ public class StatisticalPanel extends JPanel{
         topAndAllPanel.revalidate();
         topAndAllPanel.repaint();
     }
+    
+    public void addExportPDF() {
+        datPanel.add(exportPDF);
+        datePanel.revalidate();
+        datPanel.repaint();
+    }
+
+    public void removeExportPDF() {
+        datPanel.remove(exportPDF);
+        datePanel.revalidate();
+        datPanel.repaint();
+    }
+
+    public void removeDatPanel() {
+        contentPanel.remove(datePanel);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    public void addDatPanel() {
+        contentPanel.add(datePanel);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    } 
+
+    public void removeAllDatPanel() {
+        datPanel.removeAll();
+        datePanel.revalidate();
+        datPanel.repaint(); 
+    }
+
+    public boolean isSearchPerformed() {
+        return searchPerformed;
+    }
+    
+    public void setSearchPerformed(boolean performed) {
+        this.searchPerformed = performed;
+    }
 
     // Getter
+
     public JPanel getTablePanel() {
         return tablePanel;
     }
