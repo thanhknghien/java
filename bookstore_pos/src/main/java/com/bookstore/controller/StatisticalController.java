@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 
 import com.bookstore.util.TimeUtil;
-import com.bookstore.util.PDFExporter;
+// import com.bookstore.util.PDFExporter;
 
 
 public class StatisticalController {
@@ -115,114 +115,114 @@ public class StatisticalController {
         };
     }
 
-    public ActionListener createExportPDFButton(StatisticalPanel view) {
-        return e -> {
-            LocalDateTime fromDate = view.getDateFromValue();
-            LocalDateTime toDate = view.getDateToValue();
-            boolean isTop = view.getTopRadio().isSelected();
+    // public ActionListener createExportPDFButton(StatisticalPanel view) {
+    //     return e -> {
+    //         LocalDateTime fromDate = view.getDateFromValue();
+    //         LocalDateTime toDate = view.getDateToValue();
+    //         boolean isTop = view.getTopRadio().isSelected();
             
-            if (view.getProductRadio().isSelected()) {
-                if (isTop) {
-                    PDFExporter.exportProductReport(
-                        statisticalBUS.processProductResults(),
-                        statisticalBUS.processCategorysResults(),
-                        statisticalBUS.getProductSalesMap(),
-                        statisticalBUS.getProductRevenueMap(),
-                        statisticalBUS.getCategorySalesMap(),
-                        fromDate,
-                        toDate,
-                        true
-                    );
-                } else {
-                    // Kiểm tra xem đã thực hiện tìm kiếm chưa
-                    if (!view.isSearchPerformed()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //         if (view.getProductRadio().isSelected()) {
+    //             if (isTop) {
+    //                 PDFExporter.exportProductReport(
+    //                     statisticalBUS.processProductResults(),
+    //                     statisticalBUS.processCategorysResults(),
+    //                     statisticalBUS.getProductSalesMap(),
+    //                     statisticalBUS.getProductRevenueMap(),
+    //                     statisticalBUS.getCategorySalesMap(),
+    //                     fromDate,
+    //                     toDate,
+    //                     true
+    //                 );
+    //             } else {
+    //                 // Kiểm tra xem đã thực hiện tìm kiếm chưa
+    //                 if (!view.isSearchPerformed()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    String keyword = view.getSearchField().getText();
-                    if (keyword.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //                 String keyword = view.getSearchField().getText();
+    //                 if (keyword.isEmpty()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    Object[][] searchResults = statisticalBUS.searchProduct(fromDate, toDate, keyword);
-                    PDFExporter.exportProductReport(
-                        searchResults,
-                        null, // No category data for search results
-                        null,
-                        null,
-                        null,
-                        fromDate,
-                        toDate,
-                        false
-                    );
-                }
-            } else if (view.getCustomerRadio().isSelected()) {
-                if (isTop) {
-                    PDFExporter.exportCustomerReport(
-                        statisticalBUS.processCustomersResults(),
-                        statisticalBUS.getTotalSpentMap(),
-                        fromDate,
-                        toDate,
-                        true
-                    );
-                } else {
-                    // Kiểm tra xem đã thực hiện tìm kiếm chưa
-                    if (!view.isSearchPerformed()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //                 Object[][] searchResults = statisticalBUS.searchProduct(fromDate, toDate, keyword);
+    //                 PDFExporter.exportProductReport(
+    //                     searchResults,
+    //                     null, // No category data for search results
+    //                     null,
+    //                     null,
+    //                     null,
+    //                     fromDate,
+    //                     toDate,
+    //                     false
+    //                 );
+    //             }
+    //         } else if (view.getCustomerRadio().isSelected()) {
+    //             if (isTop) {
+    //                 PDFExporter.exportCustomerReport(
+    //                     statisticalBUS.processCustomersResults(),
+    //                     statisticalBUS.getTotalSpentMap(),
+    //                     fromDate,
+    //                     toDate,
+    //                     true
+    //                 );
+    //             } else {
+    //                 // Kiểm tra xem đã thực hiện tìm kiếm chưa
+    //                 if (!view.isSearchPerformed()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    String keyword = view.getSearchField().getText();
-                    if (keyword.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //                 String keyword = view.getSearchField().getText();
+    //                 if (keyword.isEmpty()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    Object[][] searchResults = statisticalBUS.searchCustomer(fromDate, toDate, keyword);
-                    PDFExporter.exportCustomerReport(
-                        searchResults,
-                        statisticalBUS.getTotalSpentMap(),
-                        fromDate,
-                        toDate,
-                        false
-                    );
-                }
-            } else if (view.getUserRadio().isSelected()) {
-                if (isTop) {
-                    PDFExporter.exportUserReport(
-                        statisticalBUS.processUsersResults(),
-                        statisticalBUS.getTotalRevenueMap(),
-                        fromDate,
-                        toDate,
-                        true
-                    );
-                } else {
-                    // Kiểm tra xem đã thực hiện tìm kiếm chưa
-                    if (!view.isSearchPerformed()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //                 Object[][] searchResults = statisticalBUS.searchCustomer(fromDate, toDate, keyword);
+    //                 PDFExporter.exportCustomerReport(
+    //                     searchResults,
+    //                     statisticalBUS.getTotalSpentMap(),
+    //                     fromDate,
+    //                     toDate,
+    //                     false
+    //                 );
+    //             }
+    //         } else if (view.getUserRadio().isSelected()) {
+    //             if (isTop) {
+    //                 PDFExporter.exportUserReport(
+    //                     statisticalBUS.processUsersResults(),
+    //                     statisticalBUS.getTotalRevenueMap(),
+    //                     fromDate,
+    //                     toDate,
+    //                     true
+    //                 );
+    //             } else {
+    //                 // Kiểm tra xem đã thực hiện tìm kiếm chưa
+    //                 if (!view.isSearchPerformed()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng thực hiện tìm kiếm trước khi xuất PDF!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    String keyword = view.getSearchField().getText();
-                    if (keyword.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
+    //                 String keyword = view.getSearchField().getText();
+    //                 if (keyword.isEmpty()) {
+    //                     JOptionPane.showMessageDialog(null, "Vui lòng nhập từ khóa tìm kiếm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+    //                     return;
+    //                 }
                     
-                    Object[][] searchResults = statisticalBUS.searchUser(fromDate, toDate, keyword);
-                    PDFExporter.exportUserReport(
-                        searchResults,
-                        statisticalBUS.getTotalRevenueMap(),
-                        fromDate,
-                        toDate,
-                        false
-                    );
-                }
-            }
-        };
-    }
+    //                 Object[][] searchResults = statisticalBUS.searchUser(fromDate, toDate, keyword);
+    //                 PDFExporter.exportUserReport(
+    //                     searchResults,
+    //                     statisticalBUS.getTotalRevenueMap(),
+    //                     fromDate,
+    //                     toDate,
+    //                     false
+    //                 );
+    //             }
+    //         }
+    //     };
+    // }
 
     // ===== Top =====
     // ===== Biểu đồ =====

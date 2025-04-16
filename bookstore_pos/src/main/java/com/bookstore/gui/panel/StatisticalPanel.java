@@ -200,7 +200,7 @@ public class StatisticalPanel extends JPanel{
         chartRadio = new JRadioButton("Biểu đồ", true);
         tableRadio = new JRadioButton("Bảng");
         exportPDF = new JButton("Xuất PDF");
-        exportPDF.addActionListener(controller.createExportPDFButton(this));
+        // exportPDF.addActionListener(controller.createExportPDFButton(this));
 
         ButtonGroup datGroup = new ButtonGroup();
         datGroup.add(chartRadio);
