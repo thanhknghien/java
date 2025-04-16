@@ -17,10 +17,16 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import java.sql.SQLException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.awt.FileDialog;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class CategoryPanel extends JPanel {
     private CategoryController controller;
@@ -60,7 +66,7 @@ public class CategoryPanel extends JPanel {
         categoryID.setPlaceholder("ID: [Tự động tăng]");
         categoryID.setFocusable(false);
         categoryID.setPreferredSize(new Dimension(200, 25));
-        categoryID.setBackground(new Color(224, 224, 224));
+        categoryID.setBackground(new java.awt.Color(224, 224, 224));
         leftPanel.add(categoryID, gbcL);
 
         gbcL.gridy = 1;
@@ -137,6 +143,7 @@ public class CategoryPanel extends JPanel {
         btnImportFile.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnImportFile, false);
         rightPanel.add(btnImportFile, gbcR);
+        btnImportFile.addActionListener(e ->importFromExcel());
 
         gbcR.gridy = 0;
         btnSearch = new Button("Tìm kiếm 🔍");
@@ -335,7 +342,89 @@ public class CategoryPanel extends JPanel {
     public void exportTableToPDF() {
         
     }
-    
+    public void importFromExcel() {
+        FileDialog fileDialog = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chọn file Excel", FileDialog.LOAD);
+        fileDialog.setFile("*.xlsx;*.xls");
+        fileDialog.setFilenameFilter((dir, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return lowercaseName.endsWith(".xlsx") || lowercaseName.endsWith(".xls");
+        });
+
+        fileDialog.setVisible(true);
+
+        String directory = fileDialog.getDirectory();
+        String file = fileDialog.getFile();
+
+        if (directory != null && file != null) {
+            String excelFilePath = directory + file;
+            try (FileInputStream fis = new FileInputStream(excelFilePath);
+                 Workbook workbook = new XSSFWorkbook(fis)) {
+
+                Sheet sheet = workbook.getSheetAt(0);
+                int rowCount = 0;
+
+                for (Row row : sheet) {
+                    if (rowCount == 0) {
+                        rowCount++;
+                        continue;
+                    }
+
+                    String name = getCellValueAsString(row.getCell(1));
+
+                    if (name.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Tên danh mục không được để trống (dòng " + (rowCount + 1) + ")", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        continue;
+                    }
+
+                    // Tạo đối tượng Category với ID là 0 (tự tăng)
+                    Category category = new Category(0, name);
+                    // Gọi controller để thêm danh mục và nhận ID mới
+                    controller.addCategory(category);
+
+                    rowCount++;
+                }
+
+                loadCategoriesData();
+                JOptionPane.showMessageDialog(this, "Nhập dữ liệu từ Excel thành công! Đã thêm " + (rowCount - 1) + " danh mục.", 
+                    "Thành công", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi đọc file Excel: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString();
+                } else {
+                    double numericValue = cell.getNumericCellValue();
+                    if (numericValue == Math.floor(numericValue)) {
+                        return String.valueOf((int) numericValue);
+                    } else {
+                        return String.valueOf(numericValue);
+                    }
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
+    }
     public void clearTextField(){
         categoryID.setText("");
         name.setText("");

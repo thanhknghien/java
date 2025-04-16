@@ -63,7 +63,7 @@ public class ProductCard extends JPanel {
         return btnAdd;
     }
 
-    private ImageIcon loadImage(String path) {
+        private ImageIcon loadImage(String path) {
         final int WIDTH = 160;
         final int HEIGHT = 100;
         final String DEFAULT_IMAGE_PATH = "product/default_img.png";
@@ -100,7 +100,9 @@ public class ProductCard extends JPanel {
             return new ImageIcon(emptyImage);
         }
     }
-
+        
+    
+        
     private void fireAddToCartEvent() {
         ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "addToCart");
         for (ActionListener listener : addToCartListeners) {

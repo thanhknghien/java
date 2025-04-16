@@ -3,10 +3,7 @@ com\bookstore\controller\UserManagementController$5.class
 com\bookstore\gui\component\PaymentDialog.class
 com\bookstore\gui\util\ColorScheme.class
 com\bookstore\model\OrderManagement.class
-<<<<<<< HEAD
-=======
 com\bookstore\gui\component\TextField$2.class
->>>>>>> 0843a7fbeb0d3caaa8668d59a4304f85d31444eb
 com\bookstore\model\User.class
 com\bookstore\util\TableUtil$RowDataExtractor.class
 com\bookstore\util\NumberUtil.class
@@ -34,6 +31,7 @@ com\bookstore\dao\UserDAO.class
 com\bookstore\gui\panel\StatisticalPanel$3$2.class
 com\bookstore\BUS\CustomerBUS.class
 com\bookstore\dao\ProductManagementDAO.class
+com\bookstore\gui\panel\CategoryPanel$3.class
 com\bookstore\dao\UserManagementDAO.class
 com\bookstore\controller\UserManagementController$6.class
 com\bookstore\util\DateUtil.class
@@ -41,6 +39,7 @@ com\bookstore\gui\panel\ProductPanel$1.class
 com\bookstore\gui\component\CustomLabel.class
 com\bookstore\util\TableUtil.class
 com\bookstore\controller\UserManagementController$3.class
+com\bookstore\gui\panel\ProductPanel$3.class
 com\bookstore\gui\panel\StatisticalPanel$3$3.class
 com\bookstore\gui\component\TextField$1.class
 com\bookstore\gui\panel\ProductPanel$2.class
@@ -56,10 +55,7 @@ com\bookstore\gui\panel\OrderManagementPanel.class
 com\bookstore\gui\main\Main.class
 com\bookstore\BUS\OrderBUS.class
 com\bookstore\gui\panel\CategoryPanel$2.class
-<<<<<<< HEAD
-=======
 com\bookstore\gui\component\CategoryList$1.class
->>>>>>> 0843a7fbeb0d3caaa8668d59a4304f85d31444eb
 com\bookstore\BUS\CategoryBUS.class
 com\bookstore\model\InvoiceManagement.class
 com\bookstore\BUS\POSBUS.class
@@ -85,15 +81,10 @@ com\bookstore\gui\panel\CategoryPanel.class
 com\bookstore\gui\component\ProductCard$1.class
 com\bookstore\model\ProductManagement.class
 com\bookstore\gui\component\TextField.class
-<<<<<<< HEAD
-com\bookstore\controller\ProductController.class
-com\bookstore\gui\main\POSGUI$ButtonRenderer.class
-=======
 com\bookstore\gui\component\CustomTable$1.class
 com\bookstore\controller\ProductController.class
 com\bookstore\gui\main\POSGUI$ButtonRenderer.class
 com\bookstore\gui\panel\CustomerPanel$2.class
->>>>>>> 0843a7fbeb0d3caaa8668d59a4304f85d31444eb
 com\bookstore\model\Product.class
 com\bookstore\controller\POSController$1.class
 com\bookstore\controller\StatisticalController.class
@@ -103,10 +94,7 @@ com\bookstore\gui\panel\UserManagementPanel.class
 com\bookstore\controller\LoginController.class
 com\bookstore\gui\component\Button$1.class
 com\bookstore\gui\component\ProductGridPanel.class
-<<<<<<< HEAD
-=======
 com\bookstore\gui\panel\CustomerPanel.class
->>>>>>> 0843a7fbeb0d3caaa8668d59a4304f85d31444eb
 com\bookstore\controller\POSController.class
 com\bookstore\util\NomalizeVietnamese.class
 com\bookstore\config\DataBaseConfig.class
@@ -118,7 +106,4 @@ com\bookstore\BUS\LoginBUS.class
 com\bookstore\gui\component\CategoryList.class
 com\bookstore\gui\panel\ProductPanel.class
 com\bookstore\gui\panel\LoginPanel.class
-<<<<<<< HEAD
-=======
 com\bookstore\gui\panel\CustomerPanel$1.class
->>>>>>> 0843a7fbeb0d3caaa8668d59a4304f85d31444eb

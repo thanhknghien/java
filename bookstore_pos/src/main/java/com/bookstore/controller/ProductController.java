@@ -39,5 +39,20 @@ public class ProductController {
     public boolean updateProduct(Product product) throws SQLException{
         return productBUS.updateProduct(product);
     }
-
+    
+    public Product searchById(int id) throws SQLException{
+        return productBUS.searchById(id);
+    }
+    
+    public List<Product> searchByName(String name) throws SQLException{
+        return productBUS.searchByName(name);
+    }
+    
+    public List<Product> searchByAuthor(String author) throws SQLException{
+        return productBUS.searchByAuthor(author);
+    }
+    
+    public List<Product> searchByCategoryId(int categoryId) throws SQLException{
+        return productBUS.searchByCategoryId(categoryId);
+    }
 }
