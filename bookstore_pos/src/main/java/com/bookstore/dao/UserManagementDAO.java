@@ -23,7 +23,6 @@ public class UserManagementDAO {
             while (rs.next()) {
                 UserManagement userManagement = new UserManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -45,7 +44,6 @@ public class UserManagementDAO {
             if (rs.next()) {
                 return new UserManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -59,9 +57,9 @@ public class UserManagementDAO {
     }
 
     public boolean add(UserManagement userManagement) {
-        String sql = "INSERT INTO user_management (role_id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user_management (id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userManagement.getRoleId());
+            pstmt.setInt(1, userManagement.getId());
             pstmt.setBoolean(2, userManagement.isCanAdd());
             pstmt.setBoolean(3, userManagement.isCanEdit());
             pstmt.setBoolean(4, userManagement.isCanDelete());
@@ -74,14 +72,13 @@ public class UserManagementDAO {
     }
 
     public boolean update(UserManagement userManagement) {
-        String sql = "UPDATE user_management SET role_id = ?, can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
+        String sql = "UPDATE user_management SET  can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userManagement.getRoleId());
-            pstmt.setBoolean(2, userManagement.isCanAdd());
-            pstmt.setBoolean(3, userManagement.isCanEdit());
-            pstmt.setBoolean(4, userManagement.isCanDelete());
-            pstmt.setBoolean(5, userManagement.isCanView());
-            pstmt.setInt(6, userManagement.getId());
+            pstmt.setBoolean(1, userManagement.isCanAdd());
+            pstmt.setBoolean(2, userManagement.isCanEdit());
+            pstmt.setBoolean(3, userManagement.isCanDelete());
+            pstmt.setBoolean(4, userManagement.isCanView());
+            pstmt.setInt(5, userManagement.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

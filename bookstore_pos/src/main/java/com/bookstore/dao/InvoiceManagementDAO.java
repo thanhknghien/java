@@ -22,7 +22,6 @@ public class InvoiceManagementDAO {
             while (rs.next()) {
                 InvoiceManagement invoiceManagement = new InvoiceManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -44,7 +43,6 @@ public class InvoiceManagementDAO {
             if (rs.next()) {
                 return new InvoiceManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -58,9 +56,9 @@ public class InvoiceManagementDAO {
     }
 
     public boolean add(InvoiceManagement invoiceManagement) {
-        String sql = "INSERT INTO invoice_management (role_id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO invoice_management (id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, invoiceManagement.getRoleId());
+            pstmt.setInt(1, invoiceManagement.getId());
             pstmt.setBoolean(2, invoiceManagement.isCanAdd());
             pstmt.setBoolean(3, invoiceManagement.isCanEdit());
             pstmt.setBoolean(4, invoiceManagement.isCanDelete());
@@ -73,14 +71,13 @@ public class InvoiceManagementDAO {
     }
 
     public boolean update(InvoiceManagement invoiceManagement) {
-        String sql = "UPDATE invoice_management SET role_id = ?, can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
+        String sql = "UPDATE invoice_management SET  can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, invoiceManagement.getRoleId());
-            pstmt.setBoolean(2, invoiceManagement.isCanAdd());
-            pstmt.setBoolean(3, invoiceManagement.isCanEdit());
-            pstmt.setBoolean(4, invoiceManagement.isCanDelete());
-            pstmt.setBoolean(5, invoiceManagement.isCanView());
-            pstmt.setInt(6, invoiceManagement.getId());
+            pstmt.setBoolean(1, invoiceManagement.isCanAdd());
+            pstmt.setBoolean(2, invoiceManagement.isCanEdit());
+            pstmt.setBoolean(3, invoiceManagement.isCanDelete());
+            pstmt.setBoolean(4, invoiceManagement.isCanView());
+            pstmt.setInt(5, invoiceManagement.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

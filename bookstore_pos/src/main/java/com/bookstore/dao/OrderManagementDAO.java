@@ -22,7 +22,6 @@ public class OrderManagementDAO {
             while (rs.next()) {
                 OrderManagement orderManagement = new OrderManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -44,7 +43,6 @@ public class OrderManagementDAO {
             if (rs.next()) {
                 return new OrderManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -58,9 +56,9 @@ public class OrderManagementDAO {
     }
 
     public boolean add(OrderManagement orderManagement) {
-        String sql = "INSERT INTO order_management (role_id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO order_management (id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, orderManagement.getRoleId());
+            pstmt.setInt(1, orderManagement.getId());
             pstmt.setBoolean(2, orderManagement.isCanAdd());
             pstmt.setBoolean(3, orderManagement.isCanEdit());
             pstmt.setBoolean(4, orderManagement.isCanDelete());
@@ -73,14 +71,13 @@ public class OrderManagementDAO {
     }
 
     public boolean update(OrderManagement orderManagement) {
-        String sql = "UPDATE order_management SET role_id = ?, can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
+        String sql = "UPDATE order_management SET  can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, orderManagement.getRoleId());
-            pstmt.setBoolean(2, orderManagement.isCanAdd());
-            pstmt.setBoolean(3, orderManagement.isCanEdit());
-            pstmt.setBoolean(4, orderManagement.isCanDelete());
-            pstmt.setBoolean(5, orderManagement.isCanView());
-            pstmt.setInt(6, orderManagement.getId());
+            pstmt.setBoolean(1, orderManagement.isCanAdd());
+            pstmt.setBoolean(2, orderManagement.isCanEdit());
+            pstmt.setBoolean(3, orderManagement.isCanDelete());
+            pstmt.setBoolean(4, orderManagement.isCanView());
+            pstmt.setInt(5, orderManagement.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
