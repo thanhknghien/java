@@ -23,7 +23,6 @@ public class ProductManagementDAO {
             while (rs.next()) {
                 ProductManagement productManagement = new ProductManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -45,7 +44,6 @@ public class ProductManagementDAO {
             if (rs.next()) {
                 return new ProductManagement(
                     rs.getInt("id"),
-                    rs.getInt("role_id"),
                     rs.getBoolean("can_add"),
                     rs.getBoolean("can_edit"),
                     rs.getBoolean("can_delete"),
@@ -59,9 +57,9 @@ public class ProductManagementDAO {
     }
 
     public boolean add(ProductManagement productManagement) {
-        String sql = "INSERT INTO product_management (role_id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO product_management (id, can_add, can_edit, can_delete, can_view) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, productManagement.getRoleId());
+            pstmt.setInt(1, productManagement.getId());
             pstmt.setBoolean(2, productManagement.isCanAdd());
             pstmt.setBoolean(3, productManagement.isCanEdit());
             pstmt.setBoolean(4, productManagement.isCanDelete());
@@ -74,14 +72,13 @@ public class ProductManagementDAO {
     }
 
     public boolean update(ProductManagement productManagement) {
-        String sql = "UPDATE product_management SET role_id = ?, can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
+        String sql = "UPDATE product_management SET can_add = ?, can_edit = ?, can_delete = ?, can_view = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, productManagement.getRoleId());
-            pstmt.setBoolean(2, productManagement.isCanAdd());
-            pstmt.setBoolean(3, productManagement.isCanEdit());
-            pstmt.setBoolean(4, productManagement.isCanDelete());
-            pstmt.setBoolean(5, productManagement.isCanView());
-            pstmt.setInt(6, productManagement.getId());
+            pstmt.setBoolean(1, productManagement.isCanAdd());
+            pstmt.setBoolean(2, productManagement.isCanEdit());
+            pstmt.setBoolean(3, productManagement.isCanDelete());
+            pstmt.setBoolean(4, productManagement.isCanView());
+            pstmt.setInt(5, productManagement.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

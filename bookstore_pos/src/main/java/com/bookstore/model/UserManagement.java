@@ -2,7 +2,6 @@ package com.bookstore.model;
 
 public class UserManagement {
     private int id;
-    private int roleId;
     private boolean canAdd;
     private boolean canEdit;
     private boolean canDelete;
@@ -12,9 +11,8 @@ public class UserManagement {
     public UserManagement() {
     }
 
-    public UserManagement(int id, int roleId, boolean canAdd, boolean canEdit, boolean canDelete, boolean canView) {
+    public UserManagement(int id, boolean canAdd, boolean canEdit, boolean canDelete, boolean canView) {
         this.id = id;
-        this.roleId = roleId;
         this.canAdd = canAdd;
         this.canEdit = canEdit;
         this.canDelete = canDelete;
@@ -29,14 +27,7 @@ public class UserManagement {
         this.id = id;
     }
 
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-
+    
     public boolean isCanAdd() {
         return canAdd;
     }
