@@ -1,11 +1,14 @@
 package com.bookstore.gui.main;
 
 import com.bookstore.gui.panel.LoginPanel;
+import com.bookstore.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class LoginGUI extends JFrame {
     private LoginPanel loginPanel;
+    private User currentUser;
 
     public LoginGUI() {
         initComponents();
@@ -24,6 +27,14 @@ public class LoginGUI extends JFrame {
     private void setupLayout() {
         setLayout(new BorderLayout());
         add(loginPanel, BorderLayout.CENTER);
+    }
+
+    public User getCurrentUser(){
+        return currentUser;
+    }
+
+    public void setCurrentUser(User user){
+        currentUser = user;
     }
 
     public static void main(String[] args) {

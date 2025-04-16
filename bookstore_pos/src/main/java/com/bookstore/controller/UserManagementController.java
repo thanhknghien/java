@@ -1,212 +1,178 @@
 package com.bookstore.controller;
 
-import com.bookstore.dao.RoleDAO;
-import com.bookstore.dao.UserDAO;
+import com.bookstore.BUS.UserManagementBUS;
 import com.bookstore.gui.panel.UserManagementPanel;
-import com.bookstore.model.Role;
 import com.bookstore.model.User;
+import com.bookstore.util.SessionManager;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserManagementController {
     private UserManagementPanel panel;
-    private UserDAO userDAO;
-    private RoleDAO roleDAO;
+    private UserManagementBUS bus;
     
-    public UserManagementController(UserManagementPanel panel) {
+    public UserManagementController(UserManagementPanel panel) throws SQLException {
         this.panel = panel;
-        this.userDAO = new UserDAO();
-        this.roleDAO = new RoleDAO();
+        this.bus = new UserManagementBUS();
+        updateUIBasedOnPermissions();
     }
     
-    public ActionListener createAddButtonListener(JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearForm(usernameField, passwordField, roleComboBox, statusCheckBox);
-            }
-        };
-    }
-    
-    public ActionListener createEditButtonListener(JTable userTable, JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = userTable.getSelectedRow();
-                if (selectedRow >= 0) {
-                    try {
-                        int userId = Integer.parseInt(userTable.getValueAt(selectedRow, 0).toString());
-                        User user = userDAO.getUserById(userId);
-                        if (user != null) {
-                            usernameField.setText(user.getUsername());
-                            passwordField.setText(user.getPassword());
-                            statusCheckBox.setSelected(user.isStatus());
-                            
-                            // Set selected role
-                            for (int i = 0; i < roleComboBox.getItemCount(); i++) {
-                                String item = roleComboBox.getItemAt(i);
-                                if (item.startsWith(user.getRoleId() + ":")) {
-                                    roleComboBox.setSelectedIndex(i);
-                                    break;
-                                }
-                            }
-                            
-                            panel.setCurrentUser(user);
-                            panel.setEditing(true);
-                        }
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(null, "Lỗi khi tải thông tin người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Vui lòng chọn một người dùng để sửa", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        };
-    }
-    
-    public ActionListener createDeleteButtonListener(JTable userTable) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = userTable.getSelectedRow();
-                if (selectedRow >= 0) {
-                    int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn xóa người dùng này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-                    
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        try {
-                            int userId = Integer.parseInt(userTable.getValueAt(selectedRow, 0).toString());
-                            userDAO.deleteUser(userId);
-                            panel.clearForm();
-                            panel.loadUserData();
-                        } catch (SQLException ex) {
-                            JOptionPane.showMessageDialog(null, "Lỗi khi xóa người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Vui lòng chọn một người dùng để xóa", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        };
-    }
-    
-    public ActionListener createSaveButtonListener(JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveUser(usernameField, passwordField, roleComboBox, statusCheckBox);
-            }
-        };
-    }
-    
-    public ActionListener createClearButtonListener(JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearForm(usernameField, passwordField, roleComboBox, statusCheckBox);
-            }
-        };
-    }
-    
-    public ActionListener createSearchButtonListener(JTextField searchField) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String keyword = searchField.getText().trim();
-                try {
-                    List<User> users = userDAO.searchUsers(keyword);
-                    panel.updateTableWithUsers(users);
-                    panel.clearForm();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Lỗi khi tìm kiếm: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
-    }
-    
-    public ActionListener createFilterRoleListener(JComboBox<String> filterRoleComboBox) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedItem = (String) filterRoleComboBox.getSelectedItem();
-                
-                if ("Tất cả".equals(selectedItem)) {
-                    panel.loadUserData();
-                    return;
-                }
-                
-                // Extract role ID from selected item (format: "ID: Name")
-                int roleId = Integer.parseInt(selectedItem.split(":")[0]);
-                
-                try {
-                    List<User> allUsers = userDAO.getAllUsers();
-                    panel.updateTableWithUsers(allUsers.stream()
-                        .filter(user -> user.getRoleId() != null && user.getRoleId() == roleId)
-                        .collect(java.util.stream.Collectors.toList()));
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Lỗi khi lọc người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
-    }
-    
-    private void clearForm(JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        usernameField.setText("");
-        passwordField.setText("");
-        statusCheckBox.setSelected(true);
-        if (roleComboBox.getItemCount() > 0) {
-            roleComboBox.setSelectedIndex(0);
-        }
-        panel.setCurrentUser(null);
-        panel.setEditing(false);
-    }
-    
-    private void saveUser(JTextField usernameField, JPasswordField passwordField, JComboBox<String> roleComboBox, JCheckBox statusCheckBox) {
-        String username = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword());
+    /**
+     * Cập nhật giao diện dựa trên quyền của người dùng hiện tại
+     */
+    public void updateUIBasedOnPermissions() {
+        boolean canAdd = bus.canAdd();
+        boolean canEdit = bus.canEdit();
+        boolean canDelete = bus.canDelete();
+        boolean canView = bus.canView();
         
+        panel.updateButtonsVisibility(canAdd, canEdit, canDelete, canView);
+    }
+    
+    public void loadRoleData(JComboBox<String> comboBox) {
+        try {
+            bus.loadRoleData(comboBox);
+        } catch (SQLException e) {
+            handleError("Lỗi khi tải danh sách vai trò", e);
+        }
+    }
+    
+    public void loadUserData() {
+        try {
+            List<User> users = bus.getAllUsers();
+            panel.updateTableWithUsers(users);
+        } catch (SQLException e) {
+            handleError("Lỗi khi tải dữ liệu người dùng", e);
+        }
+    }
+    
+    public void handleAdd(String username, String password, Integer roleId, boolean status) {
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập đầy đủ thông tin", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(panel,
+                "Vui lòng nhập đầy đủ thông tin",
+                "Thông báo",
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // Get selected role ID
-        Integer roleId = null;
-        String selectedRole = (String) roleComboBox.getSelectedItem();
-        if (selectedRole != null && !selectedRole.isEmpty()) {
-            roleId = Integer.parseInt(selectedRole.split(":")[0]);
+        try {
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setPassword(password);
+            newUser.setRoleId(roleId);
+            newUser.setStatus(status);
+            
+            bus.addUser(newUser);
+            loadUserData();
+            
+            JOptionPane.showMessageDialog(panel,
+                "Thêm người dùng thành công",
+                "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            panel.clearForm();
+        } catch (SQLException e) {
+            handleError("Lỗi khi thêm người dùng", e);
+        }
+    }
+    
+    public void handleEdit(int userId) {
+        try {
+            User user = bus.getUserById(userId);
+            if (user != null) {
+                panel.setUserFormData(user);
+                panel.setCurrentUser(user);
+                panel.setEditing(true);
+            }
+        } catch (SQLException e) {
+            handleError("Lỗi khi tải thông tin người dùng", e);
+        }
+    }
+    
+    public void handleUpdate(int userId, String username, String password, Integer roleId, boolean status) {
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(panel,
+                "Vui lòng nhập đầy đủ thông tin",
+                "Thông báo",
+                JOptionPane.WARNING_MESSAGE);
+            return;
         }
         
         try {
-            if (panel.isEditing() && panel.getCurrentUser() != null) {
-                // Update existing user
-                User currentUser = panel.getCurrentUser();
-                currentUser.setUsername(username);
-                currentUser.setPassword(password);
-                currentUser.setRoleId(roleId);
-                currentUser.setStatus(statusCheckBox.isSelected());
-                userDAO.updateUser(currentUser);
-                JOptionPane.showMessageDialog(null, "Cập nhật người dùng thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                // Add new user
-                User newUser = new User();
-                newUser.setUsername(username);
-                newUser.setPassword(password);
-                newUser.setRoleId(roleId);
-                newUser.setStatus(statusCheckBox.isSelected());
-                userDAO.addUser(newUser);
-                JOptionPane.showMessageDialog(null, "Thêm người dùng thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            }
+            User user = new User();
+            user.setId(userId);
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setRoleId(roleId);
+            user.setStatus(status);
             
-            // Refresh data and clear form
-            panel.loadUserData();
-            clearForm(usernameField, passwordField, roleComboBox, statusCheckBox);
+            bus.updateUser(user);
+            loadUserData();
+            
+            JOptionPane.showMessageDialog(panel,
+                "Cập nhật người dùng thành công",
+                "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            panel.clearForm();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi lưu người dùng: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            handleError("Lỗi khi cập nhật người dùng", e);
         }
+    }
+    
+    public void handleDelete(int userId) {
+        try {
+            bus.deleteUser(userId);
+            loadUserData();
+            
+            JOptionPane.showMessageDialog(panel,
+                "Xóa người dùng thành công",
+                "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            panel.clearForm();
+        } catch (SQLException e) {
+            handleError("Lỗi khi xóa người dùng", e);
+        }
+    }
+    
+    public void handleSearch(String keyword) {
+        try {
+            List<User> users = bus.searchUsers(keyword);
+            panel.updateTableWithUsers(users);
+        } catch (SQLException e) {
+            handleError("Lỗi khi tìm kiếm người dùng", e);
+        }
+    }
+    
+    public void handleFilterRole(Object selectedItem) {
+        try {
+            List<User> users = bus.filterUsersByRole(selectedItem);
+            panel.updateTableWithUsers(users);
+        } catch (SQLException e) {
+            handleError("Lỗi khi lọc người dùng theo vai trò", e);
+        }
+    }
+    
+    public void handleFilterStatus(Object selectedItem) {
+        try {
+            List<User> users = bus.filterUsersByStatus(selectedItem);
+            panel.updateTableWithUsers(users);
+        } catch (SQLException e) {
+            handleError("Lỗi khi lọc người dùng theo trạng thái", e);
+        }
+    }
+    
+    private void handleError(String title, Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.trim().isEmpty()) {
+            message = "Đã xảy ra lỗi không xác định";
+        }
+        JOptionPane.showMessageDialog(panel, 
+            title + ": " + message, 
+            "Lỗi", 
+            JOptionPane.ERROR_MESSAGE);
     }
 }

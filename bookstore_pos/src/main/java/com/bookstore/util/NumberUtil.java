@@ -3,7 +3,7 @@ package com.bookstore.util;
 import java.text.DecimalFormat;
 
 public class NumberUtil {
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.0");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 
     // Định dạng số (giá tiền, tổng tiền)
     public static String formatNumber(double number) {

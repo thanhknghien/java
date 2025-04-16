@@ -171,6 +171,27 @@ public class UserDAO {
     }
 
     /**
+     * Tìm kiếm người dùng theo tên đăng nhập
+     * @param username Tên đăng nhập
+     * @return Đối tượng User nếu tìm thấy, null nếu không tìm thấy
+     * @throws SQLException Nếu có lỗi truy vấn SQL
+     */
+    public User getUserByUsername(String username) throws SQLException {
+        String query = "SELECT * FROM users WHERE username = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractUserFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Phương thức trợ giúp để trích xuất thông tin User từ ResultSet
      * @param rs ResultSet chứa dữ liệu người dùng
      * @return Đối tượng User đã được điền thông tin
