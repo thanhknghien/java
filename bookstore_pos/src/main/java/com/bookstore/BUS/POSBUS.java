@@ -12,14 +12,14 @@ import com.bookstore.model.User;
 
 public class POSBUS {
     private ProductBUS productBUS;
-    private CustomerBUS customerBUS;
+    private CustomerBUS1 customerBUS;
     private ArrayList<Product> productList;
     private ArrayList<Customer> customerList;
     private Map<String, ArrayList<Product>> categoryAndProduct;
 
     public POSBUS() throws SQLException{
         productBUS = new ProductBUS();
-        customerBUS = new CustomerBUS();
+        customerBUS = new CustomerBUS1();
         this.productList = productBUS.getAllProducts();
         this.categoryAndProduct = productBUS.getAllProductsByCategory();
         this.customerList = customerBUS.getALlCustomers();

@@ -30,11 +30,17 @@ com\bookstore\dao\UserDAO.class
 com\bookstore\gui\panel\StatisticalPanel$3$2.class
 com\bookstore\BUS\CustomerBUS.class
 com\bookstore\dao\ProductManagementDAO.class
+com\bookstore\gui\panel\CategoryPanel$3.class
 com\bookstore\dao\UserManagementDAO.class
 com\bookstore\util\DateUtil.class
 com\bookstore\gui\panel\ProductPanel$1.class
 com\bookstore\gui\component\CustomLabel.class
 com\bookstore\util\TableUtil.class
+<<<<<<< HEAD
+com\bookstore\controller\UserManagementController$3.class
+com\bookstore\gui\panel\ProductPanel$3.class
+=======
+>>>>>>> de1595bd375006da5341a02e3ab1a04404c2f035
 com\bookstore\gui\panel\StatisticalPanel$3$3.class
 com\bookstore\gui\component\TextField$1.class
 com\bookstore\gui\panel\ProductPanel$2.class

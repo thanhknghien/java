@@ -9,6 +9,7 @@ import com.bookstore.dao.ProductDAO;
 import com.bookstore.dao.CategoryDAO;
 import com.bookstore.model.Product;
 import com.bookstore.util.NomalizeVietnamese;
+import java.util.List;
 
 public class ProductBUS {
     private ProductDAO productDAO;
@@ -86,5 +87,33 @@ public class ProductBUS {
     public boolean updateProduct(Product product) throws SQLException{
        productDAO.updateProduct(product);
        return true;
+    }
+    
+    public Product searchById(int id) throws SQLException{
+        if(id <= 0){
+            throw new IllegalArgumentException("ID sản phẩm không hợp lệ!");
+        }
+        return productDAO.searchById(id);
+    }
+    
+    public List<Product> searchByName(String name)throws SQLException{
+        if(name == null || name.trim().isEmpty()){
+            throw new IllegalArgumentException("Tên sản phẩm không được để trống!");
+        }
+        return productDAO.searchByName(name);
+    }
+    
+    public List<Product> searchByAuthor(String author) throws SQLException{
+        if(author == null || author.trim().isEmpty()){
+            throw new IllegalArgumentException("Tên tác giả không được để trống!");
+        }
+        return productDAO.searchByAuthor(author);
+    }
+    
+    public List<Product> searchByCategoryId(int categoryId) throws SQLException{
+        if(categoryId <= 0){
+            throw new IllegalArgumentException("ID danh mục không hợp lệ!");
+        }
+        return productDAO.searchByCategoryId(categoryId);
     }
 }

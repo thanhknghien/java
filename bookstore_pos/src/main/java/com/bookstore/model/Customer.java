@@ -20,13 +20,13 @@ public class Customer {
     public void setId(int id) {
         this.id = id;
     }
-    public String getName() {
+    public String getFullName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    public String getPhone() {
+    public String getPhoneNumber() {
         return phone;
     }
     public void setPhone(String phone) {
