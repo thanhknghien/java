@@ -45,6 +45,17 @@ public class CustomerController {
         }
     }
 
+    // Tìm kiếm khách hàng theo số điện thoại
+    public List<Customer> searchCustomersByPhone(String phone) {
+        return customerBUS.searchCustomersByPhone(phone);
+    }
+
+    // Tìm kiếm khách hàng theo khoảng điểm tích lũy
+    public List<Customer> searchCustomersByPointRange(int startPoints, int endPoints) {
+        return customerBUS.searchCustomersByPointRange(startPoints, endPoints);
+    }
+
+
     // Lấy danh sách tất cả khách hàng
     public List<Customer> getAllCustomers() {
         return customerBUS.getAllCustomers();

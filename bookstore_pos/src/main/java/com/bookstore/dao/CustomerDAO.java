@@ -137,5 +137,45 @@ public class CustomerDAO {
         } catch (SQLException e) {
         }
         return customers; // Trả về danh sách khách hàng
+    }   
+
+    public ArrayList<Customer> getCustomersByPhone(String phone) {
+        ArrayList<Customer> customers = new ArrayList<>();
+        String query = "SELECT * FROM customers WHERE phone LIKE ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, "%" + phone.trim() + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setId(rs.getInt("id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setPoints(rs.getInt("points"));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+        }
+        return customers;
     }
+    
+    public ArrayList<Customer> getCustomersByPointRange(int startPoints, int endPoints) {
+        ArrayList<Customer> customers = new ArrayList<>();
+        String query = "SELECT * FROM customers WHERE points BETWEEN ? AND ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, startPoints);
+            stmt.setInt(2, endPoints);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setId(rs.getInt("id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setPoints(rs.getInt("points"));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+        }
+        return customers;
+    }
+    
 }

@@ -67,8 +67,11 @@ public class CustomerPanel extends JPanel {
         gbcL.fill = GridBagConstraints.HORIZONTAL;
     
         customerID = new TextField();
-        customerID.setPlaceholder("ID: [Tự động tăng]");
+        customerID.setPlaceholder("ID: [Tự động]");
         customerID.setPreferredSize(new Dimension(300, 25));
+        customerID.setBackground(new Color(224, 224, 224));
+        customerID.setFocusable(false);
+
         leftPanel.add(new JLabel("ID:"), gbcL);
         gbcL.gridx = 1;
         leftPanel.add(customerID, gbcL);
@@ -77,7 +80,11 @@ public class CustomerPanel extends JPanel {
         btnAdd = new Button("Thêm");
         btnAdd.setPreferredSize(new Dimension(100, 25));
         leftPanel.add(btnAdd, gbcL);
-        btnAdd.addActionListener(e -> addCustomer());
+        btnAdd.addActionListener(e -> {
+            addCustomer();
+            clearTextField();
+            loadCustomerData();
+        });
     
         gbcL.gridx = 0;
         gbcL.gridy++;
@@ -119,7 +126,10 @@ public class CustomerPanel extends JPanel {
         btnReset = new Button("Làm mới");
         btnReset.setPreferredSize(new Dimension(100, 25));
         leftPanel.add(btnReset, gbcL);
-        btnReset.addActionListener(e -> clearTextField());
+        btnReset.addActionListener(e -> {
+            clearTextField();
+            loadCustomerData();
+        });
     
         // Right Panel (Tìm kiếm và chức năng)
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -136,6 +146,10 @@ public class CustomerPanel extends JPanel {
         btnSearch = new Button("🔍");
         btnSearch.setPreferredSize(new Dimension(100, 30));
         northRPanel.add(btnSearch, BorderLayout.SOUTH);
+
+        btnSearch.addActionListener(e ->{
+            searchCustomer();
+        });
     
         rightPanel.add(northRPanel, BorderLayout.NORTH);
     
@@ -246,6 +260,8 @@ public class CustomerPanel extends JPanel {
     
     // Hàm ẩn các TextField khi không chọn "Tìm theo Điểm"
     private void hidePointFields(JLabel lblPointStart, JLabel lblPointEnd, TextField pointStart, TextField pointEnd) {
+        search.setFocusable(true);
+        search.setBackground(new Color(255, 255, 255));
         lblPointStart.setFocusable(false);
         lblPointEnd.setFocusable(false);
         pointStart.setFocusable(false);
@@ -255,13 +271,15 @@ public class CustomerPanel extends JPanel {
     }
 
     private void showPointFields(TextField pointStart, TextField pointEnd){
+        search.setFocusable(false);
+        search.setText("");
+        search.setBackground(new Color(224, 224, 224));
         pointStart.setFocusable(true);
         pointEnd.setFocusable(true);
         pointStart.setBackground(new Color(255, 255, 255));
         pointEnd.setBackground(new Color(255, 255, 255));
     }
     
-
     private void loadCustomerData() {
         customerTableModel.setRowCount(0);
         List<Customer> customers = controller.getAllCustomers();
@@ -283,27 +301,30 @@ public class CustomerPanel extends JPanel {
     }
     
     private void addCustomer() {
-        String customerName = fullName.getText().trim();
-        String customerPhone = phoneNumber.getText().trim();
-        String customerPointsText = points.getText().trim();
+        String customerName = fullName.getText().trim();    //trim xao khoang trong dau voi cuoi
+        String customerPhone = phoneNumber.getText().replaceAll("\\s+", "");// xoa toan bo khoang trang
+        String customerPointsText = points.getText().replaceAll("\\s+", "");
     
-        try {
-            int customerPoints = customerPointsText.isEmpty() ? 0 : Integer.parseInt(customerPointsText); // Điểm mặc định là 0 nếu để trống
-            Customer newCustomer = new Customer(0, customerName, customerPhone, customerPoints);
-            boolean success = controller.addCustomer(newCustomer);
-            if (success) {
-                customerTableModel.addRow(new Object[]{newCustomer.getId(), newCustomer.getFullName(), newCustomer.getPhoneNumber(), newCustomer.getPoints()});
-                fullName.setText("");
-                phoneNumber.setText("");
-                points.setText("");
-                JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Không thể thêm khách hàng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (inputValidator(customerName, customerPhone, customerPointsText)){
+            customerName = formatName(customerName);
+            try {
+                int customerPoints = customerPointsText.isEmpty() ? 0 : Integer.parseInt(customerPointsText); // Điểm mặc định là 0 nếu để trống
+                Customer newCustomer = new Customer(0, customerName, customerPhone, customerPoints);
+                boolean success = controller.addCustomer(newCustomer);
+                if (success) {
+                    customerTableModel.addRow(new Object[]{newCustomer.getId(), newCustomer.getFullName(), newCustomer.getPhoneNumber(), newCustomer.getPoints()});
+                    fullName.setText("");
+                    phoneNumber.setText("");
+                    points.setText("");
+                    JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không thể thêm khách hàng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Điểm phải là một số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Điểm phải là một số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -338,37 +359,41 @@ public class CustomerPanel extends JPanel {
         String customerName = fullName.getText().trim();
         String customerPhone = phoneNumber.getText().trim();
         String customerPointsText = points.getText().trim();
-    
-        if (idText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-    
-        if (customerName.isEmpty() || customerPhone.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-    
-        try {
-            int id = Integer.parseInt(idText);
-            int customerPoints = customerPointsText.isEmpty() ? 0 : Integer.parseInt(customerPointsText);
-            Customer updatedCustomer = new Customer(id, customerName, customerPhone, customerPoints);
-    
-            boolean success = controller.updateCustomer(updatedCustomer);
-            if (success) {
-                loadCustomerData();
-                customerID.setText("");
-                fullName.setText("");
-                phoneNumber.setText("");
-                points.setText("");
-                JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Không thể cập nhật khách hàng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+        if (inputValidator(customerName, customerPhone, customerPointsText)){
+            customerName = formatName(customerName);
+        
+            if (idText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "ID hoặc Điểm phải là số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        
+            if (customerName.isEmpty() || customerPhone.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            try {
+                int id = Integer.parseInt(idText);
+                int customerPoints = customerPointsText.isEmpty() ? 0 : Integer.parseInt(customerPointsText);
+                Customer updatedCustomer = new Customer(id, customerName, customerPhone, customerPoints);
+        
+                boolean success = controller.updateCustomer(updatedCustomer);
+                if (success) {
+                    loadCustomerData();
+                    customerID.setText("");
+                    fullName.setText("");
+                    phoneNumber.setText("");
+                    points.setText("");
+                    JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không thể cập nhật khách hàng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "ID hoặc Điểm phải là số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         }
-    }
+        }
     
     public void clearTextField(){
         customerID.setText("");
@@ -378,11 +403,86 @@ public class CustomerPanel extends JPanel {
 
         search.setText("");
         searchById.setSelected(true);
+        pointStart.setText("");
+        pointEnd.setText("");
         pointStart.setBackground(new Color(224, 224, 224));
         pointEnd.setBackground(new Color(224, 224, 224));
 
     }
 
+    public boolean inputValidator(String name, String phone, String point){
+        // Kiểm tra các trường bắt buộc
+        if (name.isEmpty() || phone.isEmpty() ) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập đầy đủ tên va số điện thoại !", "ERROR", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        // Kiểm tra số điện thoại
+        if (!phone.matches("0\\d{9}")) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập số điện thoại đúng định dạng!", "ERROR", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!point.isEmpty()){
+            // Kiểm tra POINT là số không âm và không bắt đầu bằng số 0
+            if (!point.matches("[1-9]\\d*")) { // Số dương không bắt đầu bằng 0
+                JOptionPane.showMessageDialog(null, "POINT phải là số dương và không được bắt đầu bằng số 0!", "ERROR", JOptionPane.ERROR_MESSAGE);
+                System.out.print(point);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //Viet hoa ten
+    private  String formatName (String name) {
+        String [] words = name.trim().toLowerCase().split("\\s+");
+        StringBuilder formattedName = new StringBuilder();
+
+        for (String word : words){
+            if (!word.isEmpty()){
+                formattedName.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(" ");
+            }
+        }
+        return formattedName.toString().trim();
+    }        
+
+    private void searchCustomer() {
+        String searchKeyword = search.getText().trim();
+        List<Customer> result;
+    
+        if (searchById.isSelected()) {
+            try {
+                int id = Integer.parseInt(searchKeyword);
+                Customer customer = controller.getCustomerById(id);
+                result = customer != null ? List.of(customer) : List.of();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "ID phải là số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else if (searchByName.isSelected()) {
+            result = controller.searchCustomersByName(searchKeyword);
+        } else if (searchByPhone.isSelected()) {
+            result = controller.searchCustomersByPhone(searchKeyword);
+        } else if (searchByPoints.isSelected()) {
+            try {
+                int startPoints = Integer.parseInt(pointStart.getText().trim());
+                int endPoints = Integer.parseInt(pointEnd.getText().trim());
+                result = controller.searchCustomersByPointRange(startPoints, endPoints);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Điểm phải là số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một tiêu chí tìm kiếm!", "Lỗi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+    
+        // Hiển thị kết quả trên bảng
+        customerTableModel.setRowCount(0);
+        for (Customer customer : result) {
+            customerTableModel.addRow(new Object[]{customer.getId(), customer.getFullName(), customer.getPhoneNumber(), customer.getPoints()});
+        }
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý khách hàng");

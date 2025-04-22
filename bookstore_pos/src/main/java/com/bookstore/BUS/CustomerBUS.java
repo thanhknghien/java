@@ -64,6 +64,23 @@ public class CustomerBUS {
         }
         return customerDAO.getCustomersByName(name.trim());
     }
+    
+    // Tìm kiếm khách hàng theo số điện thoại
+    public List<Customer> searchCustomersByPhone(String phone) {
+        if (phone == null || phone.trim().isEmpty()) {
+            throw new IllegalArgumentException("Số điện thoại không được để trống!");
+        }
+        return customerDAO.getCustomersByPhone(phone.trim());
+    }
+
+    // Tìm kiếm khách hàng theo khoảng điểm tích lũy
+    public List<Customer> searchCustomersByPointRange(int startPoints, int endPoints) {
+        if (startPoints < 0 || endPoints < 0 || startPoints > endPoints) {
+            throw new IllegalArgumentException("Điểm phải là số nguyên dương và khoảng tìm kiếm hợp lệ!");
+        }
+        return customerDAO.getCustomersByPointRange(startPoints, endPoints);
+    }
+
 
     // Lấy danh sách tất cả khách hàng
     public List<Customer> getAllCustomers() {
