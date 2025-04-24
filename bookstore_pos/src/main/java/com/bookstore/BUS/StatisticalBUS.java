@@ -146,8 +146,8 @@ public class StatisticalBUS {
             .limit(5)
             .map(customer -> new Object[]{
                 customer.getId(),
-                customer.getName(),
-                customer.getPhone(),
+                customer.getFullName(),
+                customer.getPhoneNumber(),
                 customer.getPoints(),
                 df.format(totalSpentMap.getOrDefault(customer.getId(), 0.0))
             })
@@ -243,7 +243,7 @@ public class StatisticalBUS {
         int count = Math.min(5, sortedCustomers.size());
         for (int i = 0; i < count; i++) {
             Customer customer = sortedCustomers.get(i);
-            dataset.addValue(customer.getPoints(), "Điểm thưởng", customer.getName());
+            dataset.addValue(customer.getPoints(), "Điểm thưởng", customer.getFullName());
         }
     
         return dataset;
@@ -263,7 +263,7 @@ public class StatisticalBUS {
         for (int i = 0; i < count; i++) {
             Customer customer = sortedCustomers.get(i);
             double totalSpent = totalSpentMap.getOrDefault(customer.getId(), 0.0);
-            dataset.addValue(totalSpent, "Tổng chi", customer.getName());
+            dataset.addValue(totalSpent, "Tổng chi", customer.getFullName());
         }
     
         return dataset;
@@ -567,7 +567,7 @@ public class StatisticalBUS {
         
         for (Customer cus : customers) {
             if (String.valueOf(cus.getId()).equals(keyword)) {
-                return  (keyword + " "+  cus.getName() + " " + cus.getPhone());
+                return  (keyword + " "+  cus.getFullName() + " " + cus.getPhoneNumber());
             }
         }
         return "";
