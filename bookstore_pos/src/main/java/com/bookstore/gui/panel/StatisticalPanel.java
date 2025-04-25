@@ -5,12 +5,10 @@ import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.util.ColorScheme;
 import javax.swing.*;
-import com.bookstore.util.TimeUtil;
 import java.time.LocalDateTime;
 import java.util.*;
-
+import javax.swing.border.Border;
 import java.awt.*;
-import java.io.File;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -41,8 +39,6 @@ public class StatisticalPanel extends JPanel{
     private JFreeChart chart;
     private ChartPanel chartPanel;
 
-    // private boolean searchPerformed = false;
-
     public StatisticalPanel() {
         setLayout(new BorderLayout());
         initComponentsCenter();
@@ -51,16 +47,10 @@ public class StatisticalPanel extends JPanel{
     }
 
     private void initComponentsCenter() {
-        JPanel hPanel = new JPanel(new BorderLayout());
-        hPanel.setBackground(Color.GREEN);
-
         JPanel mPanel = new JPanel(new BorderLayout());
-        
-        mPanel.setBackground(Color.CYAN);
-        
 
         // Chọn sản phẩm, khách hàng, nhân viên
-        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 10));
         productRadio = new JRadioButton("Sản phẩm", true);
         customerRadio = new JRadioButton("Khách hàng");
         userRadio = new JRadioButton("Nhân viên");
@@ -73,8 +63,9 @@ public class StatisticalPanel extends JPanel{
         menuPanel.add(productRadio);
         menuPanel.add(customerRadio);
         menuPanel.add(userRadio);
-        menuPanel.setBackground(Color.LIGHT_GRAY);
         
+        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        menuPanel.setBorder(blackLine);
 
         menuPanel.setPreferredSize(new Dimension(900, 50));
         mPanel.add(menuPanel, BorderLayout.NORTH);
@@ -89,7 +80,7 @@ public class StatisticalPanel extends JPanel{
         topAndAllGroup.add(all);
 
         searchField = new TextField();
-        searchField.setPlaceholder("Tìm kiếm");
+        searchField.setPlaceholder("Tìm kiếm theo ID");
         searchField.setPreferredSize(new Dimension(200, 30));
         ColorScheme.styleTextField(searchField); 
 
@@ -152,9 +143,7 @@ public class StatisticalPanel extends JPanel{
         // searchPanel.add(searchField);
         searchPanel.add(rbJPanel);
         searchPanel.add(datePanel);
-        
-        searchPanel.setBackground(Color.RED);
-        
+        searchPanel.setBorder(blackLine);
         searchPanel.setPreferredSize(new Dimension(700, 250));
         mPanel.add(searchPanel, BorderLayout.CENTER);
 
@@ -176,49 +165,45 @@ public class StatisticalPanel extends JPanel{
     private void initComponentsEast() {
         // Thống kê
         JPanel StatisticalPanel = new JPanel();
-        StatisticalPanel.setLayout(new BoxLayout(StatisticalPanel, BoxLayout.Y_AXIS));
+        StatisticalPanel.setLayout(new BoxLayout(StatisticalPanel, BoxLayout.X_AXIS));
         controller.displayQuantityCustomer(StatisticalPanel);
         controller.displayQuantityOrder(StatisticalPanel);
         controller.displayQuantityProduct(StatisticalPanel);
-        StatisticalPanel.setBackground(Color.YELLOW);
-        
+        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        StatisticalPanel.setBorder(blackLine);
         StatisticalPanel.setPreferredSize(new Dimension(500, 0));
         this.add(StatisticalPanel, BorderLayout.EAST);
     }
 
     private void initComponentsSouth() {
         contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.setBackground(Color.WHITE);
+        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        contentPanel.setBorder(blackLine);
         GridBagConstraints gbc = new GridBagConstraints();
 
         // Panel chứa các radio buttons và nút export
         datPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        datPanel.setBackground(Color.BLUE);
         chartRadio = new JRadioButton("Biểu đồ", true);
         tableRadio = new JRadioButton("Bảng");
-        exportPDF = new JButton("Xuất PDF");
+        exportPDF = new Button("Xuất PDF");
         exportPDF.addActionListener(controller.exportPDF(this));
 
         ButtonGroup datGroup = new ButtonGroup();
         datGroup.add(chartRadio);
         datGroup.add(tableRadio);
 
-        //datPanel.add(chartRadio);
-        //datPanel.add(tableRadio);
-        //datPanel.add(exportPDF);
-
         // Thêm datPanel vào contentPanel
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
+
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTH;
         contentPanel.add(datPanel, gbc);
 
         // Panel chứa bảng/biểu đồ
         tablePanel = new JPanel();
-        tablePanel.setBackground(Color.ORANGE);
-        tablePanel.setPreferredSize(new Dimension(1200, 400));
+        //tablePanel.setPreferredSize(new Dimension(1200, 400));
     
         // Thêm tablePanel vào contentPanel
         gbc.gridx = 0;
@@ -298,12 +283,6 @@ public class StatisticalPanel extends JPanel{
                 }
 
                 return null;
-            }
-
-            private ImageIcon createScaledIcon(String path) {
-                ImageIcon icon = new ImageIcon(path);
-                Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                return new ImageIcon(scaledImage);
             }
 
             private ImageIcon createScaledIconFromResource(String resourcePath) {
@@ -474,7 +453,7 @@ public class StatisticalPanel extends JPanel{
     public void printTableProduct(ArrayList<String> data) {
         tablePanel.removeAll();
         tablePanel.setLayout(new GridLayout(6, 1));
-    
+        tablePanel.setBackground(Color.WHITE);
         JLabel idLabel = new JLabel("ID: " + data.get(0));
         tablePanel.add(idLabel);
         JLabel nameLabel = new JLabel("Tên: " + data.get(1));
@@ -495,9 +474,7 @@ public class StatisticalPanel extends JPanel{
     public void printTableCustomer(Object[][] data, String total, ArrayList<String> str) {
         tablePanel.removeAll();
         tablePanel.setLayout(new BorderLayout(10, 10));
-    
-        System.out.println("======================================================== ");
-        System.out.println(str);
+        tablePanel.setBackground(Color.WHITE);
     
         // Tên các cột
         String[] col = {"ID", "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền"};
@@ -506,6 +483,7 @@ public class StatisticalPanel extends JPanel{
     
         // Tạo panel thông tin khách hàng
         JPanel infoPanel = new JPanel(new GridLayout(4, 1));
+        infoPanel.setBackground(Color.WHITE);
         JLabel idLabel = new JLabel("ID: " + str.get(0));
         JLabel nameLabel = new JLabel("Tên: " + str.get(1));
         JLabel phoneLabel = new JLabel("Số điện thoại: " + str.get(2));
@@ -520,7 +498,7 @@ public class StatisticalPanel extends JPanel{
     
         // Label tổng doanh thu
         JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
-        totalLabel.setHorizontalAlignment(JLabel.RIGHT);
+        totalLabel.setHorizontalAlignment(JLabel.CENTER);
     
         // Thêm các thành phần vào panel chính
         tablePanel.add(infoPanel, BorderLayout.NORTH);
@@ -534,8 +512,7 @@ public class StatisticalPanel extends JPanel{
     
     public void printTableUser(Object[][] data, String total, ArrayList<String> str) {
         tablePanel.removeAll();
-        System.out.println("======================================================== ");
-        System.out.println(str);
+        tablePanel.setBackground(Color.WHITE);
         tablePanel.setLayout(new BorderLayout(10, 10));
     
         // Tạo các cột
@@ -545,6 +522,7 @@ public class StatisticalPanel extends JPanel{
     
         // Tạo panel chứa thông tin người dùng
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
+        infoPanel.setBackground(Color.WHITE);
         JLabel idLabel = new JLabel("ID: " + str.get(0));
         JLabel nameLabel = new JLabel("Username: " + str.get(1));
         infoPanel.add(idLabel);
@@ -555,7 +533,7 @@ public class StatisticalPanel extends JPanel{
     
         // Label tổng doanh thu
         JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
-        totalLabel.setHorizontalAlignment(JLabel.RIGHT);
+        totalLabel.setHorizontalAlignment(JLabel.CENTER);
     
         // Thêm các thành phần vào panel chính
         tablePanel.add(infoPanel, BorderLayout.NORTH);
@@ -723,16 +701,7 @@ public class StatisticalPanel extends JPanel{
         datPanel.repaint(); 
     }
 
-    // public boolean isSearchPerformed() {
-    //     return searchPerformed;
-    // }
-    
-    // public void setSearchPerformed(boolean performed) {
-    //     this.searchPerformed = performed;
-    // }
-
     // Getter
-
     public JPanel getTablePanel() {
         return tablePanel;
     }

@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 import com.bookstore.util.TimeUtil;
 import com.bookstore.util.PDFExporter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 
 public class StatisticalController {
     private StatisticalBUS statisticalBUS;
@@ -28,7 +25,6 @@ public class StatisticalController {
 
     public ActionListener createAllRadio(StatisticalPanel view) {
         return e -> {
-            System.out.println("Tất cả Radio");
             view.removeChartTableRadio();
             view.removeTablePanel();
             view.addSearchField();
@@ -37,9 +33,8 @@ public class StatisticalController {
 
     public ActionListener createTopRadio(StatisticalPanel view) {
         return e -> {
-            System.out.println("Top");
             view.removeSearchField();
-            view.addChartTableRadio();
+            view.removeChartTableRadio();
             view.removeTablePanel();
         };
     }
