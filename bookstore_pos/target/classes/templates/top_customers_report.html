@@ -38,6 +38,19 @@
             font-size: 0.9em;
             margin-bottom: 20px;
         }
+        .summary {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .summary p {
+            margin: 5px 0;
+            color: #444;
+        }
+        .summary strong {
+            color: #333;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -72,19 +85,6 @@
             color: #666;
             font-size: 0.9em;
         }
-        .summary {
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        .summary p {
-            margin: 5px 0;
-            color: #444;
-        }
-        .summary strong {
-            color: #333;
-        }
     </style>
 </head>
 <body>
@@ -92,12 +92,12 @@
         <div class="header">
             <h1>Báo cáo top khách hàng</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
         </div>
 
         <div class="summary">
-            <p><strong>Tổng số khách hàng:</strong> {{totalCustomers}}</p>
-            <p><strong>Thời gian thống kê:</strong> {{timePeriod}}</p>
+            <p><strong>Tổng số khách hàng:</strong> ${totalCustomers}</p>
+            <p><strong>Thời gian thống kê:</strong> ${timePeriod}</p>
         </div>
 
         <table>
@@ -108,15 +108,9 @@
                 <th>Điểm thưởng</th>
                 <th>Tổng chi tiêu</th>
             </tr>
-            {{#customers}}
-            <tr>
-                <td>{{id}}</td>
-                <td>{{name}}</td>
-                <td>{{phone}}</td>
-                <td class="points">{{points}}</td>
-                <td class="total-spent">{{totalSpent}}</td>
-            </tr>
-            {{/customers}}
+            <!-- Placeholder for customer data -->
+             
+            ${customers}
         </table>
 
         <div class="footer">

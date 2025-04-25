@@ -7,13 +7,10 @@ import com.bookstore.gui.util.ColorScheme;
 import javax.swing.*;
 import com.bookstore.util.TimeUtil;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.*;
 
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Calendar;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -33,7 +30,7 @@ public class StatisticalPanel extends JPanel{
     private JRadioButton top, all;
     private JLabel dateFrom, dateTo;
     private JSpinner toDatePicker, fromDatePicker;
-    JComboBox<String> threeMonthComboBox, fourMonthComboBox, monthComboBox;
+    private JComboBox<String> threeMonthComboBox, fourMonthComboBox, monthComboBox;
 
     private JPanel contentPanel;
     private JPanel datPanel;
@@ -44,7 +41,7 @@ public class StatisticalPanel extends JPanel{
     private JFreeChart chart;
     private ChartPanel chartPanel;
 
-    private boolean searchPerformed = false;
+    // private boolean searchPerformed = false;
 
     public StatisticalPanel() {
         setLayout(new BorderLayout());
@@ -200,15 +197,15 @@ public class StatisticalPanel extends JPanel{
         chartRadio = new JRadioButton("Biểu đồ", true);
         tableRadio = new JRadioButton("Bảng");
         exportPDF = new JButton("Xuất PDF");
-        // exportPDF.addActionListener(controller.createExportPDFButton(this));
+        exportPDF.addActionListener(controller.exportPDF(this));
 
         ButtonGroup datGroup = new ButtonGroup();
         datGroup.add(chartRadio);
         datGroup.add(tableRadio);
 
-        datPanel.add(chartRadio);
-        datPanel.add(tableRadio);
-        datPanel.add(exportPDF);
+        //datPanel.add(chartRadio);
+        //datPanel.add(tableRadio);
+        //datPanel.add(exportPDF);
 
         // Thêm datPanel vào contentPanel
         gbc.gridx = 0;
@@ -270,51 +267,49 @@ public class StatisticalPanel extends JPanel{
             }
         };
     
-        // Sử dụng SwingWorker để load ảnh trong background
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
-                // Tạo một map để cache ảnh đã load
                 Map<String, ImageIcon> imageCache = new HashMap<>();
-                
-                // Xử lý dữ liệu và hình ảnh trong background
+
                 for (Object[] row : data) {
-                    String imagePath = (String) row[1];
+                    String imagePath = "/" + (String) row[1]; // Đường dẫn hình ảnh
+                    System.out.println("Image Path: " + imagePath); // In ra đường dẫn để kiểm tra
                     ImageIcon imageIcon;
-                    
-                    // Kiểm tra cache trước
+
+                    // Kiểm tra cache để tránh load lại ảnh
                     if (imageCache.containsKey(imagePath)) {
                         imageIcon = imageCache.get(imagePath);
                     } else {
-                        if (imagePath != null && !imagePath.isEmpty() && new File(imagePath).exists()) {
-                            // Load ảnh gốc
-                            imageIcon = new ImageIcon(imagePath);
-                            
-                            // Resize ảnh trong background
-                            Image image = imageIcon.getImage();
-                            Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                            imageIcon = new ImageIcon(scaledImage);
-                            
-                            // Cache ảnh đã resize
+                        java.net.URL imageUrl = getClass().getResource(imagePath);
+                        if (imageUrl != null) {
+                            imageIcon = createScaledIconFromResource(imagePath);
                             imageCache.put(imagePath, imageIcon);
                         } else {
-                            // Sử dụng ảnh mặc định
-                            imageIcon = new ImageIcon(getClass().getResource("/product/default_img.png"));
-                            Image image = imageIcon.getImage();
-                            Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                            imageIcon = new ImageIcon(scaledImage);
+                            System.out.println("Không tìm thấy hình ảnh chính, sử dụng hình ảnh mặc định.");
+                            imageIcon = createScaledIconFromResource("/product/default_img.png");
                         }
                     }
-                    
-                    // Cập nhật dữ liệu trong EDT
+
+                    // Cập nhật hình ảnh vào dòng dữ liệu trên EDT
                     final ImageIcon finalImageIcon = imageIcon;
                     final Object[] finalRow = row;
-                    SwingUtilities.invokeLater(() -> {
-                        finalRow[1] = finalImageIcon;
-                    });
+                    SwingUtilities.invokeLater(() -> finalRow[1] = finalImageIcon);
                 }
-                
+
                 return null;
+            }
+
+            private ImageIcon createScaledIcon(String path) {
+                ImageIcon icon = new ImageIcon(path);
+                Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                return new ImageIcon(scaledImage);
+            }
+
+            private ImageIcon createScaledIconFromResource(String resourcePath) {
+                ImageIcon icon = new ImageIcon(getClass().getResource(resourcePath));
+                Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                return new ImageIcon(scaledImage);
             }
             
             @Override
@@ -476,90 +471,102 @@ public class StatisticalPanel extends JPanel{
         tablePanel.repaint();
     }
 
-    public void printTableProduct(Object[][] data) {
+    public void printTableProduct(ArrayList<String> data) {
         tablePanel.removeAll();
-        System.out.println(Arrays.deepToString(data));
-        String[] columnNames = {"ID", "Tên sản phẩm", "Giá", "Số lượng đã bán", "Doanh thu"};
+        tablePanel.setLayout(new GridLayout(6, 1));
     
-        // Tạo custom table với render hình ảnh
-        CustomTable table = new CustomTable(columnNames);
-            
-        // Cập nhật dữ liệu cho bảng
-        table.refreshTable(data);
-
+        JLabel idLabel = new JLabel("ID: " + data.get(0));
+        tablePanel.add(idLabel);
+        JLabel nameLabel = new JLabel("Tên: " + data.get(1));
+        tablePanel.add(nameLabel);
+        JLabel categoryLabel = new JLabel("Danh mục: " + data.get(2));
+        tablePanel.add(categoryLabel);
+        JLabel priceLabel = new JLabel("Giá: " + data.get(3));
+        tablePanel.add(priceLabel);
+        JLabel quantityLabel = new JLabel("Số lượng: " + data.get(4));
+        tablePanel.add(quantityLabel);
+        JLabel totalLabel = new JLabel("Doanh thu: " + data.get(5));
+        tablePanel.add(totalLabel);
         // Refresh giao diện
         tablePanel.revalidate();
         tablePanel.repaint();
     }
     
-    public void printTableCustomer(Object[][] data, String total, String str) {
+    public void printTableCustomer(Object[][] data, String total, ArrayList<String> str) {
         tablePanel.removeAll();
-        tablePanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        String[] col = {"Sản phẩm", "Số lượng mua"};
-        CustomTable table = new CustomTable(col);
-
-        JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
-        totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        totalLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-        JLabel stringLabel = new JLabel(str);
-        stringLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        stringLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-        // Add stringLabel to the top
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        tablePanel.add(stringLabel, gbc);
-
-        // Add table to the center
-        table.refreshTable(data);
+        tablePanel.setLayout(new BorderLayout(10, 10));
+    
+        System.out.println("======================================================== ");
+        System.out.println(str);
+    
+        // Tên các cột
+        String[] col = {"ID", "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền"};
+        JTable table = new JTable(data, col);
+        table.setFillsViewportHeight(true);
+    
+        // Tạo panel thông tin khách hàng
+        JPanel infoPanel = new JPanel(new GridLayout(4, 1));
+        JLabel idLabel = new JLabel("ID: " + str.get(0));
+        JLabel nameLabel = new JLabel("Tên: " + str.get(1));
+        JLabel phoneLabel = new JLabel("Số điện thoại: " + str.get(2));
+        JLabel pointLabel = new JLabel("Điểm thưởng: " + str.get(3));
+        infoPanel.add(idLabel);
+        infoPanel.add(nameLabel);
+        infoPanel.add(phoneLabel);
+        infoPanel.add(pointLabel);
+    
+        // Thêm bảng vào scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        tablePanel.add(scrollPane, gbc);
-
-        // Add totalLabel to the bottom
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.anchor = GridBagConstraints.SOUTHEAST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        tablePanel.add(totalLabel, gbc);
-
-        // Refresh the panel
-        tablePanel.revalidate();
-        tablePanel.repaint();
-    }
-
-    public void printTableUser(Object[][] data, String total, String str) {
-        tablePanel.removeAll();
-        String[] col = {"Sản phẩm", "Số lượng bán"};
-        CustomTable table = new CustomTable(col);
-        table.refreshTable(data);
-
+    
+        // Label tổng doanh thu
         JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
-        totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        totalLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-        // Thêm table vào scroll pane
-        JScrollPane scrollPane = new JScrollPane(table);
+        totalLabel.setHorizontalAlignment(JLabel.RIGHT);
+    
+        // Thêm các thành phần vào panel chính
+        tablePanel.add(infoPanel, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         tablePanel.add(totalLabel, BorderLayout.SOUTH);
-
+    
+        // Làm mới giao diện
+        tablePanel.revalidate();
+        tablePanel.repaint();
+    }
+    
+    public void printTableUser(Object[][] data, String total, ArrayList<String> str) {
+        tablePanel.removeAll();
+        System.out.println("======================================================== ");
+        System.out.println(str);
+        tablePanel.setLayout(new BorderLayout(10, 10));
+    
+        // Tạo các cột
+        String[] col = {"ID", "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền"};
+        JTable table = new JTable(data, col);
+        table.setFillsViewportHeight(true); // Cho đẹp hơn
+    
+        // Tạo panel chứa thông tin người dùng
+        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
+        JLabel idLabel = new JLabel("ID: " + str.get(0));
+        JLabel nameLabel = new JLabel("Username: " + str.get(1));
+        infoPanel.add(idLabel);
+        infoPanel.add(nameLabel);
+    
+        // Thêm bảng vào scroll pane
+        JScrollPane scrollPane = new JScrollPane(table);
+    
+        // Label tổng doanh thu
+        JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
+        totalLabel.setHorizontalAlignment(JLabel.RIGHT);
+    
+        // Thêm các thành phần vào panel chính
+        tablePanel.add(infoPanel, BorderLayout.NORTH);
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+        tablePanel.add(totalLabel, BorderLayout.SOUTH);
+    
         // Refresh giao diện
         tablePanel.revalidate();
         tablePanel.repaint();
     }
-
+    
     public void removeContent() {
         contentPanel.removeAll();
         contentPanel.revalidate();
@@ -574,7 +581,7 @@ public class StatisticalPanel extends JPanel{
         topAndAllPanel.remove(searchField);
         topAndAllPanel.revalidate();
         topAndAllPanel.repaint();
-        searchPerformed = false;
+        // searchPerformed = false;
     }
 
     public void resetDatePanel() {
@@ -589,7 +596,7 @@ public class StatisticalPanel extends JPanel{
     public void removeChartTableRadio() {
         datPanel.remove(chartRadio);
         datPanel.remove(tableRadio);
-        datPanel.add(exportPDF);
+        datPanel.remove(exportPDF);
         datPanel.revalidate();
         datPanel.repaint();
     }
@@ -716,13 +723,13 @@ public class StatisticalPanel extends JPanel{
         datPanel.repaint(); 
     }
 
-    public boolean isSearchPerformed() {
-        return searchPerformed;
-    }
+    // public boolean isSearchPerformed() {
+    //     return searchPerformed;
+    // }
     
-    public void setSearchPerformed(boolean performed) {
-        this.searchPerformed = performed;
-    }
+    // public void setSearchPerformed(boolean performed) {
+    //     this.searchPerformed = performed;
+    // }
 
     // Getter
 

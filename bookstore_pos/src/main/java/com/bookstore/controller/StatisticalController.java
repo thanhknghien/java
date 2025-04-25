@@ -11,11 +11,16 @@ import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 
 import com.bookstore.util.TimeUtil;
-// import com.bookstore.util.PDFExporter;
+import com.bookstore.util.PDFExporter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class StatisticalController {
     private StatisticalBUS statisticalBUS;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
 
     public StatisticalController() {
         statisticalBUS = new StatisticalBUS();
@@ -47,6 +52,7 @@ public class StatisticalController {
 
         // Reset searchPanel
             view.resetSearchPanel();
+            view.removeChartTableRadio();
             view.removeTablePanel();
         };
     }
@@ -115,6 +121,93 @@ public class StatisticalController {
         };
     }
 
+
+    public ActionListener exportPDF(StatisticalPanel view) {
+        return e -> {
+
+            try {
+                TimeUtil.start();
+                Object[][] data;
+                String fileName;
+                String reportType;
+
+                PDFExporter pdfExporter = new PDFExporter();
+                // Lấy dữ liệu dựa trên kiểu xuất
+                if (view.getTopRadio().isSelected()) {
+                    // Lấy top 5
+                    if (view.getCustomerRadio().isSelected()) {
+                        data = statisticalBUS.processCustomersResults(); // Phương thức lấy top 5 khách hàng   
+                        fileName = "top_customers_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "top_customer";
+                        pdfExporter.exportToPDFGiveTop(data, fileName, reportType, dateReport());
+                    } else if (view.getProductRadio().isSelected()) {
+                        data = statisticalBUS.processProductResults(); // Phương thức lấy top 5 sản phẩm
+                        fileName = "top_products_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "top_product";
+                        pdfExporter.exportToPDFGiveTop(data, fileName, reportType, dateReport());
+                    } else if (view.getUserRadio().isSelected()) {
+                        data = statisticalBUS.processUsersResults(); // Phương thức lấy top 5 nhân viên
+                        fileName = "top_employees_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "top_employee";
+                        pdfExporter.exportToPDFGiveTop(data, fileName, reportType, dateReport());
+                    } else {
+                        JOptionPane.showMessageDialog(null, 
+                            "Vui lòng chọn loại báo cáo", 
+                            "Lỗi", 
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                } else {
+                    // Xuất một mục cụ thể
+                    if (view.getCustomerRadio().isSelected()) {
+                        data = statisticalBUS.searchCustomer(view.getDateFromValue(), view.getDateToValue(), view.getSearchField().getText()); // Lấy dữ liệu khách hàng
+                        fileName = "customer_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "customer";
+                        pdfExporter.exportToPDFGiveAll(data, 
+                        statisticalBUS.totalSpent(),
+                        statisticalBUS.searchCustomer(view.getSearchField().getText()),
+                        fileName, reportType, dateReport());
+                    } else if (view.getProductRadio().isSelected()) {
+                        data = statisticalBUS.searchProduct(view.getDateFromValue(), view.getDateToValue(), view.getSearchField().getText()); // Lấy dữ liệu sản phẩm
+                        fileName = "product_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "product";
+                        pdfExporter.exportToPDFGiveAll(data, 
+                        "",
+                        statisticalBUS.searchProduct(data),
+                        fileName, reportType, dateReport());
+                    } else if (view.getUserRadio().isSelected()) {
+                        data = statisticalBUS.searchUser(view.getDateFromValue(), view.getDateToValue(), view.getSearchField().getText()); // Lấy dữ liệu nhân viên
+                        fileName = "employee_report_" + TimeUtil.getCurrentTime() + ".pdf";
+                        reportType = "employee";
+                        pdfExporter.exportToPDFGiveAll(data, 
+                        statisticalBUS.totalRevenue(),
+                        statisticalBUS.searchUser(view.getSearchField().getText()),
+                        fileName, reportType, dateReport());
+                    } else {
+                        JOptionPane.showMessageDialog(null, 
+                            "Vui lòng chọn loại báo cáo", 
+                            "Lỗi", 
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                JOptionPane.showMessageDialog(null, 
+                    "Xuất PDF thành công!\nFile: " + fileName, 
+                    "Thành công", 
+                    JOptionPane.INFORMATION_MESSAGE);
+
+                TimeUtil.stop("exportPDF");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, 
+                    "Lỗi khi xuất PDF: " + ex.getMessage(), 
+                    "Lỗi", 
+                    JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        };
+    }
     // ===== Top =====
     // ===== Biểu đồ =====
     // ===== Khách hàng =====
@@ -200,8 +293,8 @@ public class StatisticalController {
 
     // ===== Tìm kiếm theo Top =====
     public void searchIfChooseTop(StatisticalPanel view) {
-        LocalDateTime fromDate = LocalDateTime.now();
-        LocalDateTime toDate = LocalDateTime.now();
+        fromDate = LocalDateTime.now();
+        toDate = LocalDateTime.now();
         if (view.getRbNgay().isSelected()) {
             // Đang chọn ngày
             fromDate = view.getDateFromValue();
@@ -264,6 +357,7 @@ public class StatisticalController {
         }
         System.out.println(fromDate + "  ||  " + toDate);
         searchByDay(view, fromDate, toDate);
+        // view.setSearchPerformed(true);
     }
 
     // ===== Tìm kiếm theo All =====
@@ -275,8 +369,8 @@ public class StatisticalController {
         } else {
             // Nếu có từ khóa tìm kiếm
             String keyword = view.getSearchField().getText();
-            LocalDateTime fromDate = LocalDateTime.now();
-            LocalDateTime toDate = LocalDateTime.now();
+            fromDate = LocalDateTime.now();
+            toDate = LocalDateTime.now();
             if (view.getRbNgay().isSelected()) {
                 // Đang chọn ngày
                 fromDate = view.getDateFromValue();
@@ -337,7 +431,7 @@ public class StatisticalController {
             }
             System.out.println(fromDate + "  ||  " + toDate);
             searchByDay(view, keyword, fromDate, toDate);
-            view.setSearchPerformed(true);
+            // view.setSearchPerformed(true);
         }
     }
 
@@ -366,13 +460,13 @@ public class StatisticalController {
 
         view.removeChartTableRadio();
         if (view.getProductRadio().isSelected()){
-            if (!statisticalBUS.searchProduct(keyword)){
+            if (statisticalBUS.searchProduct(keyword).size()== 0){
                 JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            view.printTableProduct(statisticalBUS.searchProduct(fromDate, toDate, keyword));
+            view.printTableProduct(statisticalBUS.searchProduct(statisticalBUS.searchProduct(fromDate, toDate, keyword)));
         } else if (view.getCustomerRadio().isSelected()) {
-            if (statisticalBUS.searchCustomer(keyword) == "") {
+            if (statisticalBUS.searchCustomer(keyword).size()== 0) {
                 JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -380,14 +474,15 @@ public class StatisticalController {
             statisticalBUS.totalSpent(), 
             statisticalBUS.searchCustomer(keyword));
         } else if (view.getUserRadio().isSelected()) {
-            if (!statisticalBUS.searchUser(keyword)) {
+            if (statisticalBUS.searchUser(keyword).size()== 0) {
                 JOptionPane.showMessageDialog(null, "Không tìm thấy " + keyword , "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             view.printTableUser(statisticalBUS.searchUser(fromDate, toDate, keyword), 
             statisticalBUS.totalRevenue(), 
-            keyword);
+            statisticalBUS.searchUser(keyword));
         }
+        view.addExportPDF();
     }
 
     public void displayQuantityCustomer(JPanel view) {
@@ -411,7 +506,7 @@ public class StatisticalController {
         view.add(box);
     }
 
-    // public ActionListener exportPDF() {
-
-    // }
+    private String dateReport(){
+        return "Từ " + fromDate + " đến " + toDate;
+    }
 }

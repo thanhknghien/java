@@ -36,4 +36,9 @@ public class TimeUtil {
             System.err.println("Không thể ghi log vào file: " + e.getMessage());
         }
     }
+    
+    public static String getCurrentTime() {
+        return LocalDateTime.now()
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+    }
 }

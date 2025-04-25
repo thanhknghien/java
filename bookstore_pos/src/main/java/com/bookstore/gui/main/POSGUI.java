@@ -210,11 +210,11 @@ public class POSGUI extends JFrame {
             return;
         }
 
-        if(customer.getName() == null){
+        if(customer.getFullName() == null){
             searchJPanel.add(new JLabel("Chưa có khách hàng được chọn !"));
         }else{
-            CustomLabel nameCustomerSelectedLabel = new CustomLabel("Khách hàng: "+ customer.getName());
-            CustomLabel phoneCustomerSelectedLabel = new CustomLabel("SĐT: "+ customer.getPhone());
+            CustomLabel nameCustomerSelectedLabel = new CustomLabel("Khách hàng: "+ customer.getFullName());
+            CustomLabel phoneCustomerSelectedLabel = new CustomLabel("SĐT: "+ customer.getPhoneNumber());
             Button deleteSelectedCustomerBtn = new Button("X");
             deleteSelectedCustomerBtn.addActionListener(e -> {
                 setSelectedCustomer(new Customer());

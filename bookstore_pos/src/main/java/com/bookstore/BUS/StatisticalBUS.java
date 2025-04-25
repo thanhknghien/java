@@ -44,8 +44,8 @@ public class StatisticalBUS {
     private Map<Integer, Double> productRevenueMap = new HashMap<>();
     private Map<Integer, Integer> categorySalesMap = new HashMap<>();
 
-    private Map<Integer, Integer> quantitySaleMap = new HashMap<>();
-    private Map<Integer, Integer> quantityBuyMap = new HashMap<>();
+    private Map<Integer, Integer> quantitySaleMap;
+    private Map<Integer, Integer> quantityBuyMap;
     public StatisticalBUS() {
         try {
             products = productDAO.getAllProducts();
@@ -443,21 +443,28 @@ public class StatisticalBUS {
             }
         }
         
+        String category_name = "";
         String name = "";
         Double price = 0.0;
         for (Product pr : products) {
             if (String.valueOf(pr.getId()).equals(keyword)) {
                 name = pr.getName();
+                category_name = categories.stream()
+                    .filter(c -> c.getCategoryID() == pr.getCategoryId())
+                    .map(Category::getName)
+                    .findFirst()
+                    .orElse("Unknown");
                 price = pr.getPrice();
             }
         }
         DecimalFormat df = new DecimalFormat("#,###");
-        Object[][] data = new Object[1][5];
+        Object[][] data = new Object[1][6];
         data[0][0] = keyword;
         data[0][1] = name;
-        data[0][2] = df.format(price);
-        data[0][3] = String.valueOf(quantity);
-        data[0][4] = df.format(price*quantity);
+        data[0][2] = category_name;
+        data[0][3] = df.format(price);
+        data[0][4] = String.valueOf(quantity);
+        data[0][5] = df.format(price*quantity);
         System.out.println(Arrays.deepToString(data));
         return data;
 
@@ -473,7 +480,7 @@ public class StatisticalBUS {
             }
         }
         
-
+        quantityBuyMap = new HashMap<>();
         // Lọc các hóa đơn vừa tìm đc theo ngày
         for (Order order : filter) {
             if ((order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate)) && 
@@ -488,13 +495,24 @@ public class StatisticalBUS {
             }
         }
 
-        Object[][] data = new Object[quantityBuyMap.size()][2];
+        Object[][] data = new Object[quantityBuyMap.size()][5];
 
         int index = 0;
         for (Map.Entry<Integer, Integer> entry : quantityBuyMap.entrySet()) {
             data[index][0] = entry.getKey(); // Product ID
-            data[index][1] = entry.getValue(); // Quantity Sold
+            for (Product product : products) {
+                if (product.getId() == entry.getKey()) {
+                    data[index][1] = product.getName(); // Product Name
+                    data[index][2] = product.getPrice(); // Price
+                    break;
+                }
+            }
+            data[index][3] = entry.getValue(); // Quantity Sold
+            data[index][4] = entry.getValue() * ((Double) data[index][2]); // Total
             index++;
+        }
+        for (Object[] row : data) {
+            System.out.println(Arrays.toString(row));
         }
         return data;
     }
@@ -508,7 +526,7 @@ public class StatisticalBUS {
                 filter.add(order);
             }
         }
-
+        quantitySaleMap = new HashMap<>();
         // Lọc các hóa đơn vừa tìm đc theo ngày
         for (Order order : filter) {
             if ((order.getDate().isAfter(frDate) || order.getDate().isEqual(frDate)) && 
@@ -523,12 +541,20 @@ public class StatisticalBUS {
             }
         }
 
-        Object[][] data = new Object[quantitySaleMap.size()][2];
+        Object[][] data = new Object[quantitySaleMap.size()][5];
 
         int index = 0;
         for (Map.Entry<Integer, Integer> entry : quantitySaleMap.entrySet()) {
             data[index][0] = entry.getKey(); // Product ID
-            data[index][1] = entry.getValue(); // Quantity Sold
+            for (Product product : products) {
+                if (product.getId() == entry.getKey()) {
+                    data[index][1] = product.getName(); // Product Name
+                    data[index][2] = product.getPrice(); // Price
+                    break;
+                }
+            }
+            data[index][3] = entry.getValue(); // Quantity Sold
+            data[index][4] = entry.getValue() * ((Double) data[index][2]); // Total
             index++;
         }
         for (Object[] row : data) {
@@ -563,34 +589,43 @@ public class StatisticalBUS {
         return df.format(total);
     }
 
-    public String searchCustomer(String keyword) {
-        
+    public ArrayList<String> searchCustomer(String keyword) {
+        ArrayList<String> result = new ArrayList<>();
         for (Customer cus : customers) {
-            if (String.valueOf(cus.getId()).equals(keyword)) {
-                return  (keyword + " "+  cus.getFullName() + " " + cus.getPhoneNumber());
+            if (String.valueOf(cus.getId()).equals(keyword)) { 
+                result.add(String.valueOf(cus.getId()));    // id
+                result.add(cus.getFullName());              // ten
+                result.add(cus.getPhoneNumber());           // sdt
+                result.add(String.valueOf(cus.getPoints()));// diem
+                return result;
             }
         }
-        return "";
+        return new ArrayList<>();
     }
 
-    public Boolean searchProduct(String keyword) {
-        
+    public ArrayList<String> searchProduct(String keyword) {
+        ArrayList<String> result = new ArrayList<>();
         for (Product pr : products) {
             if (String.valueOf(pr.getId()).equals(keyword)) {
-                return  true;
+                result.add(String.valueOf(pr.getId()));
+                result.add(pr.getName());
+                result.add(String.valueOf(pr.getPrice()));
+                return result;
             }
         }
-        return false;
+        return new ArrayList<>();
     }
 
-    public Boolean searchUser(String keyword) {
-        
+    public ArrayList<String> searchUser(String keyword) {
+        ArrayList<String> result = new ArrayList<>();
         for (User us : users) {
             if (String.valueOf(us.getId()).equals(keyword)) {
-                return  true;
+                result.add(String.valueOf(us.getId()));     // id
+                result.add(us.getUsername());               // name
+                return result;
             }
         }
-        return false;
+        return new ArrayList<>();
     }
 
 
@@ -604,5 +639,16 @@ public class StatisticalBUS {
 
     public String getQuantityOrder() {
         return String.valueOf(orders.size());
+    }
+
+    public ArrayList<String> searchProduct(Object[][] data) {
+        ArrayList<String> result = new ArrayList<>();
+        result.add(String.valueOf(data[0][0])); // id
+        result.add(String.valueOf(data[0][1])); // ten
+        result.add(String.valueOf(data[0][2])); // danh muc
+        result.add(String.valueOf(data[0][3])); // gia
+        result.add(String.valueOf(data[0][4])); // so luong
+        result.add(String.valueOf(data[0][5])); // doanh thu
+        return result;
     }
 }

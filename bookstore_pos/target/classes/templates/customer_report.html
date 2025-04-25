@@ -33,24 +33,22 @@
             color: #666;
             margin: 5px 0;
         }
-        .customer-info {
-            margin-bottom: 30px;
-        }
-        .customer-info h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .customer-details {
+        .date {
+            color: #666;
+            font-size: 0.9em;
             margin-bottom: 20px;
+        }
+        .summary {
+            margin-bottom: 30px;
             padding: 15px;
             background-color: #f8f9fa;
             border-radius: 5px;
         }
-        .customer-details p {
+        .summary p {
             margin: 5px 0;
             color: #444;
         }
-        .customer-details strong {
+        .summary strong {
             color: #333;
         }
         table {
@@ -71,20 +69,13 @@
         tr:hover {
             background-color: #f5f5f5;
         }
-        .purchase-history {
-            margin-top: 30px;
-        }
-        .purchase-history h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .total {
-            text-align: right;
+        .points {
+            color: #007bff;
             font-weight: bold;
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #eee;
+        }
+        .total-spent {
+            color: #28a745;
+            font-weight: bold;
         }
         .footer {
             text-align: center;
@@ -94,15 +85,6 @@
             color: #666;
             font-size: 0.9em;
         }
-        .date {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-        .points {
-            color: #28a745;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -110,38 +92,31 @@
         <div class="header">
             <h1>Báo cáo chi tiết khách hàng</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
         </div>
 
-        <div class="customer-info">
-            <h2>Thông tin khách hàng</h2>
-            <div class="customer-details">
-                <p><strong>ID:</strong> {{customerId}}</p>
-                <p><strong>Tên khách hàng:</strong> {{customerName}}</p>
-                <p><strong>Số điện thoại:</strong> {{customerPhone}}</p>
-                <p><strong>Điểm thưởng:</strong> <span class="points">{{points}}</span></p>
-                <p><strong>Tổng chi tiêu:</strong> {{totalSpent}}</p>
-            </div>
-
-            <div class="purchase-history">
-                <h3>Lịch sử mua hàng</h3>
-                <table>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>Số lượng mua</th>
-                    </tr>
-                    {{#purchaseHistory}}
-                    <tr>
-                        <td>{{productName}}</td>
-                        <td>{{quantity}}</td>
-                    </tr>
-                    {{/purchaseHistory}}
-                </table>
-            </div>
+        <div class="summary">
+            <p><strong>Thời gian thống kê:</strong> ${timePeriod}</p>
+            <p><strong>Mã khách hàng:</strong> ${customerId}</p>
+            <p><strong>Họ và tên:</strong> ${customerName}</p>
+            <p><strong>Số điện thoại:</strong> ${customerPhone}</p>
+            <p><strong>Điểm tích lũy:</strong> ${points}</p>
         </div>
 
-        <div class="total">
-            Tổng chi tiêu: {{totalSpent}}
+        <h2>Lịch sử mua hàng</h2>
+        <table class="">
+                <tr>
+                    <th>ID</th>
+                    <th>Sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                </tr>
+                ${purchaseRows}
+        </table>
+
+        <div class="total-section">
+            Tổng chi tiêu: ${totalSpent}
         </div>
 
         <div class="footer">

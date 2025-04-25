@@ -33,12 +33,23 @@
             color: #666;
             margin: 5px 0;
         }
-        .product-info {
-            margin-bottom: 30px;
+        .date {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
         }
-        .product-info h2 {
+        .summary {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .summary p {
+            margin: 5px 0;
+            color: #444;
+        }
+        .summary strong {
             color: #333;
-            margin-bottom: 15px;
         }
         table {
             width: 100%;
@@ -58,13 +69,13 @@
         tr:hover {
             background-color: #f5f5f5;
         }
-        .total {
-            text-align: right;
+        .points {
+            color: #007bff;
             font-weight: bold;
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #eee;
+        }
+        .total-spent {
+            color: #28a745;
+            font-weight: bold;
         }
         .footer {
             text-align: center;
@@ -74,43 +85,26 @@
             color: #666;
             font-size: 0.9em;
         }
-        .date {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
+
         <div class="header">
             <h1>Báo cáo chi tiết sản phẩm</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
         </div>
-
-        <div class="product-info">
-            <h2>Thông tin sản phẩm</h2>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng đã bán</th>
-                    <th>Doanh thu</th>
-                </tr>
-                <tr>
-                    <td>{{productId}}</td>
-                    <td>{{productName}}</td>
-                    <td>{{price}}</td>
-                    <td>{{quantitySold}}</td>
-                    <td>{{revenue}}</td>
-                </tr>
-            </table>
+        <div class="summary">
+            <p><strong>Ngày thống kê:</strong> ${timePeriod}</p>
+            <p><strong>Mã khách hàng:</strong> ${productId}</p>
+            <p><strong>Tên sản phẩm:</strong> ${productName}</p>
+            <p><strong>Danh mục:</strong> ${category}</p>
+            <p><strong>Giá bán:</strong> ${price}</p>
+            <p><strong>Số lượng:</strong> ${quantity}</p>
         </div>
-
-        <div class="total">
-            Tổng doanh thu: {{totalRevenue}}
+        <div class="total-revenue">
+            Tổng doanh thu: ${totalRevenue}
         </div>
 
         <div class="footer">

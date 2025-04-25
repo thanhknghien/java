@@ -38,6 +38,19 @@
             font-size: 0.9em;
             margin-bottom: 20px;
         }
+        .summary {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .summary p {
+            margin: 5px 0;
+            color: #444;
+        }
+        .summary strong {
+            color: #333;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -76,30 +89,11 @@
             color: #666;
             font-size: 0.9em;
         }
-        .summary {
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        .summary p {
-            margin: 5px 0;
-            color: #444;
-        }
-        .summary strong {
-            color: #333;
-        }
         .product-image {
             width: 50px;
             height: 50px;
             object-fit: cover;
             border-radius: 4px;
-        }
-        .category-table {
-            margin-top: 30px;
-        }
-        .category-table th {
-            background-color: #f8f9fa;
         }
     </style>
 </head>
@@ -108,52 +102,25 @@
         <div class="header">
             <h1>Báo cáo top sản phẩm</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
         </div>
 
         <div class="summary">
-            <p><strong>Tổng số sản phẩm:</strong> {{totalProducts}}</p>
-            <p><strong>Thời gian thống kê:</strong> {{timePeriod}}</p>
+            <p><strong>Tổng số sản phẩm:</strong> ${totalProducts}</p>
+            <p><strong>Thời gian thống kê:</strong> ${timePeriod}</p>
         </div>
 
         <table>
             <tr>
                 <th>ID</th>
-                <th>Ảnh</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá</th>
                 <th>Số lượng đã bán</th>
                 <th>Doanh thu</th>
             </tr>
-            {{#products}}
-            <tr>
-                <td>{{id}}</td>
-                <td><img src="{{imagePath}}" alt="{{name}}" class="product-image"></td>
-                <td>{{name}}</td>
-                <td class="price">{{price}}</td>
-                <td class="quantity">{{quantitySold}}</td>
-                <td class="revenue">{{revenue}}</td>
-            </tr>
-            {{/products}}
+            <!-- Placeholder for product data -->
+            ${products}
         </table>
-
-        <div class="category-table">
-            <h3>Thống kê theo danh mục</h3>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên danh mục</th>
-                    <th>Số lượng đã bán</th>
-                </tr>
-                {{#categories}}
-                <tr>
-                    <td>{{id}}</td>
-                    <td>{{name}}</td>
-                    <td class="quantity">{{quantitySold}}</td>
-                </tr>
-                {{/categories}}
-            </table>
-        </div>
 
         <div class="footer">
             <p>Báo cáo được tạo tự động bởi hệ thống quản lý cửa hàng sách</p>

@@ -38,6 +38,19 @@
             font-size: 0.9em;
             margin-bottom: 20px;
         }
+        .summary {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .summary p {
+            margin: 5px 0;
+            color: #444;
+        }
+        .summary strong {
+            color: #333;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -68,23 +81,6 @@
             color: #666;
             font-size: 0.9em;
         }
-        .summary {
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        .summary p {
-            margin: 5px 0;
-            color: #444;
-        }
-        .summary strong {
-            color: #333;
-        }
-        .password {
-            font-family: monospace;
-            letter-spacing: 1px;
-        }
     </style>
 </head>
 <body>
@@ -92,29 +88,22 @@
         <div class="header">
             <h1>Báo cáo top nhân viên</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
         </div>
 
         <div class="summary">
-            <p><strong>Tổng số nhân viên:</strong> {{totalEmployees}}</p>
-            <p><strong>Thời gian thống kê:</strong> {{timePeriod}}</p>
+            <p><strong>Tổng số nhân viên:</strong> ${totalEmployees}</p>
+            <p><strong>Thời gian thống kê:</strong> ${timePeriod}</p>
         </div>
 
         <table>
             <tr>
                 <th>ID</th>
-                <th>Tên đăng nhập</th>
-                <th>Mật khẩu</th>
+                <th>UserName</th>
                 <th>Tổng doanh thu đã tạo</th>
             </tr>
-            {{#employees}}
-            <tr>
-                <td>{{id}}</td>
-                <td>{{username}}</td>
-                <td class="password">{{password}}</td>
-                <td class="revenue">{{totalRevenue}}</td>
-            </tr>
-            {{/employees}}
+            <!-- Placeholder for employee data -->
+            ${employees}
         </table>
 
         <div class="footer">

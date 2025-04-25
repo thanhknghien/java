@@ -33,24 +33,22 @@
             color: #666;
             margin: 5px 0;
         }
-        .employee-info {
-            margin-bottom: 30px;
-        }
-        .employee-info h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .employee-details {
+        .date {
+            color: #666;
+            font-size: 0.9em;
             margin-bottom: 20px;
+        }
+        .summary {
+            margin-bottom: 30px;
             padding: 15px;
             background-color: #f8f9fa;
             border-radius: 5px;
         }
-        .employee-details p {
+        .summary p {
             margin: 5px 0;
             color: #444;
         }
-        .employee-details strong {
+        .summary strong {
             color: #333;
         }
         table {
@@ -71,20 +69,13 @@
         tr:hover {
             background-color: #f5f5f5;
         }
-        .sales-history {
-            margin-top: 30px;
-        }
-        .sales-history h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .total {
-            text-align: right;
+        .points {
+            color: #007bff;
             font-weight: bold;
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #eee;
+        }
+        .total-spent {
+            color: #28a745;
+            font-weight: bold;
         }
         .footer {
             text-align: center;
@@ -94,61 +85,38 @@
             color: #666;
             font-size: 0.9em;
         }
-        .date {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-        .revenue {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .info-text {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="logo">
+            <img src="${logoImage}" alt="Logo công ty">
+        </div>
+
         <div class="header">
             <h1>Báo cáo chi tiết nhân viên</h1>
             <p>Cửa hàng sách ABC</p>
-            <p class="date">Ngày báo cáo: {{currentDate}}</p>
+            <p class="date">Ngày báo cáo: ${currentDate}</p>
+        </div>
+        <div class="summary">
+            <p><strong>Thời gian thống kê:</strong> ${timePeriod}</p>
+            <p><strong>Mã Nhân Viên:</strong> ${UserId}</p>
+            <p><strong>UserName:</strong> ${UserName}</p>
         </div>
 
-        <div class="employee-info">
-            <h2>Thông tin nhân viên</h2>
-            <div class="employee-details">
-                <p><strong>ID:</strong> {{employeeId}}</p>
-                <p><strong>Tên nhân viên:</strong> {{employeeName}}</p>
-                <p><strong>Vị trí:</strong> {{position}}</p>
-            </div>
+        <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Sản phẩm</th>
+                    <th>Đơn Giá</th>
+                    <th>Số lượng bán</th>
+                    <th>Doanh thu</th>
+                </tr>
+                ${salesRows}
+        </table>
 
-            <div class="info-text">
-                {{infoText}}
-            </div>
-
-            <div class="sales-history">
-                <h3>Lịch sử bán hàng</h3>
-                <table>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>Số lượng bán</th>
-                    </tr>
-                    {{#salesHistory}}
-                    <tr>
-                        <td>{{productName}}</td>
-                        <td>{{quantity}}</td>
-                    </tr>
-                    {{/salesHistory}}
-                </table>
-            </div>
-        </div>
-
-        <div class="total">
-            Tổng doanh thu: <span class="revenue">{{totalRevenue}}</span>
+        <div class="total-revenue">
+            Tổng doanh thu: ${totalRevenue}
         </div>
 
         <div class="footer">
