@@ -6,13 +6,15 @@ import com.bookstore.dao.UserManagementDAO;
 import com.bookstore.dao.InvoiceManagementDAO;
 import com.bookstore.dao.ProductManagementDAO;
 import com.bookstore.dao.OrderManagementDAO;
+import com.bookstore.dao.StatisticsManagementDAO;
+import com.bookstore.dao.PermissionManagementDAO;
 import com.bookstore.model.InvoiceManagement;
 import com.bookstore.model.OrderManagement;
 import com.bookstore.model.ProductManagement;
 import com.bookstore.model.Role;
 import com.bookstore.model.User;
 import com.bookstore.model.UserManagement;
-import com.bookstore.util.SessionManager;
+import com.bookstore.model.StatisticsManagement;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -26,6 +28,8 @@ public class UserManagementBUS {
     private InvoiceManagementDAO invoiceManagementDAO;
     private ProductManagementDAO productManagementDAO;
     private OrderManagementDAO orderManagementDAO;
+    private StatisticsManagementDAO statisticsManagementDAO;
+    private PermissionManagementDAO permissionManagementDAO;
     
     public UserManagementBUS() throws SQLException {
         this.userDAO = new UserDAO();
@@ -34,6 +38,8 @@ public class UserManagementBUS {
         this.invoiceManagementDAO = new InvoiceManagementDAO();
         this.productManagementDAO = new ProductManagementDAO();
         this.orderManagementDAO = new OrderManagementDAO();
+        this.statisticsManagementDAO = new StatisticsManagementDAO();
+        this.permissionManagementDAO = new PermissionManagementDAO();
     }
     
     public void loadRoleData(JComboBox<String> comboBox) throws SQLException {
@@ -107,32 +113,37 @@ public class UserManagementBUS {
         
         // Set up order management permissions
         setupOrderManagementPermissions(userId, roleId);
+        
+        // Set up statistics management permissions
+        setupStatisticsManagementPermissions(userId, roleId);
+        
+        // Set up permission management permissions
+        setupPermissionManagementPermissions(userId, roleId);
     }
 
     private void setupUserManagementPermissions(int userId, int roleId) throws SQLException {
         boolean canView = true; // All roles can view
         boolean canAdd = false, canEdit = false, canDelete = false;
-        if(roleId>1){
-            canAdd  = true; // manage or admin can add
+        if (roleId > 1) {
+            canAdd = true;  // manage or admin can add
             canEdit = true; // manage or admin can edit
-            if(roleId>2){
-                canDelete =  true; // Only admin can delete
+            if (roleId > 2) {
+                canDelete = true; // Only admin can delete
             }
         }
         
-
         UserManagement userManagement = new UserManagement(userId, canAdd, canEdit, canDelete, canView);
         userManagementDAO.add(userManagement);
     }
 
     private void setupInvoiceManagementPermissions(int userId, int roleId) throws SQLException {
         boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;        
-        if(roleId>1){
-            canAdd  = true; // manage or admin can add
+        boolean canAdd = false, canEdit = false, canDelete = false;
+        if (roleId > 1) {
+            canAdd = true;  // manage or admin can add
             canEdit = true; // manage or admin can edit
-            if(roleId>2){
-                canDelete =  true; // Only admin can delete
+            if (roleId > 2) {
+                canDelete = true; // Only admin can delete
             }
         }
         InvoiceManagement invoiceManagement = new InvoiceManagement(userId, canAdd, canEdit, canDelete, canView);
@@ -141,64 +152,47 @@ public class UserManagementBUS {
 
     private void setupProductManagementPermissions(int userId, int roleId) throws SQLException {
         boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;        
-        if(roleId>1){
-            canAdd  = true; // manage or admin can add
+        boolean canAdd = false, canEdit = false, canDelete = false;
+        if (roleId > 1) {
+            canAdd = true;  // manage or admin can add
             canEdit = true; // manage or admin can edit
-            if(roleId>2){
-                canDelete  = true; // Only admin can delete
+            if (roleId > 2) {
+                canDelete = true; // Only admin can delete
             }
         }
-
         ProductManagement productManagement = new ProductManagement(userId, canAdd, canEdit, canDelete, canView);
         productManagementDAO.add(productManagement);
     }
 
     private void setupOrderManagementPermissions(int userId, int roleId) throws SQLException {
         boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;        
-        if(roleId>1){
-            canAdd  = true; // manage or admin can add
+        boolean canAdd = false, canEdit = false, canDelete = false;
+        if (roleId > 1) {
+            canAdd = true;  // manage or admin can add
             canEdit = true; // manage or admin can edit
-            if(roleId>2){
-                canDelete =  true; // Only admin can delete
+            if (roleId > 2) {
+                canDelete = true; // Only admin can delete
             }
         }
-
         OrderManagement orderManagement = new OrderManagement(userId, canAdd, canEdit, canDelete, canView);
         orderManagementDAO.add(orderManagement);
     }
     
-    /**
-     * Kiểm tra người dùng hiện tại có quyền thêm không
-     * @return true nếu có quyền, false nếu không
-     */
-    public boolean canAdd() {
-        return SessionManager.getInstance().canAdd();
+    private void setupStatisticsManagementPermissions(int userId, int roleId) throws SQLException {
+        boolean canView = false; // Default: no view permission
+        if (roleId > 1) {
+            canView = true; // Quản lý or Admin can view
+        }
+        StatisticsManagement statisticsManagement = new StatisticsManagement(userId, canView);
+        statisticsManagementDAO.add(statisticsManagement);
     }
     
-    /**
-     * Kiểm tra người dùng hiện tại có quyền chỉnh sửa không
-     * @return true nếu có quyền, false nếu không
-     */
-    public boolean canEdit() {
-        return SessionManager.getInstance().canEdit();
-    }
-    
-    /**
-     * Kiểm tra người dùng hiện tại có quyền xóa không
-     * @return true nếu có quyền, false nếu không
-     */
-    public boolean canDelete() {
-        return SessionManager.getInstance().canDelete();
-    }
-    
-    /**
-     * Kiểm tra người dùng hiện tại có quyền xem không
-     * @return true nếu có quyền, false nếu không
-     */
-    public boolean canView() {
-        return SessionManager.getInstance().canView();
+    private void setupPermissionManagementPermissions(int userId, int roleId) throws SQLException {
+        boolean canManagePermissions = false; // Default: no permission
+        if (roleId == 3) {
+            canManagePermissions = true; // Only Admin can manage permissions
+        }
+        permissionManagementDAO.upsert(userId, canManagePermissions);
     }
     
     public void updateUser(User user) throws SQLException {
