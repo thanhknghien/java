@@ -10,7 +10,6 @@ import com.bookstore.model.UserManagement;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SessionManager {
     private static SessionManager instance;
@@ -31,7 +30,7 @@ public class SessionManager {
             productManagementDAO = new ProductManagementDAO();
             statisticsManagementDAO = new StatisticsManagementDAO();
         } catch (SQLException e) {
-            
+            System.err.println("Lỗi khởi tạo DAO: " + e.getMessage());
         }
     }
 
@@ -119,7 +118,6 @@ public class SessionManager {
                     StatisticsManagement sm = statisticsManagementDAO.getById(currentUser.getId());
                     if (sm != null) {
                         switch (action) {
-                            
                             case "view": return sm.isCanView();
                         }
                     }
@@ -131,15 +129,12 @@ public class SessionManager {
         return false;
     }
 
-    public String[][] getAllPermissions() throws SQLException {
-        // Initialize result with 6 empty arrays for each module
-        String[][] permissions = new String[6][];
-        permissions[0] = new String[0]; // user_management
-        permissions[1] = new String[0]; // invoice_management
-        permissions[2] = new String[0]; // product_management
-        permissions[3] = new String[0]; // order_management
-        permissions[4] = new String[0]; // statistics_management
-        permissions[5] = new String[0]; // permission_management
+    public ArrayList<ArrayList<String>> getAllPermissions() throws SQLException {
+        ArrayList<ArrayList<String>> permissions = new ArrayList<>();
+        // Initialize with 6 empty ArrayLists for each module
+        for (int i = 0; i < 6; i++) {
+            permissions.add(new ArrayList<>());
+        }
 
         if (currentUser == null) {
             return permissions;
@@ -148,7 +143,7 @@ public class SessionManager {
         int userId = currentUser.getId();
 
         // User Management
-        List<String> umPermissions = new ArrayList<>();
+        ArrayList<String> umPermissions = permissions.get(0);
         UserManagement um = userManagementDAO.getById(userId);
         if (um != null) {
             if (um.isCanAdd()) umPermissions.add("add");
@@ -156,10 +151,9 @@ public class SessionManager {
             if (um.isCanDelete()) umPermissions.add("delete");
             if (um.isCanView()) umPermissions.add("view");
         }
-        permissions[0] = umPermissions.toArray(new String[0]);
 
         // Invoice Management
-        List<String> imPermissions = new ArrayList<>();
+        ArrayList<String> imPermissions = permissions.get(1);
         InvoiceManagement im = invoiceManagementDAO.getById(userId);
         if (im != null) {
             if (im.isCanAdd()) imPermissions.add("add");
@@ -167,10 +161,9 @@ public class SessionManager {
             if (im.isCanDelete()) imPermissions.add("delete");
             if (im.isCanView()) imPermissions.add("view");
         }
-        permissions[1] = imPermissions.toArray(new String[0]);
 
         // Product Management
-        List<String> pmPermissions = new ArrayList<>();
+        ArrayList<String> pmPermissions = permissions.get(2);
         ProductManagement pm = productManagementDAO.getById(userId);
         if (pm != null) {
             if (pm.isCanAdd()) pmPermissions.add("add");
@@ -178,10 +171,9 @@ public class SessionManager {
             if (pm.isCanDelete()) pmPermissions.add("delete");
             if (pm.isCanView()) pmPermissions.add("view");
         }
-        permissions[2] = pmPermissions.toArray(new String[0]);
 
         // Order Management
-        List<String> omPermissions = new ArrayList<>();
+        ArrayList<String> omPermissions = permissions.get(3);
         OrderManagement om = orderManagementDAO.getById(userId);
         if (om != null) {
             if (om.isCanAdd()) omPermissions.add("add");
@@ -189,23 +181,20 @@ public class SessionManager {
             if (om.isCanDelete()) omPermissions.add("delete");
             if (om.isCanView()) omPermissions.add("view");
         }
-        permissions[3] = omPermissions.toArray(new String[0]);
 
         // Statistics Management
-        List<String> smPermissions = new ArrayList<>();
+        ArrayList<String> smPermissions = permissions.get(4);
         StatisticsManagement sm = statisticsManagementDAO.getById(userId);
         if (sm != null && sm.isCanView()) {
             smPermissions.add("view");
         }
-        permissions[4] = smPermissions.toArray(new String[0]);
 
         // Permission Management
-        List<String> permPermissions = new ArrayList<>();
+        ArrayList<String> permPermissions = permissions.get(5);
         boolean canManagePermissions = permissionManagementDAO.getCanManagePermissions(userId);
         if (canManagePermissions) {
             permPermissions.add("manage_permissions");
         }
-        permissions[5] = permPermissions.toArray(new String[0]);
 
         return permissions;
     }

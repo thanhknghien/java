@@ -15,9 +15,11 @@ import com.bookstore.model.Role;
 import com.bookstore.model.User;
 import com.bookstore.model.UserManagement;
 import com.bookstore.model.StatisticsManagement;
+import com.bookstore.util.SessionManager;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -194,7 +196,32 @@ public class UserManagementBUS {
         }
         permissionManagementDAO.upsert(userId, canManagePermissions);
     }
-    
+    public ArrayList<String> getPermissions(int userId) throws SQLException {
+        // Get user by ID
+        User user = userDAO.getUserById(userId);
+        if (user == null) {
+            // Return empty permissions if user not found
+            return new ArrayList<>();
+        }
+
+        // Get SessionManager instance
+        SessionManager sessionManager = SessionManager.getInstance();
+        
+        // Store current user
+        User currentUser = sessionManager.getCurrentUser();
+        
+        // Temporarily set the user to check permissions
+        sessionManager.setCurrentUser(user);
+        
+        try {
+            // Get all permissions and extract user_management permissions
+            ArrayList<ArrayList<String>> allPermissions = sessionManager.getAllPermissions();
+            return allPermissions.get(0); // user_management permissions
+        } finally {
+            // Restore original current user
+            sessionManager.setCurrentUser(currentUser);
+        }
+    }
     public void updateUser(User user) throws SQLException {
         userDAO.updateUser(user);
         // Update permissions when role changes
