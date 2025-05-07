@@ -6,10 +6,12 @@ package com.bookstore.gui.main;
 
 
 
+import com.bookstore.BUS.PermissionService;
 import com.bookstore.BUS.UserManagementBUS;
 import com.bookstore.controller.PermissionController;
 import javax.swing.*;
 import com.bookstore.gui.main.LoginGUI;
+import com.bookstore.gui.panel.PermissionPanel;
 
 
 import com.bookstore.model.User;
@@ -29,7 +31,7 @@ import java.util.Map;
  */
 public class Main {
     public static void main(String[] args) {
-        /*SessionManager sessionManager = SessionManager.getInstance();
+        SessionManager sessionManager = SessionManager.getInstance();
         User adminUser = new User(3, "admin1", "123", 3, true);
         sessionManager.setCurrentUser(adminUser);
         SwingUtilities.invokeLater(() -> {
@@ -42,9 +44,9 @@ public class Main {
             frame.add(panel);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-        });*/
+        });
         
-        SessionManager session = SessionManager.getInstance();
+      /*  SessionManager session = SessionManager.getInstance();
         User adminUser = new User(1, "admin1", "123", 3, true);
         session.setCurrentUser(adminUser);
 try {
@@ -59,6 +61,6 @@ try {
     }
 } catch (SQLException e) {
     System.err.println("Lỗi lấy quyền: " + e.getMessage());
-}
+}*/
     }
 }
