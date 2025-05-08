@@ -3,9 +3,12 @@ com\bookstore\gui\util\FrameUtils.class
 com\bookstore\gui\component\PaymentDialog.class
 com\bookstore\gui\util\ColorScheme.class
 com\bookstore\model\OrderManagement.class
+com\bookstore\gui\panel\PermissionPanel$2.class
+com\bookstore\BUS\CustomerBUS1.class
 com\bookstore\gui\component\TextField$2.class
 com\bookstore\model\User.class
 com\bookstore\util\TableUtil$RowDataExtractor.class
+com\bookstore\controller\PermissionController.class
 com\bookstore\util\NumberUtil.class
 com\bookstore\BUS\StatisticalBUS.class
 com\bookstore\dao\CustomerDAO.class
@@ -31,16 +34,15 @@ com\bookstore\gui\panel\StatisticalPanel$3$2.class
 com\bookstore\BUS\CustomerBUS.class
 com\bookstore\dao\ProductManagementDAO.class
 com\bookstore\gui\panel\CategoryPanel$3.class
+com\bookstore\model\StatisticsManagement.class
 com\bookstore\dao\UserManagementDAO.class
+com\bookstore\util\PDFExporter.class
 com\bookstore\util\DateUtil.class
 com\bookstore\gui\panel\ProductPanel$1.class
 com\bookstore\gui\component\CustomLabel.class
 com\bookstore\util\TableUtil.class
-<<<<<<< HEAD
-com\bookstore\controller\UserManagementController$3.class
+com\bookstore\controller\CustomerController.class
 com\bookstore\gui\panel\ProductPanel$3.class
-=======
->>>>>>> de1595bd375006da5341a02e3ab1a04404c2f035
 com\bookstore\gui\panel\StatisticalPanel$3$3.class
 com\bookstore\gui\component\TextField$1.class
 com\bookstore\gui\panel\ProductPanel$2.class
@@ -50,6 +52,7 @@ com\bookstore\gui\component\Password.class
 com\bookstore\model\OrderDetail.class
 com\bookstore\gui\main\LoginGUI.class
 com\bookstore\dao\CategoryDAO.class
+com\bookstore\gui\panel\PermissionPanel$1.class
 com\bookstore\gui\component\PanelCover.class
 com\bookstore\gui\panel\OrderManagementPanel.class
 com\bookstore\gui\main\Main.class
@@ -65,6 +68,7 @@ com\bookstore\util\TimeUtil.class
 com\bookstore\controller\OrderController.class
 com\bookstore\gui\panel\StatisticalPanel$2.class
 com\bookstore\gui\component\ProductCard.class
+com\bookstore\dao\StatisticsManagementDAO.class
 com\bookstore\model\Role.class
 com\bookstore\util\FileUtil.class
 com\bookstore\dao\InvoiceManagementDAO.class
@@ -72,7 +76,11 @@ com\bookstore\BUS\UserManagementBUS.class
 com\bookstore\gui\main\POSGUI.class
 com\bookstore\gui\panel\StatisticalPanel$1.class
 com\bookstore\gui\panel\CategoryPanel$1.class
+com\bookstore\BUS\PermissionService.class
+com\bookstore\gui\component\CustomerDialog.class
 com\bookstore\util\MessageUtil.class
+com\bookstore\dao\PermissionManagementDAO.class
+com\bookstore\gui\panel\PermissionPanel.class
 com\bookstore\dao\OrderDAO.class
 com\bookstore\gui\panel\CategoryPanel.class
 com\bookstore\gui\component\ProductCard$1.class
@@ -95,6 +103,7 @@ com\bookstore\gui\panel\CustomerPanel.class
 com\bookstore\controller\POSController.class
 com\bookstore\util\NomalizeVietnamese.class
 com\bookstore\config\DataBaseConfig.class
+com\bookstore\controller\MainController.class
 com\bookstore\controller\CategoryController.class
 com\bookstore\gui\component\CustomComboBox.class
 com\bookstore\gui\panel\StatisticalPanel$3.class

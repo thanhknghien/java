@@ -119,8 +119,8 @@ public class CustomerDialog extends JDialog {
         if (keyword.isEmpty()) return;
 
         ArrayList<Customer> results = (ArrayList<Customer>) customerList.stream()
-                .filter(c -> c.getName().toLowerCase().contains(keyword)
-                          || c.getPhone().toLowerCase().contains(keyword))
+                .filter(c -> c.getFullName().toLowerCase().contains(keyword)
+                          || c.getPhoneNumber().toLowerCase().contains(keyword))
                 .collect(Collectors.toList());
         
 
@@ -136,9 +136,9 @@ public class CustomerDialog extends JDialog {
     private boolean isExistCustomer(String keyword){
 
         ArrayList<Customer> results = (ArrayList<Customer>) customerList.stream()
-                    .filter(c -> c.getPhone().toLowerCase().contains(keyword))
+                    .filter(c -> c.getPhoneNumber().toLowerCase().contains(keyword))
                     .collect(Collectors.toList());
-        if(results == null){
+        if(results.size() == 0){
             return false;
         }else return true;
     }

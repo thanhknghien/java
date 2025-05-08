@@ -23,12 +23,12 @@ public class UserManagementController {
      * Cập nhật giao diện dựa trên quyền của người dùng hiện tại
      */
     public void updateUIBasedOnPermissions() {
-        boolean canAdd = bus.canAdd();
+      /*  boolean canAdd = bus.canAdd();
         boolean canEdit = bus.canEdit();
         boolean canDelete = bus.canDelete();
-        boolean canView = bus.canView();
+        boolean canView = bus.canView();*
         
-        panel.updateButtonsVisibility(canAdd, canEdit, canDelete, canView);
+        panel.updateButtonsVisibility(canAdd, canEdit, canDelete, canView);*/
     }
     
     public void loadRoleData(JComboBox<String> comboBox) {

@@ -60,7 +60,7 @@ public class OrderBUS {
 
         Order order = new Order();
         order.setDate(LocalDateTime.now()); 
-        if(customer == null || customer.getName() == null){
+        if(customer == null || customer.getFullName() == null){
             order.setCustomer(null);
         }else{
             order.setCustomer(customer);
@@ -109,8 +109,8 @@ public class OrderBUS {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("orderId", String.valueOf(order.getId()));
         placeholders.put("orderDate", order.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-        placeholders.put("customerName", order.getCustomer() != null ? order.getCustomer().getName() : "Khách lẻ");
-        placeholders.put("customerPhone", order.getCustomer() != null ? order.getCustomer().getPhone() : "N/A");
+        placeholders.put("customerName", order.getCustomer() != null ? order.getCustomer().getFullName() : "Khách lẻ");
+        placeholders.put("customerPhone", order.getCustomer() != null ? order.getCustomer().getPhoneNumber() : "N/A");
         placeholders.put("employeeName", order.getEmployee().getUsername());
 
         StringBuilder itemsHtml = new StringBuilder();

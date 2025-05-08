@@ -23,7 +23,7 @@ public class CustomerBUS1 {
         ArrayList<Customer> result = new ArrayList<>();
         value.toLowerCase();
         for(Customer cus : list){
-            if(value.contains(cus.getName()) || value.contains(cus.getPhone())){
+            if(value.contains(cus.getFullName()) || value.contains(cus.getPhoneNumber())){
                 result.add(cus);
             }
         }
@@ -32,7 +32,7 @@ public class CustomerBUS1 {
 
     public boolean addCustomer(Customer customer){
         try {
-            customerDAO.addCustomer(customer);
+            customerDAO.insertCustomer(customer);
             return true;
         } catch (Exception e) {
             return false;

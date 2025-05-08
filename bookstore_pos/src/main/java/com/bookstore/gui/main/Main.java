@@ -4,8 +4,26 @@
  */
 package com.bookstore.gui.main;
 
+
+
+import com.bookstore.BUS.PermissionService;
+import com.bookstore.BUS.UserManagementBUS;
+import com.bookstore.controller.PermissionController;
 import javax.swing.*;
 import com.bookstore.gui.main.LoginGUI;
+import com.bookstore.gui.panel.PermissionPanel;
+
+
+import com.bookstore.model.User;
+
+
+
+
+
+import com.bookstore.util.SessionManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Lớp khởi động ứng dụng
@@ -13,26 +31,37 @@ import com.bookstore.gui.main.LoginGUI;
  */
 public class Main {
     public static void main(String[] args) {
+        SessionManager sessionManager = SessionManager.getInstance();
+        User adminUser = new User(3, "admin1", "123", 3, true);
+        sessionManager.setCurrentUser(adminUser);
         SwingUtilities.invokeLater(() -> {
-            try {
-                // Set look and feel
-                //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                // Khởi động ứng dụng bằng cách mở màn hình đăng nhập
-                LoginGUI loginGUI = new LoginGUI();
-                loginGUI.setVisible(true);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, 
-                    "Lỗi khởi tạo ứng dụng: " + e.getMessage(), 
-                    "Lỗi", 
-                    JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-            }
+            JFrame frame = new JFrame("Quản lý phân quyền");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 600);
+            PermissionPanel panel = new PermissionPanel();
+            PermissionService service = new PermissionService();
+            new PermissionController(panel, service);
+            frame.add(panel);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
         });
+        
+      /*  SessionManager session = SessionManager.getInstance();
+        User adminUser = new User(1, "admin1", "123", 3, true);
+        session.setCurrentUser(adminUser);
+try {
+    UserManagementBUS bus = new UserManagementBUS();
+    int userId = 1; // admin1
+    ArrayList<String> permissions = bus.getPermissions(userId);
+    System.out.println("Quyền user_management của người dùng " + userId + ":");
+    if (permissions.isEmpty()) {
+        System.out.println("[]");
+    } else {
+        System.out.println("[" + String.join(", ", permissions) + "]");
+    }
+} catch (SQLException e) {
+    System.err.println("Lỗi lấy quyền: " + e.getMessage());
+}*/
     }
 
     
