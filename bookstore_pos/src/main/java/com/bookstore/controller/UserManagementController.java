@@ -7,6 +7,7 @@ import com.bookstore.util.SessionManager;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserManagementController {
@@ -23,13 +24,22 @@ public class UserManagementController {
      * Cập nhật giao diện dựa trên quyền của người dùng hiện tại
      */
     public void updateUIBasedOnPermissions() {
-      /*  boolean canAdd = bus.canAdd();
-        boolean canEdit = bus.canEdit();
-        boolean canDelete = bus.canDelete();
-        boolean canView = bus.canView();*
-        
-        panel.updateButtonsVisibility(canAdd, canEdit, canDelete, canView);*/
+    try {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            panel.updateButtonsVisibility(false, false, false, false);
+            return;
+        }
+        ArrayList<String> permissions = bus.getAllPermissions(currentUser.getId());
+        boolean canAdd = permissions.contains("add");
+        boolean canEdit = permissions.contains("edit");
+        boolean canDelete = permissions.contains("delete");
+        boolean canView = permissions.contains("view");
+        panel.updateButtonsVisibility(canAdd, canEdit, canDelete, canView);
+    } catch (SQLException e) {
+        handleError("Lỗi khi kiểm tra quyền", e);
     }
+}
     
     public void loadRoleData(JComboBox<String> comboBox) {
         try {
@@ -65,17 +75,14 @@ public class UserManagementController {
             newUser.setStatus(status);
             
             bus.addUser(newUser);
-            loadUserData();
-            
-            JOptionPane.showMessageDialog(panel,
-                "Thêm người dùng thành công",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
-            
-            panel.clearForm();
-        } catch (SQLException e) {
-            handleError("Lỗi khi thêm người dùng", e);
-        }
+    loadUserData();
+    JOptionPane.showMessageDialog(panel, "Thêm người dùng thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+    panel.clearForm();
+} catch (IllegalArgumentException e) {
+    JOptionPane.showMessageDialog(panel, e.getMessage(), "Lỗi", JOptionPane.WARNING_MESSAGE);
+} catch (SQLException e) {
+    handleError("Lỗi khi thêm người dùng", e);
+}
     }
     
     public void handleEdit(int userId) {
@@ -175,4 +182,7 @@ public class UserManagementController {
             "Lỗi", 
             JOptionPane.ERROR_MESSAGE);
     }
+    public String getRoleName(Integer roleId) throws SQLException {
+        return roleId != null ? bus.getRoleName(roleId) : null;
+    }   
 }

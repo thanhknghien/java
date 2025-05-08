@@ -27,7 +27,13 @@ public class PermissionManagementDAO {
         }
         return false;
     }
-
+    public void delete(int userId) throws SQLException {
+        String query = "DELETE FROM permission_management WHERE user_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        }
+    }
     public boolean upsert(int userId, boolean canManagePermissions) throws SQLException {
         String sql = "INSERT INTO permission_management (user_id, can_manage_permissions) " +
                      "VALUES (?, ?) ON DUPLICATE KEY UPDATE can_manage_permissions = ?";

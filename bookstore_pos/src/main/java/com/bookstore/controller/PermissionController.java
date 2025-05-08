@@ -153,12 +153,6 @@ public class PermissionController {
                 descriptions.put("delete", "Xóa người dùng");
                 descriptions.put("view", "Xem danh sách người dùng");
                 break;
-            case "invoice_management":
-                descriptions.put("add", "Thêm hóa đơn mới");
-                descriptions.put("edit", "Chỉnh sửa hóa đơn");
-                descriptions.put("delete", "Xóa hóa đơn");
-                descriptions.put("view", "Xem danh sách hóa đơn");
-                break;
             case "order_management":
                 descriptions.put("add", "Thêm đơn hàng mới");
                 descriptions.put("edit", "Chỉnh sửa đơn hàng");

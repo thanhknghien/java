@@ -3,45 +3,54 @@ package com.bookstore.BUS;
 import com.bookstore.dao.RoleDAO;
 import com.bookstore.dao.UserDAO;
 import com.bookstore.dao.UserManagementDAO;
-import com.bookstore.dao.InvoiceManagementDAO;
 import com.bookstore.dao.ProductManagementDAO;
 import com.bookstore.dao.OrderManagementDAO;
 import com.bookstore.dao.StatisticsManagementDAO;
 import com.bookstore.dao.PermissionManagementDAO;
-import com.bookstore.model.InvoiceManagement;
+import com.bookstore.dao.RolePermissionConfigDAO;
+import com.bookstore.dao.CategoryManagementDAO;
+import com.bookstore.dao.CustomerManagementDAO;
 import com.bookstore.model.OrderManagement;
 import com.bookstore.model.ProductManagement;
 import com.bookstore.model.Role;
 import com.bookstore.model.User;
 import com.bookstore.model.UserManagement;
 import com.bookstore.model.StatisticsManagement;
+import com.bookstore.model.CategoryManagement;
+import com.bookstore.model.CustomerManagement;
 import com.bookstore.util.SessionManager;
 
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class UserManagementBUS {
     private UserDAO userDAO;
     private RoleDAO roleDAO;
     private UserManagementDAO userManagementDAO;
-    private InvoiceManagementDAO invoiceManagementDAO;
     private ProductManagementDAO productManagementDAO;
     private OrderManagementDAO orderManagementDAO;
     private StatisticsManagementDAO statisticsManagementDAO;
     private PermissionManagementDAO permissionManagementDAO;
+    private RolePermissionConfigDAO rolePermissionConfigDAO;
+    private CategoryManagementDAO categoryManagementDAO;
+    private CustomerManagementDAO customerManagementDAO;
     
     public UserManagementBUS() throws SQLException {
         this.userDAO = new UserDAO();
         this.roleDAO = new RoleDAO();
         this.userManagementDAO = new UserManagementDAO();
-        this.invoiceManagementDAO = new InvoiceManagementDAO();
         this.productManagementDAO = new ProductManagementDAO();
         this.orderManagementDAO = new OrderManagementDAO();
         this.statisticsManagementDAO = new StatisticsManagementDAO();
         this.permissionManagementDAO = new PermissionManagementDAO();
+        this.rolePermissionConfigDAO = new RolePermissionConfigDAO();
+        this.categoryManagementDAO = new CategoryManagementDAO();
+        this.customerManagementDAO = new CustomerManagementDAO();
     }
     
     public void loadRoleData(JComboBox<String> comboBox) throws SQLException {
@@ -90,145 +99,170 @@ public class UserManagementBUS {
     }
     
     public void addUser(User user) throws SQLException {
-        // Add user first
-        userDAO.addUser(user);
+        if (user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Tên đăng nhập và mật khẩu không được để trống");
+        }
+        if (userDAO.getUserByUsername(user.getUsername()) != null) {
+            throw new IllegalArgumentException("Tên đăng nhập đã tồn tại");
+        }
         
-        // Get the newly added user's ID
+        userDAO.addUser(user);
         User newUser = userDAO.getUserByUsername(user.getUsername());
         if (newUser != null) {
-            // Set up permissions based on role
             setupUserPermissions(newUser.getId(), newUser.getRoleId());
         }
     }
 
     private void setupUserPermissions(int userId, Integer roleId) throws SQLException {
-        if (roleId == null) return;
+        // Không thiết lập quyền nếu userId không tồn tại
+        if (userDAO.getUserById(userId) == null) {
+            throw new SQLException("Người dùng với ID " + userId + " không tồn tại");
+        }
+        // Không thiết lập quyền nếu roleId không hợp lệ
+        if (roleId != null && roleDAO.getRoleById(roleId) == null) {
+            throw new SQLException("Vai trò với ID " + roleId + " không tồn tại");
+        }
 
-        // Set up user management permissions
-        setupUserManagementPermissions(userId, roleId);
+        // Xóa toàn bộ quyền cũ của người dùng
+        userManagementDAO.delete(userId);
+        productManagementDAO.delete(userId);
+        orderManagementDAO.delete(userId);
+        statisticsManagementDAO.delete(userId);
+        permissionManagementDAO.delete(userId);
+        categoryManagementDAO.delete(userId);
+        customerManagementDAO.delete(userId);
+
+        // Thiết lập quyền mới
+        Map<String, Map<String, Boolean>> permissions = roleId != null ? 
+            rolePermissionConfigDAO.getPermissionsForRole(roleId) : new HashMap<>();
         
-        // Set up invoice management permissions
-        setupInvoiceManagementPermissions(userId, roleId);
-        
-        // Set up product management permissions
-        setupProductManagementPermissions(userId, roleId);
-        
-        // Set up order management permissions
-        setupOrderManagementPermissions(userId, roleId);
-        
-        // Set up statistics management permissions
-        setupStatisticsManagementPermissions(userId, roleId);
-        
-        // Set up permission management permissions
-        setupPermissionManagementPermissions(userId, roleId);
+        setupUserManagementPermissions(userId, permissions.getOrDefault("user_management", new HashMap<>()));
+        setupProductManagementPermissions(userId, permissions.getOrDefault("product_management", new HashMap<>()));
+        setupOrderManagementPermissions(userId, permissions.getOrDefault("order_management", new HashMap<>()));
+        setupStatisticsManagementPermissions(userId, permissions.getOrDefault("statistics_management", new HashMap<>()));
+        setupPermissionManagementPermissions(userId, permissions.getOrDefault("permission_management", new HashMap<>()));
+        setupCategoryManagementPermissions(userId, permissions.getOrDefault("category_management", new HashMap<>()));
+        setupCustomerManagementPermissions(userId, permissions.getOrDefault("customer_management", new HashMap<>()));
     }
 
-    private void setupUserManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;
-        if (roleId > 1) {
-            canAdd = true;  // manage or admin can add
-            canEdit = true; // manage or admin can edit
-            if (roleId > 2) {
-                canDelete = true; // Only admin can delete
-            }
-        }
-        
-        UserManagement userManagement = new UserManagement(userId, canAdd, canEdit, canDelete, canView);
+    private void setupUserManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        UserManagement userManagement = new UserManagement(
+            userId,
+            perms.getOrDefault("add", false),
+            perms.getOrDefault("edit", false),
+            perms.getOrDefault("delete", false),
+            perms.getOrDefault("view", true) // Default: all roles can view
+        );
         userManagementDAO.add(userManagement);
     }
 
-    private void setupInvoiceManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;
-        if (roleId > 1) {
-            canAdd = true;  // manage or admin can add
-            canEdit = true; // manage or admin can edit
-            if (roleId > 2) {
-                canDelete = true; // Only admin can delete
-            }
-        }
-        InvoiceManagement invoiceManagement = new InvoiceManagement(userId, canAdd, canEdit, canDelete, canView);
-        invoiceManagementDAO.add(invoiceManagement);
-    }
-
-    private void setupProductManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;
-        if (roleId > 1) {
-            canAdd = true;  // manage or admin can add
-            canEdit = true; // manage or admin can edit
-            if (roleId > 2) {
-                canDelete = true; // Only admin can delete
-            }
-        }
-        ProductManagement productManagement = new ProductManagement(userId, canAdd, canEdit, canDelete, canView);
+    private void setupProductManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        ProductManagement productManagement = new ProductManagement(
+            userId,
+            perms.getOrDefault("add", false),
+            perms.getOrDefault("edit", false),
+            perms.getOrDefault("delete", false),
+            perms.getOrDefault("view", true) // Default: all roles can view
+        );
         productManagementDAO.add(productManagement);
     }
 
-    private void setupOrderManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canView = true; // All roles can view
-        boolean canAdd = false, canEdit = false, canDelete = false;
-        if (roleId > 1) {
-            canAdd = true;  // manage or admin can add
-            canEdit = true; // manage or admin can edit
-            if (roleId > 2) {
-                canDelete = true; // Only admin can delete
-            }
-        }
-        OrderManagement orderManagement = new OrderManagement(userId, canAdd, canEdit, canDelete, canView);
+    private void setupOrderManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        OrderManagement orderManagement = new OrderManagement(
+            userId,
+            perms.getOrDefault("view", true) // Default: all roles can view
+        );
         orderManagementDAO.add(orderManagement);
     }
     
-    private void setupStatisticsManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canView = false; // Default: no view permission
-        if (roleId > 1) {
-            canView = true; // Quản lý or Admin can view
-        }
-        StatisticsManagement statisticsManagement = new StatisticsManagement(userId, canView);
+    private void setupStatisticsManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        StatisticsManagement statisticsManagement = new StatisticsManagement(
+            userId,
+            perms.getOrDefault("view", false)
+        );
         statisticsManagementDAO.add(statisticsManagement);
     }
     
-    private void setupPermissionManagementPermissions(int userId, int roleId) throws SQLException {
-        boolean canManagePermissions = false; // Default: no permission
-        if (roleId == 3) {
-            canManagePermissions = true; // Only Admin can manage permissions
-        }
+    private void setupPermissionManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        boolean canManagePermissions = perms.getOrDefault("manage_permissions", false);
         permissionManagementDAO.upsert(userId, canManagePermissions);
     }
-    public ArrayList<String> getPermissions(int userId) throws SQLException {
-        // Get user by ID
+
+    private void setupCategoryManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        CategoryManagement categoryManagement = new CategoryManagement(
+            userId,
+            perms.getOrDefault("add", false),
+            perms.getOrDefault("edit", false),
+            perms.getOrDefault("delete", false),
+            perms.getOrDefault("view", true) // Default: all roles can view
+        );
+        categoryManagementDAO.add(categoryManagement);
+    }
+
+    private void setupCustomerManagementPermissions(int userId, Map<String, Boolean> perms) throws SQLException {
+        CustomerManagement customerManagement = new CustomerManagement(
+            userId,
+            perms.getOrDefault("add", false),
+            perms.getOrDefault("edit", false),
+            perms.getOrDefault("delete", false),
+            perms.getOrDefault("view", true) // Default: all roles can view
+        );
+        customerManagementDAO.add(customerManagement);
+    }
+    
+    public ArrayList<String> getAllPermissions(int userId) throws SQLException {
         User user = userDAO.getUserById(userId);
         if (user == null) {
-            // Return empty permissions if user not found
             return new ArrayList<>();
         }
 
-        // Get SessionManager instance
         SessionManager sessionManager = SessionManager.getInstance();
-        
-        // Store current user
         User currentUser = sessionManager.getCurrentUser();
-        
-        // Temporarily set the user to check permissions
         sessionManager.setCurrentUser(user);
         
         try {
-            // Get all permissions and extract user_management permissions
             ArrayList<ArrayList<String>> allPermissions = sessionManager.getAllPermissions();
             return allPermissions.get(0); // user_management permissions
         } finally {
-            // Restore original current user
             sessionManager.setCurrentUser(currentUser);
         }
     }
+    
     public void updateUser(User user) throws SQLException {
+        // Kiểm tra người dùng tồn tại
+        if (userDAO.getUserById(user.getId()) == null) {
+            throw new SQLException("Người dùng với ID " + user.getId() + " không tồn tại");
+        }
+        
+        // Kiểm tra username và password
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên đăng nhập không được để trống");
+        }
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống");
+        }
+        
+        // Kiểm tra username không trùng
+        User existingUser = userDAO.getUserByUsername(user.getUsername());
+        if (existingUser != null && existingUser.getId() != user.getId()) {
+            throw new SQLException("Tên đăng nhập đã tồn tại");
+        }
+
         userDAO.updateUser(user);
-        // Update permissions when role changes
         setupUserPermissions(user.getId(), user.getRoleId());
     }
     
     public void deleteUser(int userId) throws SQLException {
         userDAO.deleteUser(userId);
     }
+    
+    public String getRoleName(Integer roleId) throws SQLException {
+        if (roleId == null) {
+            return null;
+        }
+        Role role = roleDAO.getRoleById(roleId);
+        return role != null ? role.getName() : null;
+    }
+    
+    
 }

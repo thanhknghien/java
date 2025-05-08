@@ -5,6 +5,7 @@ com\bookstore\gui\util\ColorScheme.class
 com\bookstore\model\OrderManagement.class
 com\bookstore\gui\panel\PermissionPanel$2.class
 com\bookstore\BUS\CustomerBUS1.class
+com\bookstore\dao\CustomerManagementDAO.class
 com\bookstore\gui\component\TextField$2.class
 com\bookstore\model\User.class
 com\bookstore\util\TableUtil$RowDataExtractor.class
@@ -50,7 +51,9 @@ com\bookstore\dao\ProductDAO.class
 com\bookstore\gui\main\POSGUI$ButtonEditor.class
 com\bookstore\gui\component\Password.class
 com\bookstore\model\OrderDetail.class
+com\bookstore\model\CustomerManagement.class
 com\bookstore\gui\main\LoginGUI.class
+com\bookstore\dao\CategoryManagementDAO.class
 com\bookstore\dao\CategoryDAO.class
 com\bookstore\gui\panel\PermissionPanel$1.class
 com\bookstore\gui\component\PanelCover.class
@@ -60,7 +63,6 @@ com\bookstore\BUS\OrderBUS.class
 com\bookstore\gui\panel\CategoryPanel$2.class
 com\bookstore\gui\component\CategoryList$1.class
 com\bookstore\BUS\CategoryBUS.class
-com\bookstore\model\InvoiceManagement.class
 com\bookstore\BUS\POSBUS.class
 com\bookstore\test\DAOTest.class
 com\bookstore\util\HtmlTemplateUtil.class
@@ -71,7 +73,6 @@ com\bookstore\gui\component\ProductCard.class
 com\bookstore\dao\StatisticsManagementDAO.class
 com\bookstore\model\Role.class
 com\bookstore\util\FileUtil.class
-com\bookstore\dao\InvoiceManagementDAO.class
 com\bookstore\BUS\UserManagementBUS.class
 com\bookstore\gui\main\POSGUI.class
 com\bookstore\gui\panel\StatisticalPanel$1.class
@@ -82,6 +83,7 @@ com\bookstore\util\MessageUtil.class
 com\bookstore\dao\PermissionManagementDAO.class
 com\bookstore\gui\panel\PermissionPanel.class
 com\bookstore\dao\OrderDAO.class
+com\bookstore\model\CategoryManagement.class
 com\bookstore\gui\panel\CategoryPanel.class
 com\bookstore\gui\component\ProductCard$1.class
 com\bookstore\model\ProductManagement.class

@@ -78,7 +78,7 @@ public class UserManagementPanel extends PanelCover {
         eastPanel = new JPanel();
         northPanel.add(westPanel);
         northPanel.add(eastPanel);
-        
+        northPanel.setSize(1180, 650);
         southPanel = new JPanel();
         
         // Initialize north panel components
@@ -87,9 +87,10 @@ public class UserManagementPanel extends PanelCover {
         deleteButton = new Button("Xóa");
         filterRoleComboBox = new JComboBox<>();
         filterRoleComboBox.setPreferredSize(new Dimension(150, 30));
-        filterStatusComboBox = new JComboBox<>(new String[]{"Tất cả", STATUS_ACTIVE, STATUS_INACTIVE});
+        filterStatusComboBox = new JComboBox<>(new String[]{"Tất cả trang thái", STATUS_ACTIVE, STATUS_INACTIVE});
         filterStatusComboBox.setPreferredSize(new Dimension(150, 30));
         searchField = new TextField();
+        searchField.setPlaceholder("Tìm kiếm...");
         searchField.setPreferredSize(new Dimension(200, 30));
         searchButton = new Button("Tìm kiếm");
         
@@ -116,7 +117,6 @@ public class UserManagementPanel extends PanelCover {
         // Load role data
         controller.loadRoleData(roleComboBox);
         controller.loadRoleData(filterRoleComboBox);
-        filterRoleComboBox.insertItemAt("Tất cả vai trò", 0);
         filterRoleComboBox.setSelectedIndex(0);
     }
     
@@ -141,13 +141,11 @@ public class UserManagementPanel extends PanelCover {
         eastPanel.add(deleteButton);
         
         // Add components to east panel (right side)
-        eastPanel.add(new JLabel("Vai trò:"));
+        
         eastPanel.add(filterRoleComboBox);
         eastPanel.add(Box.createHorizontalStrut(10));
-        eastPanel.add(new JLabel("Trạng thái:"));
         eastPanel.add(filterStatusComboBox);
         eastPanel.add(Box.createHorizontalStrut(20));
-        eastPanel.add(new JLabel("Tìm kiếm:"));
         eastPanel.add(searchField);
         eastPanel.add(searchButton);
         
@@ -192,7 +190,7 @@ public class UserManagementPanel extends PanelCover {
         southPanel.setLayout(new BorderLayout());
         southPanel.setBorder(BorderFactory.createTitledBorder("Danh sách người dùng"));
         southPanel.setPreferredSize(new Dimension(1180, 450));
-        southPanel.setMinimumSize(new Dimension(1180, 450));
+        southPanel.setMinimumSize(new Dimension(1180, 800));
         
         JScrollPane scrollPane = new JScrollPane(userTable);
         scrollPane.setPreferredSize(new Dimension(1180, 450));
@@ -200,7 +198,7 @@ public class UserManagementPanel extends PanelCover {
         
         // Add all panels to main panel
         add(northPanel, BorderLayout.NORTH);
-        add(southPanel, BorderLayout.SOUTH);
+        add(southPanel, BorderLayout.CENTER);
     }
     
     private void setupListeners() {
@@ -302,21 +300,13 @@ public class UserManagementPanel extends PanelCover {
     public void updateTableWithUsers(List<User> users) {
         try {
             tableModel.setRowCount(0);
-            for (User user : users) {
-                String roleName = null;
-                
-                RoleDAO roleDAO = new RoleDAO();
-                List<Role> roles = roleDAO.getAllRoles();
-                for(Role role : roles){
-                    if(user.getRoleId() != null && user.getRoleId().equals(role.getId())){
-                        roleName = role.getName();
-                    }
-                }
+            for (User user : users) {  
+                String roleName = controller.getRoleName(user.getRoleId());
                 Object[] row = {
                     user.getId(),
                     user.getUsername(),
                     user.getPassword(),
-                    roleName,
+                    roleName != null ? roleName : "",
                     user.isStatus() ? STATUS_ACTIVE : STATUS_INACTIVE
                 };
                 tableModel.addRow(row);

@@ -1,5 +1,9 @@
 package com.bookstore.gui.panel;
 
+import com.bookstore.gui.component.Button;
+import com.bookstore.gui.component.CustomTable;
+import com.bookstore.gui.component.PanelCover;
+import com.bookstore.gui.component.TextField;
 import com.bookstore.model.Role;
 import com.bookstore.model.User;
 
@@ -9,21 +13,24 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-public class PermissionPanel extends JPanel {
-    private JTextField searchField;
+public class PermissionPanel extends PanelCover {
+    private TextField searchField;
     private JComboBox<String> roleFilterCombo;
-    private JButton searchButton;
-    private JButton filterButton;
-    private JTable userTable;
+    private Button searchButton;
+    private Button filterButton;
+    private CustomTable userTable;
     private DefaultTableModel userTableModel;
     private JComboBox<String> moduleCombo;
-    private JTable permissionTable;
+    private CustomTable permissionTable;
     private DefaultTableModel permissionTableModel;
-    private JButton saveButton;
+    private Button saveButton;
 
     public PermissionPanel() {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setPreferredSize(new Dimension(1200, 800));
+        setMinimumSize(new Dimension(1200, 800));
+        setMaximumSize(new Dimension(1200, 800));
         initializeComponents();
     }
 
@@ -31,10 +38,10 @@ public class PermissionPanel extends JPanel {
         // Phần 1: Thanh bar
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        searchField = new JTextField(20);
-        searchButton = new JButton("Tìm kiếm");
+        searchField = new TextField();
+        searchButton = new Button("Tìm kiếm");
         roleFilterCombo = new JComboBox<>();
-        filterButton = new JButton("Lọc");
+        filterButton = new Button("Lọc");
 
         topPanel.add(new JLabel("Tìm kiếm (Tên):"));
         topPanel.add(searchField);
@@ -53,15 +60,16 @@ public class PermissionPanel extends JPanel {
                 return false;
             }
         };
-        userTable = new JTable(userTableModel);
+        userTable = new CustomTable(userColumns);
+        userTable.setModel(userTableModel);
         JScrollPane userScrollPane = new JScrollPane(userTable);
-        userScrollPane.setPreferredSize(new Dimension(600, 200));
+        userScrollPane.setPreferredSize(new Dimension(1180, 200));
 
         // Phần 3: Quyền chi tiết
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         moduleCombo = new JComboBox<>(new String[]{
-                "user_management", "invoice_management", "order_management", 
+                "user_management", "order_management", 
                 "product_management", "permission_management", "statistics_management"
         });
         String[] permissionColumns = {"Tên quyền", "Mô tả", "Cấp quyền"};
@@ -76,11 +84,12 @@ public class PermissionPanel extends JPanel {
                 return columnIndex == 2 ? Boolean.class : String.class;
             }
         };
-        permissionTable = new JTable(permissionTableModel);
+        permissionTable = new CustomTable(permissionColumns);
+        permissionTable.setModel(permissionTableModel);
         JScrollPane permissionScrollPane = new JScrollPane(permissionTable);
-        permissionScrollPane.setPreferredSize(new Dimension(600, 150));
+        permissionScrollPane.setPreferredSize(new Dimension(1180, 150));
         
-        saveButton = new JButton("Lưu thay đổi");
+        saveButton = new Button("Lưu thay đổi");
 
         JPanel modulePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         modulePanel.add(new JLabel("Chọn module:"));
@@ -93,14 +102,15 @@ public class PermissionPanel extends JPanel {
         bottomPanel.add(permissionScrollPane);
         bottomPanel.add(permissionPanel);
 
-        add(topPanel);
-        add(Box.createVerticalStrut(10));
-        add(userScrollPane);
-        add(Box.createVerticalStrut(10));
-        add(bottomPanel);
+        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+        centerPanel.add(userScrollPane, BorderLayout.CENTER);
+        centerPanel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        add(topPanel, BorderLayout.NORTH);
+        add(centerPanel, BorderLayout.CENTER);
     }
 
-    public JTextField getSearchField() {
+    public TextField getSearchField() {
         return searchField;
     }
 
@@ -108,11 +118,11 @@ public class PermissionPanel extends JPanel {
         return roleFilterCombo;
     }
 
-    public JButton getSearchButton() {
+    public Button getSearchButton() {
         return searchButton;
     }
 
-    public JButton getFilterButton() {
+    public Button getFilterButton() {
         return filterButton;
     }
 

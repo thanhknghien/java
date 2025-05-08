@@ -9,7 +9,7 @@ public class PermissionService {
     private UserDAO userDAO;
     private RoleDAO roleDAO;
     private UserManagementDAO userManagementDAO;
-    private InvoiceManagementDAO invoiceManagementDAO;
+
     private OrderManagementDAO orderManagementDAO;
     private ProductManagementDAO productManagementDAO;
     private PermissionManagementDAO permissionManagementDAO;
@@ -20,7 +20,7 @@ public class PermissionService {
             userDAO = new UserDAO();
             roleDAO = new RoleDAO();
             userManagementDAO = new UserManagementDAO();
-            invoiceManagementDAO = new InvoiceManagementDAO();
+            
             orderManagementDAO = new OrderManagementDAO();
             productManagementDAO = new ProductManagementDAO();
             permissionManagementDAO = new PermissionManagementDAO();
@@ -81,19 +81,6 @@ public class PermissionService {
                     permissions.put("view", userManagement.isCanView());
                 }
                 break;
-            case "invoice_management":
-                permissions.put("add", false);
-                permissions.put("edit", false);
-                permissions.put("delete", false);
-                permissions.put("view", false);
-                InvoiceManagement invoiceManagement = invoiceManagementDAO.getById(userId);
-                if (invoiceManagement != null) {
-                    permissions.put("add", invoiceManagement.isCanAdd());
-                    permissions.put("edit", invoiceManagement.isCanEdit());
-                    permissions.put("delete", invoiceManagement.isCanDelete());
-                    permissions.put("view", invoiceManagement.isCanView());
-                }
-                break;
             case "order_management":
                 permissions.put("add", false);
                 permissions.put("edit", false);
@@ -101,9 +88,7 @@ public class PermissionService {
                 permissions.put("view", false);
                 OrderManagement orderManagement = orderManagementDAO.getById(userId);
                 if (orderManagement != null) {
-                    permissions.put("add", orderManagement.isCanAdd());
-                    permissions.put("edit", orderManagement.isCanEdit());
-                    permissions.put("delete", orderManagement.isCanDelete());
+                    
                     permissions.put("view", orderManagement.isCanView());
                 }
                 break;
@@ -149,25 +134,9 @@ public class PermissionService {
                 } else {
                     return userManagementDAO.update(userManagement);
                 }
-            case "invoice_management":
-                InvoiceManagement invoiceManagement = new InvoiceManagement(
-                        userId,
-                        permissions.getOrDefault("add", false),
-                        permissions.getOrDefault("edit", false),
-                        permissions.getOrDefault("delete", false),
-                        permissions.getOrDefault("view", false)
-                );
-                if (invoiceManagementDAO.getById(userId) == null) {
-                    return invoiceManagementDAO.add(invoiceManagement);
-                } else {
-                    return invoiceManagementDAO.update(invoiceManagement);
-                }
             case "order_management":
                 OrderManagement orderManagement = new OrderManagement(
                         userId,
-                        permissions.getOrDefault("add", false),
-                        permissions.getOrDefault("edit", false),
-                        permissions.getOrDefault("delete", false),
                         permissions.getOrDefault("view", false)
                 );
                 if (orderManagementDAO.getById(userId) == null) {

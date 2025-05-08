@@ -10,7 +10,7 @@ import com.bookstore.BUS.PermissionService;
 import com.bookstore.BUS.UserManagementBUS;
 import com.bookstore.controller.PermissionController;
 import javax.swing.*;
-import com.bookstore.gui.main.LoginGUI;
+
 import com.bookstore.gui.panel.PermissionPanel;
 
 
@@ -46,13 +46,13 @@ public class Main {
             frame.setVisible(true);
         });
         
-      /*  SessionManager session = SessionManager.getInstance();
+       /* SessionManager session = SessionManager.getInstance();
         User adminUser = new User(1, "admin1", "123", 3, true);
         session.setCurrentUser(adminUser);
 try {
     UserManagementBUS bus = new UserManagementBUS();
     int userId = 1; // admin1
-    ArrayList<String> permissions = bus.getPermissions(userId);
+    ArrayList<String> permissions = bus.getAllPermissions(userId);
     System.out.println("Quyền user_management của người dùng " + userId + ":");
     if (permissions.isEmpty()) {
         System.out.println("[]");
