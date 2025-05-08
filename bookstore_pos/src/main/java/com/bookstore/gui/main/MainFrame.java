@@ -3,6 +3,7 @@ package com.bookstore.gui.main;
 import javax.swing.*;
 import com.bookstore.gui.component.Button;
 import javax.swing.border.Border;
+import com.bookstore.controller.MainFrameController;
 
 import java.awt.*;
 public class MainFrame extends JFrame {
@@ -22,6 +23,7 @@ public class MainFrame extends JFrame {
 
     private Button logout;
 
+    private MainFrameController controller;
     public MainFrame() {
         initComponents();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,9 +34,10 @@ public class MainFrame extends JFrame {
         setSize(1500, 800);
         setLayout(new BorderLayout());
 
-        
-        westPanel = new JPanel(new GridBagLayout()); this.add(westPanel, BorderLayout.WEST);
-        centerPanel = new JPanel(); this.add(centerPanel, BorderLayout.CENTER);
+        westPanel = new JPanel();
+        this.add(westPanel, BorderLayout.WEST);
+        centerPanel = new JPanel();
+        this.add(centerPanel, BorderLayout.CENTER);
 
         westPanel.setPreferredSize(new Dimension(300, 800));
         centerPanel.setPreferredSize(new Dimension(1200, 800));
@@ -42,9 +45,8 @@ public class MainFrame extends JFrame {
         Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
         westPanel.setBorder(blackLine);
 
-        tkPanel = new JPanel(new GridLayout(0, 1, 10, 20)); westPanel.add(tkPanel);
-        pessPanel = new JPanel(new GridLayout(0, 1, 0, 20)); westPanel.add(pessPanel);
-        
+        // Add tkPanel to westPanel
+        tkPanel = new JPanel(new GridLayout(0, 1, 10, 20));
         tkPanel.setBorder(blackLine);
         username = new JLabel("UserName: ");
         logout = new Button("Đăng xuất");
@@ -52,32 +54,69 @@ public class MainFrame extends JFrame {
         tkPanel.add(username);
         tkPanel.add(logout);
 
+        // Add pessPanel to westPanel
+        pessPanel = new JPanel(new GridLayout(0, 1, 0, 20));
         posGUI = new Button("Tạo hóa đơn");
         posGUI.setPreferredSize(new Dimension(270, 40));
-        pessPanel.add(posGUI);
+
 
         categoryButton = new Button("Quản lý danh mục");
         categoryButton.setPreferredSize(new Dimension(270, 40));
-
         customerButton = new Button("Quản lý khách hàng");
         customerButton.setPreferredSize(new Dimension(270, 40));
-
         userButton = new Button("Quản lý người dùng");
         userButton.setPreferredSize(new Dimension(270, 40));
-
         productButton = new Button("Quản lý sản phẩm");
         productButton.setPreferredSize(new Dimension(270, 40));
-
         statiscalButton = new Button("Thống kê");
         statiscalButton.setPreferredSize(new Dimension(270, 40));
 
-        pessPanel.add(categoryButton);
-        pessPanel.add(customerButton);
-        pessPanel.add(userButton);
-        pessPanel.add(productButton);
-        pessPanel.add(statiscalButton);
+        controller = new MainFrameController();
+        controller.showButton(this);
 
-    }   
+        westPanel.add(tkPanel);
+        westPanel.add(pessPanel);
+        tkPanel.setPreferredSize(new Dimension(300, 100));
+        pessPanel.setPreferredSize(new Dimension(300, 600));
+
+    }
+
+    public void addPosGUI() {
+        posGUI = new Button("Tạo hóa đơn");
+        posGUI.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(posGUI);
+    }
+
+    public void addCategoryButton() {
+        categoryButton = new Button("Quản lý danh mục");
+        categoryButton.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(categoryButton);
+    }
+
+    public void addCustomerButton() {
+        customerButton = new Button("Quản lý khách hàng");
+        customerButton.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(customerButton);
+    }
+
+    public void addUserButton() {
+        userButton = new Button("Quản lý người dùng");
+        userButton.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(userButton);
+    }
+
+    public void addStatisticalButton() {
+        statiscalButton = new Button("Thống kê");
+        statiscalButton.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(statiscalButton);
+    }
+
+    public void addProductButton() {
+        productButton = new Button("Quản lý sản phẩm");
+        productButton.setPreferredSize(new Dimension(270, 40));
+        pessPanel.add(productButton);
+    }
+
 
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();

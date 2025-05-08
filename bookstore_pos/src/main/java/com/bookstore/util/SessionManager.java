@@ -81,24 +81,21 @@ public class SessionManager {
                         }
                     }
                     break;
-                case "invoice_management":
-                    InvoiceManagement im = invoiceManagementDAO.getById(currentUser.getId());
-                    if (im != null) {
-                        switch (action) {
-                            case "add": return im.isCanAdd();
-                            case "edit": return im.isCanEdit();
-                            case "delete": return im.isCanDelete();
-                            case "view": return im.isCanView();
-                        }
-                    }
-                    break;
+                // case "category_management":
+                //     InvoiceManagement im = invoiceManagementDAO.getById(currentUser.getId());
+                //     if (im != null) {
+                //         switch (action) {
+                //             case "add": return im.isCanAdd();
+                //             case "edit": return im.isCanEdit();
+                //             case "delete": return im.isCanDelete();
+                //             case "view": return im.isCanView();
+                //         }
+                //     }
+                //     break;
                 case "order_management":
                     OrderManagement om = orderManagementDAO.getById(currentUser.getId());
                     if (om != null) {
                         switch (action) {
-                            case "add": return om.isCanAdd();
-                            case "edit": return om.isCanEdit();
-                            case "delete": return om.isCanDelete();
                             case "view": return om.isCanView();
                         }
                     }
@@ -176,9 +173,6 @@ public class SessionManager {
         ArrayList<String> omPermissions = permissions.get(3);
         OrderManagement om = orderManagementDAO.getById(userId);
         if (om != null) {
-            if (om.isCanAdd()) omPermissions.add("add");
-            if (om.isCanEdit()) omPermissions.add("edit");
-            if (om.isCanDelete()) omPermissions.add("delete");
             if (om.isCanView()) omPermissions.add("view");
         }
 
