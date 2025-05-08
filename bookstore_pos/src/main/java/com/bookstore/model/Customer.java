@@ -38,4 +38,8 @@ public class Customer {
     public void setPoints(int points) {
         this.points = points;
     }
+    @Override
+    public String toString() {
+        return "Tên: " + name + ", SĐT: " + phone + ", points=" + points;
+    }
 }

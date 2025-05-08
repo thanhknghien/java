@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 import java.awt.*;
 
+import com.bookstore.dao.CustomerDAO;
 import com.bookstore.model.Customer;
 import com.bookstore.util.ValidationUtil;
 
@@ -98,7 +99,10 @@ public class CustomerDialog extends JDialog {
                JOptionPane.showMessageDialog(parent, "Số điện thoại đã tồn tại trên hệ thống!");
                return; 
             }
+            CustomerDAO dao = new CustomerDAO();
+            int id = dao.getNextCustomerId();
             selectedCustomer = new Customer();
+            selectedCustomer.setId(id);
             selectedCustomer.setName(name);
             selectedCustomer.setPhone(phone);
             selectedCustomer.setPoints(0);
@@ -144,6 +148,7 @@ public class CustomerDialog extends JDialog {
     }
 
     public Customer getSelectedCustomer() {
+        System.out.println(selectedCustomer.getId());
         return selectedCustomer;
     }
 

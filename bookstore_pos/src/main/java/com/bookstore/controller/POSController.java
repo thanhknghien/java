@@ -12,6 +12,7 @@ import com.bookstore.gui.component.ProductCard;
 import com.bookstore.gui.main.POSGUI;
 import com.bookstore.model.OrderDetail;
 import com.bookstore.model.Product;
+import com.bookstore.util.MessageUtil;
 
 public class POSController {
     private POSGUI gui;
@@ -70,8 +71,11 @@ public class POSController {
 
     public void handleCheckout(double moneyReceived) throws Exception{
         if(bus.checkout(bus.changeCartToOrder(gui.getCart()), gui.getEmployee(), gui.getSelectedCustomer(), moneyReceived)){   
+            MessageUtil.showSuccessMessage(gui, "Thanh toán thành công!");
             gui.getCart().clear();
             gui.displayCart();
+        }else{
+            MessageUtil.showErrorMessage(gui, "Thanh toán thất bại!");
         }
     }
   
