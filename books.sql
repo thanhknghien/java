@@ -218,5 +218,3 @@ INSERT INTO products (name, author, price, categoryid, imagePath) VALUES
 ('Nhắm mắt thấy Paris', 'Dương Thụy', 60000, 4, 'product/196.jpg'),
 ('Cung đường vàng nắng', 'Dương Thụy', 80000, 4, 'product/197.jpg');
 
-SELECT * FROM products;
-SELECT * FROM category;

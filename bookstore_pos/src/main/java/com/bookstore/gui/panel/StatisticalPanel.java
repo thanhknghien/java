@@ -328,7 +328,7 @@ public class StatisticalPanel extends JPanel{
 
     public void updateTableUsersTable(Object[][] data) {
         tablePanel.removeAll();
-        String[] columnNames = {"ID", "Username", "Password", "Tổng doanh thu đã tạo"};
+        String[] columnNames = {"ID", "Username", "Tổng doanh thu đã tạo"};
         CustomTable table = new CustomTable(columnNames);
         table.setPreferredSize(new Dimension(1200, 400));
         table.refreshTable(data);

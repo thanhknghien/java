@@ -4,6 +4,7 @@ import com.bookstore.BUS.LoginBUS;
 import com.bookstore.gui.panel.UserManagementPanel;
 import com.bookstore.model.User;
 import com.bookstore.util.SessionManager;
+import com.bookstore.gui.main.MainFrame;
 
 import javax.swing.*;
 import java.awt.Dimension;
@@ -25,26 +26,10 @@ public class LoginController {
     private void openMainApplication() {
         SwingUtilities.invokeLater(() -> {
             try {
+                
                 // Tạo frame chính
-                JFrame mainFrame = new JFrame("Quản Lý Cửa Hàng Sách");
-                mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                
-                // Tạo panel quản lý người dùng và controller
-                UserManagementPanel userManagementPanel = new UserManagementPanel();
-                UserManagementController controller = new UserManagementController(userManagementPanel);
-                
-                // Thêm panel vào frame
-                mainFrame.add(userManagementPanel);
-                
-                // Thiết lập kích thước tối thiểu cho frame
-                mainFrame.setMinimumSize(new Dimension(1200, 800));
-                
-                // Đóng gói frame để vừa với nội dung
-                mainFrame.pack();
-                
-                // Đặt frame ở giữa màn hình
-                mainFrame.setLocationRelativeTo(null);
-                
+                MainFrame mainFrame = new MainFrame();
+
                 // Hiển thị frame
                 mainFrame.setVisible(true);
             } catch (Exception e) {

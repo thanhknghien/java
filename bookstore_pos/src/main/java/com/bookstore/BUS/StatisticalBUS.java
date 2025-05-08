@@ -166,7 +166,6 @@ public class StatisticalBUS {
             .map(user -> new Object[]{
                 user.getId(),
                 user.getUsername(),
-                user.getPassword(),
                 df.format(totalRevenueMap.getOrDefault(user.getId(), 0.0))
             })
             .toArray(Object[][]::new);
