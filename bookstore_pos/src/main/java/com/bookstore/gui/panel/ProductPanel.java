@@ -163,14 +163,14 @@ public class ProductPanel extends JPanel {
         gbcR.fill = GridBagConstraints.NONE;
         gbcR.anchor = GridBagConstraints.WEST;
         gbcR.gridwidth = 1;
-        btnAdd = new Button("Thêm sản phẩm");
+        btnAdd = new Button("Thêm➕");
         btnAdd.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
         btnAdd.addActionListener(e -> addProduct());
 
         gbcR.gridy = 1;
-        btnReset = new Button("Làm mới bảng");
+        btnReset = new Button("Làm mới bảng🔄");
         btnReset.setPreferredSize(new Dimension(155, 25));
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
@@ -179,7 +179,7 @@ public class ProductPanel extends JPanel {
         gbcR.insets = new Insets(5, 0, 2, 10);
         gbcR.gridx = 1;
         gbcR.gridy = 2;
-        btnUpdate = new Button("Sửa sản phẩm");
+        btnUpdate = new Button("Sửa ✏");
         btnUpdate.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
@@ -192,7 +192,7 @@ public class ProductPanel extends JPanel {
         rightPanel.add(cboSearchType, gbcR);
 
         gbcR.gridy = 1;
-        btnClear = new Button("Xóa ô nhập liệu");
+        btnClear = new Button("Clear 🗑️");
         btnClear.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnClear, false);
         rightPanel.add(btnClear, gbcR);
@@ -200,7 +200,7 @@ public class ProductPanel extends JPanel {
 
         gbcR.gridx = 2;
         gbcR.gridy = 2;
-        btnDelete = new Button("Xóa sản phẩm");
+        btnDelete = new Button("Xóa 🚫️");
         btnDelete.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnDelete, false);
         rightPanel.add(btnDelete, gbcR);
