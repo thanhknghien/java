@@ -104,7 +104,7 @@ public class CategoryPanel extends JPanel {
         gbcR.fill = GridBagConstraints.NONE;
         gbcR.anchor = GridBagConstraints.WEST;
         gbcR.gridwidth = 1;
-        btnAdd = new Button("Thêm danh mục");
+        btnAdd = new Button("Thêm➕");
         btnAdd.setPreferredSize(addResetButtonSize); // Kích thước 155x25
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
@@ -112,7 +112,7 @@ public class CategoryPanel extends JPanel {
 
         gbcR.gridy = 1;
         gbcR.insets = new Insets(5, 5, 2, 5);
-        btnReset = new Button("Làm mới bảng");
+        btnReset = new Button("Làm mới bảng🔄");
         btnReset.setPreferredSize(addResetButtonSize); // Kích thước 155x25
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
@@ -121,7 +121,7 @@ public class CategoryPanel extends JPanel {
         gbcR.insets = new Insets(5, 0, 2, 10); 
         gbcR.gridx = 1;
         gbcR.gridy = 2;
-        btnUpdate = new Button("Sửa danh mục");
+        btnUpdate = new Button("Sửa ✏️ ");
         btnUpdate.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
@@ -132,7 +132,7 @@ public class CategoryPanel extends JPanel {
         rightPanel.add(cboSearchType, gbcR);
 
         gbcR.gridy = 1;
-        btnClear = new Button("Xóa ô nhập liệu");
+        btnClear = new Button("Clear 🗑️");
         btnClear.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnClear, false);
         rightPanel.add(btnClear, gbcR);
@@ -140,7 +140,7 @@ public class CategoryPanel extends JPanel {
 
         gbcR.gridx = 2;
         gbcR.gridy = 2;
-        btnDelete = new Button("Xóa danh mục");
+        btnDelete = new Button("Xóa 🚫️");
         btnDelete.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnDelete, false);
         rightPanel.add(btnDelete, gbcR);
