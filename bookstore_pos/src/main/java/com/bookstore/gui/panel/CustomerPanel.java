@@ -43,6 +43,7 @@ public class CustomerPanel extends JPanel {
     private ButtonGroup searchGroup;
     private JRadioButton searchById, searchByName, searchByPhone, searchByPoints;
     private TextField pointStart, pointEnd; 
+    private JLabel lblPointStart, lblPointEnd;
 
     private CustomTable customerTable;
     private DefaultTableModel customerTableModel;
@@ -183,7 +184,7 @@ public class CustomerPanel extends JPanel {
         // TextFields for "Point Range"
         gbcR.gridy++;
         gbcR.gridx = 0;
-        JLabel lblPointStart = new JLabel("Điểm từ:");
+        lblPointStart = new JLabel("Điểm từ:");
         southRPanel.add(lblPointStart, gbcR);
         gbcR.gridx = 1;
         pointStart = new TextField();
@@ -191,7 +192,7 @@ public class CustomerPanel extends JPanel {
         southRPanel.add(pointStart, gbcR);
     
         gbcR.gridx = 2;
-        JLabel lblPointEnd = new JLabel("Đến:");
+        lblPointEnd = new JLabel("Đến:");
         southRPanel.add(lblPointEnd, gbcR);
         gbcR.gridx = 3;
         pointEnd = new TextField();
@@ -264,10 +265,16 @@ public class CustomerPanel extends JPanel {
     private void hidePointFields(JLabel lblPointStart, JLabel lblPointEnd, TextField pointStart, TextField pointEnd) {
         search.setFocusable(true);
         search.setBackground(new Color(255, 255, 255));
+
         lblPointStart.setFocusable(false);
         lblPointEnd.setFocusable(false);
+
+        pointStart.setText("");
+        pointEnd.setText("");
+
         pointStart.setFocusable(false);
         pointEnd.setFocusable(false);
+
         pointStart.setBackground(new Color(224, 224, 224));
         pointEnd.setBackground(new Color(224, 224, 224));
     }
@@ -405,6 +412,7 @@ public class CustomerPanel extends JPanel {
 
         search.setText("");
         searchById.setSelected(true);
+        hidePointFields(lblPointStart, lblPointEnd, pointStart, pointEnd);
         pointStart.setText("");
         pointEnd.setText("");
         pointStart.setBackground(new Color(224, 224, 224));
@@ -418,6 +426,11 @@ public class CustomerPanel extends JPanel {
             JOptionPane.showMessageDialog(null, "Vui lòng nhập đầy đủ tên va số điện thoại !", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        // Kiem tra ho ten
+        if (!name.matches("^[A-Za-zÀ-Ỹà-ỹ\s]+$")) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập tên hợp lệ !", "ERROR", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
         // Kiểm tra số điện thoại
         if (!phone.matches("0\\d{9}")) {
             JOptionPane.showMessageDialog(null, "Vui lòng nhập số điện thoại đúng định dạng!", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -425,7 +438,7 @@ public class CustomerPanel extends JPanel {
         }
         if (!point.isEmpty()){
             // Kiểm tra POINT là số không âm và không bắt đầu bằng số 0
-            if (!point.matches("[1-9]\\d*")) { // Số dương không bắt đầu bằng 0
+            if (!point.matches("[0-9]\\d*")) { 
                 JOptionPane.showMessageDialog(null, "POINT phải là số dương và không được bắt đầu bằng số 0!", "ERROR", JOptionPane.ERROR_MESSAGE);
                 System.out.print(point);
                 return false;
