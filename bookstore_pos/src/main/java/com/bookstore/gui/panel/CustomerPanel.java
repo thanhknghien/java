@@ -48,7 +48,6 @@ public class CustomerPanel extends JPanel {
     private DefaultTableModel customerTableModel;
 
     public CustomerPanel() {
-        controller = new CustomerController(); // Controller xử lý logic
         initializeUI(); // Xây dựng giao diện
         loadCustomerData(); // Nạp dữ liệu khách hàng
     }
@@ -217,6 +216,9 @@ public class CustomerPanel extends JPanel {
         searchByPhone.addActionListener(e -> hidePointFields(lblPointStart, lblPointEnd, pointStart, pointEnd));
     
         rightPanel.add(southRPanel, BorderLayout.SOUTH);
+        
+        
+        this.controller = new CustomerController(this); // Controller xử lý logic
     
         // Center Panel (Bảng dữ liệu khách hàng)
         JPanel centerPanel = new JPanel(new BorderLayout());
@@ -483,6 +485,25 @@ public class CustomerPanel extends JPanel {
         }
     }
     
+    public void updateButtonsVisibility(boolean canAdd, boolean canEdit, boolean canDelete) {
+        if (btnAdd != null) {
+            // Cập nhật hiển thị nút thêm
+            btnAdd.setVisible(canAdd);
+            
+        }
+        
+        if (btnUpdate != null) {
+            // Cập nhật hiển thị nút sửa
+            btnUpdate.setVisible(canEdit);
+        }
+        
+        if (btnDelete != null) {
+            // Cập nhật hiển thị nút xóa
+            btnDelete.setVisible(canDelete);
+            
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý khách hàng");

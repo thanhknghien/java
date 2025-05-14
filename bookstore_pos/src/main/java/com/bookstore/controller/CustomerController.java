@@ -1,15 +1,25 @@
 package com.bookstore.controller;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.bookstore.BUS.CustomerBUS;
+import com.bookstore.gui.panel.CustomerPanel;
 import com.bookstore.model.Customer;
+import com.bookstore.model.User;
+import com.bookstore.util.SessionManager;
 
 public class CustomerController {
     private CustomerBUS customerBUS; // Lớp xử lý logic liên quan đến dữ liệu khách hàng
+    private CustomerPanel panel;
 
-    public CustomerController() {
+    public CustomerController(CustomerPanel panel) {
+        this.panel = panel;
         this.customerBUS = new CustomerBUS(); // Khởi tạo đối tượng CustomerBUS
+        updateUIBasedOnPermissions();
     }
 
     // Thêm khách hàng mới
@@ -59,6 +69,34 @@ public class CustomerController {
     // Lấy danh sách tất cả khách hàng
     public List<Customer> getAllCustomers() {
         return customerBUS.getAllCustomers();
+    }
+
+    public void updateUIBasedOnPermissions() {
+        try {
+            User currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                panel.updateButtonsVisibility(false, false, false);
+                return;
+            }
+            ArrayList<String> permissions = customerBUS.getAllPermissions(currentUser.getId());
+            boolean canAdd = permissions.contains("add");
+            boolean canEdit = permissions.contains("edit");
+            boolean canDelete = permissions.contains("delete");
+            panel.updateButtonsVisibility(canAdd, canEdit, canDelete);
+        } catch (SQLException e) {
+            handleError("Lỗi khi kiểm tra quyền", e);
+        }
+    }
+
+    private void handleError(String title, Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.trim().isEmpty()) {
+            message = "Đã xảy ra lỗi không xác định";
+        }
+        JOptionPane.showMessageDialog(panel, 
+            title + ": " + message, 
+            "Lỗi", 
+            JOptionPane.ERROR_MESSAGE);
     }
 }
 
