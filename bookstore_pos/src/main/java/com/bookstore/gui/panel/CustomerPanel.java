@@ -134,7 +134,7 @@ public class CustomerPanel extends JPanel {
         // Right Panel (Tìm kiếm và chức năng)
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setPreferredSize(new Dimension(580, 200));
-        rightPanel.setBorder(BorderFactory.createTitledBorder("Chức năng"));
+        rightPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Chức năng"));
     
         JPanel northRPanel = new JPanel();
         northRPanel.setPreferredSize(new Dimension(690, 50));
@@ -223,7 +223,7 @@ public class CustomerPanel extends JPanel {
     
         // Center Panel (Bảng dữ liệu khách hàng)
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        centerPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Danh sách khách hàng"));
         String[] columns = {"ID", "Họ và tên", "SĐT", "POINT"};
         customerTable = new CustomTable(columns);
         customerTableModel = new DefaultTableModel(columns, 0) {
@@ -246,7 +246,8 @@ public class CustomerPanel extends JPanel {
             }
         });
         JScrollPane customerScrollPane = new JScrollPane(customerTable);
-        customerScrollPane.setPreferredSize(new Dimension(1000, 400));
+        customerScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
+        customerScrollPane.setPreferredSize(new Dimension(1000, 550));
         customerTable.getColumnModel().getColumn(0).setPreferredWidth(100);
         customerTable.getColumnModel().getColumn(1).setPreferredWidth(500);
         customerTable.getColumnModel().getColumn(2).setPreferredWidth(250);
@@ -423,7 +424,7 @@ public class CustomerPanel extends JPanel {
     public boolean inputValidator(String name, String phone, String point){
         // Kiểm tra các trường bắt buộc
         if (name.isEmpty() || phone.isEmpty() ) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập đầy đủ tên va số điện thoại !", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập đầy đủ tên và số điện thoại !", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         // Kiem tra ho ten
