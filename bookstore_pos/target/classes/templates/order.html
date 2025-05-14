@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      width: 280px;
+      margin: 0 auto;
+    }
+    .center {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 4px;
+      text-align: left;
+    }
+    th {
+      border-top: 1px solid black;
+      border-bottom: 1px solid black;
+    }
+    .line {
+      border-top: 1px dotted black;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .right {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <div class="bold">Cửa hàng sách Số 1</div>
+    <div>154/133 Âu Dương Lân, Quận 5, TP. Hồ Chí Minh</div>
+    <div>SĐT:0000000</div>
+  </div>
+  <div class="center bold" style="margin-top: 8px;">HÓA ĐƠN BÁN HÀNG</div>
+  <div>
+    <p><b>Mã Số Hóa Đơn:</b> ${orderId}</p>
+    <p><b>Ngày Xuất:</b> ${orderDate}</p>
+    <p><b>Khách hàng:</b> ${customerName}</p>
+    <p><b>Điện thoại:</b> ${customerPhone}</p>
+    <p><b>Nhân viên:</b> ${employeeName}</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Tên Sách</th>
+        <th>SL</th>
+        <th>ĐGiá</th>
+        <th class="right">TTiền</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items}
+    </tbody>
+  </table>
+  <div class="line"></div>
+  <div>
+    <p class="bold">Tổng cộng: <span class="right">${totalAmount}</span></p>
+    <p class="bold">Khách đưa: <span class="right">${moneyReceived} </span></p>
+    <p class="bold">Tiền thừa: <span class="right">${moneyBack} </span></p>
+    <div class="line"></div>
+    
+</div>
+</body>
+</html>

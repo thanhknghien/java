@@ -4,6 +4,7 @@ import com.bookstore.gui.component.CustomTable;
 import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.TextField;
 import com.bookstore.gui.util.ColorScheme;
+import com.bookstore.gui.component.PanelCover;
 import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -17,7 +18,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.bookstore.controller.StatisticalController;
 
-public class StatisticalPanel extends JPanel{
+public class StatisticalPanel extends PanelCover {
     private StatisticalController controller = new StatisticalController();
 
     private JRadioButton customerRadio, productRadio, userRadio;
@@ -40,7 +41,9 @@ public class StatisticalPanel extends JPanel{
     private ChartPanel chartPanel;
 
     public StatisticalPanel() {
-        setLayout(new BorderLayout());
+        super();
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         initComponentsCenter();
         initComponentsEast();
         initComponentsSouth();
@@ -52,8 +55,11 @@ public class StatisticalPanel extends JPanel{
         // Chọn sản phẩm, khách hàng, nhân viên
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 10));
         productRadio = new JRadioButton("Sản phẩm", true);
+        productRadio.setFont(new Font(null, Font.PLAIN, 18));
         customerRadio = new JRadioButton("Khách hàng");
+        customerRadio.setFont(new Font(null, Font.PLAIN, 18));
         userRadio = new JRadioButton("Nhân viên");
+        userRadio.setFont(new Font(null, Font.PLAIN, 18));
 
         ButtonGroup typeGroup = new ButtonGroup();
         typeGroup.add(productRadio);
@@ -63,9 +69,6 @@ public class StatisticalPanel extends JPanel{
         menuPanel.add(productRadio);
         menuPanel.add(customerRadio);
         menuPanel.add(userRadio);
-        
-        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
-        menuPanel.setBorder(blackLine);
 
         menuPanel.setPreferredSize(new Dimension(900, 50));
         mPanel.add(menuPanel, BorderLayout.NORTH);
@@ -74,7 +77,9 @@ public class StatisticalPanel extends JPanel{
         searchPanel = new JPanel(new GridLayout(3, 0));
 
         top = new JRadioButton("Top", true);
+        top.setFont(new Font(null, Font.PLAIN, 18));
         all = new JRadioButton("Tất cả");
+        all.setFont(new Font(null, Font.PLAIN, 18));
         ButtonGroup topAndAllGroup = new ButtonGroup();
         topAndAllGroup.add(top);
         topAndAllGroup.add(all);
@@ -85,15 +90,18 @@ public class StatisticalPanel extends JPanel{
         ColorScheme.styleTextField(searchField); 
 
         searchButton = new Button("Tìm kiếm");
-
+        searchButton.setFont(new Font(null, Font.PLAIN, 18));
 
         rbNgay = new JRadioButton("Ngày", true);
+        rbNgay.setFont(new Font(null, Font.PLAIN, 18));
         rbNgay.setBounds(50, 30, 100, 30);
 
         rbQuy = new JRadioButton("Quý(3 tháng)");
+        rbQuy.setFont(new Font(null, Font.PLAIN, 18));
         rbQuy.setBounds(50, 70, 100, 30);
 
         rbKy = new JRadioButton("Kỳ(4 tháng)");
+        rbKy.setFont(new Font(null, Font.PLAIN, 18));
         rbKy.setBounds(50, 110, 100, 30);
 
         ButtonGroup group = new ButtonGroup();
@@ -106,13 +114,19 @@ public class StatisticalPanel extends JPanel{
         topAndAllPanel.add(all);
         // Chọn ngày
         dateFrom = new JLabel("Từ ngày:");
+        dateFrom.setFont(new Font(null, Font.PLAIN, 18));
         fromDatePicker = new JSpinner(new SpinnerDateModel());
         fromDatePicker.setEditor(new JSpinner.DateEditor(fromDatePicker, "dd/MM/yyyy"));
         fromDatePicker.setValue(new Date(110, Calendar.JANUARY, 1)); 
+        fromDatePicker.setPreferredSize(new Dimension(150, 30));
+        fromDatePicker.setFont(new Font(null, Font.PLAIN, 18));
         
         dateTo = new JLabel("Đến ngày:");
+        dateTo.setFont(new Font(null, Font.PLAIN, 18));
         toDatePicker = new JSpinner(new SpinnerDateModel());
         toDatePicker.setEditor(new JSpinner.DateEditor(toDatePicker, "dd/MM/yyyy")); 
+        toDatePicker.setPreferredSize(new Dimension(150, 30));
+        toDatePicker.setFont(new Font(null, Font.PLAIN, 18));
         
         // Chọn quý
         threeMonthComboBox = new JComboBox<>(new String[]{"Không", "Quý 1", "Quý 2", "Quý 3", "Quý 4"});
@@ -143,11 +157,11 @@ public class StatisticalPanel extends JPanel{
         // searchPanel.add(searchField);
         searchPanel.add(rbJPanel);
         searchPanel.add(datePanel);
-        searchPanel.setBorder(blackLine);
-        searchPanel.setPreferredSize(new Dimension(700, 250));
+        //searchPanel.setBorder(blackLine);
+        searchPanel.setPreferredSize(new Dimension(690, 250));
         mPanel.add(searchPanel, BorderLayout.CENTER);
 
-        mPanel.setPreferredSize(new Dimension(700, 300));
+        mPanel.setPreferredSize(new Dimension(690, 300));
         this.add(mPanel, BorderLayout.CENTER);
 
         // Gán sự kiện
@@ -165,19 +179,20 @@ public class StatisticalPanel extends JPanel{
     private void initComponentsEast() {
         // Thống kê
         JPanel StatisticalPanel = new JPanel();
-        StatisticalPanel.setLayout(new BoxLayout(StatisticalPanel, BoxLayout.X_AXIS));
+        StatisticalPanel.setLayout(new BoxLayout(StatisticalPanel, BoxLayout.Y_AXIS));
         controller.displayQuantityCustomer(StatisticalPanel);
         controller.displayQuantityOrder(StatisticalPanel);
         controller.displayQuantityProduct(StatisticalPanel);
-        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        Border blackLine = BorderFactory.createLineBorder(new Color(193, 154, 107));
         StatisticalPanel.setBorder(blackLine);
-        StatisticalPanel.setPreferredSize(new Dimension(500, 0));
+        StatisticalPanel.setPreferredSize(new Dimension(490, 0));
+        StatisticalPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         this.add(StatisticalPanel, BorderLayout.EAST);
     }
 
     private void initComponentsSouth() {
         contentPanel = new JPanel(new GridBagLayout());
-        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        Border blackLine = BorderFactory.createLineBorder(new Color(193, 154, 107));
         contentPanel.setBorder(blackLine);
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -212,7 +227,7 @@ public class StatisticalPanel extends JPanel{
         gbc.fill = GridBagConstraints.BOTH;
         contentPanel.add(tablePanel, gbc);
         
-        contentPanel.setPreferredSize(new Dimension(0, 500));
+        contentPanel.setPreferredSize(new Dimension(0, 470));
         this.add(contentPanel, BorderLayout.SOUTH);
 
         chartRadio.addActionListener(controller.createChartRadio(this));
@@ -225,6 +240,7 @@ public class StatisticalPanel extends JPanel{
         String[] columnNames = {"ID", "Tên khách hàng", "Số điện thoại", "Điểm thưởng", "Tổng chi tiêu"};
         CustomTable table = new CustomTable(columnNames);
         table.refreshTable(data);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setPreferredSize(new Dimension(1200, 400));
         JScrollPane scrollPane = new JScrollPane(table);
         tablePanel.add(scrollPane);
@@ -236,11 +252,10 @@ public class StatisticalPanel extends JPanel{
         tablePanel.removeAll();
         String[] columnNames = {"ID", "Ảnh", "Tên sản phẩm", "Giá", "Số lượng đã bán", "Doanh thu"};
         
-        // Tạo custom table với render hình ảnh
         CustomTable table = new CustomTable(columnNames) {
             @Override
             public Class<?> getColumnClass(int column) {
-                if (column == 1) { // Cột hình ảnh
+                if (column == 1) { 
                     return ImageIcon.class;
                 }
                 return Object.class;
@@ -248,9 +263,10 @@ public class StatisticalPanel extends JPanel{
             
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Không cho phép edit
+                return false; 
             }
         };
+        table.getTableHeader().setReorderingAllowed(false);
     
         new SwingWorker<Void, Void>() {
             @Override
@@ -258,8 +274,8 @@ public class StatisticalPanel extends JPanel{
                 Map<String, ImageIcon> imageCache = new HashMap<>();
 
                 for (Object[] row : data) {
-                    String imagePath = "/" + (String) row[1]; // Đường dẫn hình ảnh
-                    System.out.println("Image Path: " + imagePath); // In ra đường dẫn để kiểm tra
+                    String imagePath = "/" + (String) row[1];
+                    System.out.println("Image Path: " + imagePath);
                     ImageIcon imageIcon;
 
                     // Kiểm tra cache để tránh load lại ảnh
@@ -276,7 +292,6 @@ public class StatisticalPanel extends JPanel{
                         }
                     }
 
-                    // Cập nhật hình ảnh vào dòng dữ liệu trên EDT
                     final ImageIcon finalImageIcon = imageIcon;
                     final Object[] finalRow = row;
                     SwingUtilities.invokeLater(() -> finalRow[1] = finalImageIcon);
@@ -293,33 +308,28 @@ public class StatisticalPanel extends JPanel{
             
             @Override
             protected void done() {
-                // Cập nhật bảng sau khi load xong ảnh
+
                 table.refreshTable(data);
-                
-                // Set row height để hiển thị ảnh đẹp hơn
                 table.setRowHeight(55);
     
-                // Đặt kích thước cho các cột
-                table.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
-                table.getColumnModel().getColumn(1).setPreferredWidth(60);  // Ảnh
-                table.getColumnModel().getColumn(2).setPreferredWidth(200); // Tên
-                table.getColumnModel().getColumn(3).setPreferredWidth(100); // Giá
-                table.getColumnModel().getColumn(4).setPreferredWidth(100); // Số lượng
-                table.getColumnModel().getColumn(5).setPreferredWidth(100); // Doanh thu
+                table.getColumnModel().getColumn(0).setPreferredWidth(50);  
+                table.getColumnModel().getColumn(1).setPreferredWidth(60);  
+                table.getColumnModel().getColumn(2).setPreferredWidth(200); 
+                table.getColumnModel().getColumn(3).setPreferredWidth(100); 
+                table.getColumnModel().getColumn(4).setPreferredWidth(100); 
+                table.getColumnModel().getColumn(5).setPreferredWidth(100); 
                 
-                // Thêm table vào scroll pane
                 JScrollPane scrollPane = new JScrollPane(table);
                 tablePanel.add(scrollPane);
     
-                // Thêm bảng danh mục
                 String[] columnNames1 = {"ID", "Tên danh mục", "Số lượng đã bán"};
                 CustomTable table1 = new CustomTable(columnNames1);
-                table1.setPreferredSize(new Dimension(1200, 400));
+                table1.getTableHeader().setReorderingAllowed(false);
+                table1.setPreferredSize(new Dimension(1200, 390));
                 table1.refreshTable(data1);
                 JScrollPane scrollPane1 = new JScrollPane(table1);
                 tablePanel.add(scrollPane1);
                 
-                // Refresh giao diện
                 tablePanel.revalidate();
                 tablePanel.repaint();
             }
@@ -330,6 +340,7 @@ public class StatisticalPanel extends JPanel{
         tablePanel.removeAll();
         String[] columnNames = {"ID", "Username", "Tổng doanh thu đã tạo"};
         CustomTable table = new CustomTable(columnNames);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setPreferredSize(new Dimension(1200, 400));
         table.refreshTable(data);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -354,14 +365,32 @@ public class StatisticalPanel extends JPanel{
             data2
         );
 
-        JPanel chartPanel1 = new ChartPanel(chartPoint);
-        JPanel chartPanel2 = new ChartPanel(chartTotalSpent);
-        chartPanel1.setPreferredSize(new Dimension(550, 350)); 
-        chartPanel2.setPreferredSize(new Dimension(550, 350)); 
-        tablePanel.add(chartPanel1);
-        tablePanel.add(chartPanel2);
-        tablePanel.revalidate();
-        tablePanel.repaint();
+        JPanel chartPanel1 = new ChartPanel(chartPoint){
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(550, 350);
+            }
+        };
+        JPanel chartPanel2 = new ChartPanel(chartTotalSpent){
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(550, 350);
+            }
+        };
+        // chartPanel1.setPreferredSize(new Dimension(550, 350)); 
+        // chartPanel2.setPreferredSize(new Dimension(550, 350)); 
+        SwingUtilities.invokeLater(() -> {
+                    tablePanel.removeAll();
+                    tablePanel.setLayout(new GridLayout(1, 3));
+                    tablePanel.add(chartPanel1);
+                    tablePanel.add(chartPanel2);
+                    tablePanel.revalidate();
+                    tablePanel.repaint();
+                });
+        // tablePanel.add(chartPanel1);
+        // tablePanel.add(chartPanel2);
+        // tablePanel.revalidate();
+        // tablePanel.repaint();
     }
 
     public void updateTableProductsChart(DefaultCategoryDataset data1, DefaultCategoryDataset data2, DefaultCategoryDataset data3) {
@@ -437,38 +466,51 @@ public class StatisticalPanel extends JPanel{
     public void updateTableUsersChart(DefaultCategoryDataset data) {
         tablePanel.removeAll();
         chart = ChartFactory.createBarChart(
-            "Top 5 Nhân viên",       // Tiêu đề biểu đồ
-            "Danh thu đã tạo",                // Nhãn trục X
-            "Nhân viên",            // Nhãn trục Y
-            data // Dữ liệu
+            "Top 5 Nhân viên",      
+            "Danh thu đã tạo",            
+            "Nhân viên",         
+            data 
         );
 
-        chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(500, 400)); // Tăng kích thước
-        tablePanel.add(chartPanel);
-        tablePanel.revalidate();
-        tablePanel.repaint();
+        chartPanel = new ChartPanel(chart){
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(500, 400);
+            }
+        };
+        SwingUtilities.invokeLater(() -> {
+                    tablePanel.removeAll();
+                    tablePanel.setLayout(new GridLayout(1, 3));
+                    tablePanel.add(chartPanel);
+                    tablePanel.revalidate();
+                    tablePanel.repaint();
+                });
+        // chartPanel.setPreferredSize(new Dimension(1200, 400)); // Tăng kích thước
+        // tablePanel.add(chartPanel);
+        // tablePanel.revalidate();
+        // tablePanel.repaint();
     }
 
     public void printTableProduct(ArrayList<String> data) {
         tablePanel.removeAll();
-        tablePanel.setLayout(new GridLayout(6, 1));
+        tablePanel.setLayout(new GridLayout(2,1));
         tablePanel.setBackground(Color.WHITE);
-        JLabel idLabel = new JLabel("ID: " + data.get(0));
-        tablePanel.add(idLabel);
-        JLabel nameLabel = new JLabel("Tên: " + data.get(1));
-        tablePanel.add(nameLabel);
-        JLabel categoryLabel = new JLabel("Danh mục: " + data.get(2));
-        tablePanel.add(categoryLabel);
-        JLabel priceLabel = new JLabel("Giá: " + data.get(3));
-        tablePanel.add(priceLabel);
-        JLabel quantityLabel = new JLabel("Số lượng: " + data.get(4));
-        tablePanel.add(quantityLabel);
-        JLabel totalLabel = new JLabel("Doanh thu: " + data.get(5));
-        tablePanel.add(totalLabel);
+            JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER)); 
+            JLabel string = new JLabel("ID: " + data.get(0) + "                      Tên: " + data.get(1) + "                      Danh mục: " + data.get(2));
+            string.setFont(new Font(null, Font.PLAIN, 20));
+            labelPanel.add(string);
+            tablePanel.add(labelPanel);
+
+            JPanel labelPanel1 = new JPanel(new FlowLayout(FlowLayout.CENTER)); 
+            JLabel string1 = new JLabel("Giá: " + data.get(3) + "                      Số lượng: " + data.get(4) + "                      Doanh thu: " + data.get(5));
+            string1.setFont(new Font(null, Font.PLAIN, 20));
+            labelPanel1.add(string1);
+            tablePanel.add(labelPanel1);
+
         // Refresh giao diện
         tablePanel.revalidate();
         tablePanel.repaint();
+
     }
     
     public void printTableCustomer(Object[][] data, String total, ArrayList<String> str) {
@@ -479,15 +521,20 @@ public class StatisticalPanel extends JPanel{
         // Tên các cột
         String[] col = {"ID", "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền"};
         JTable table = new JTable(data, col);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setFillsViewportHeight(true);
     
         // Tạo panel thông tin khách hàng
         JPanel infoPanel = new JPanel(new GridLayout(4, 1));
         infoPanel.setBackground(Color.WHITE);
         JLabel idLabel = new JLabel("ID: " + str.get(0));
+        idLabel.setFont(new Font(null, Font.PLAIN, 16));
         JLabel nameLabel = new JLabel("Tên: " + str.get(1));
+        nameLabel.setFont(new Font(null, Font.PLAIN, 16));
         JLabel phoneLabel = new JLabel("Số điện thoại: " + str.get(2));
+        phoneLabel.setFont(new Font(null, Font.PLAIN, 16));
         JLabel pointLabel = new JLabel("Điểm thưởng: " + str.get(3));
+        pointLabel.setFont(new Font(null, Font.PLAIN, 16));
         infoPanel.add(idLabel);
         infoPanel.add(nameLabel);
         infoPanel.add(phoneLabel);
@@ -498,6 +545,7 @@ public class StatisticalPanel extends JPanel{
     
         // Label tổng doanh thu
         JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
+        totalLabel.setFont(new Font(null, Font.PLAIN, 16));
         totalLabel.setHorizontalAlignment(JLabel.CENTER);
     
         // Thêm các thành phần vào panel chính
@@ -518,13 +566,16 @@ public class StatisticalPanel extends JPanel{
         // Tạo các cột
         String[] col = {"ID", "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền"};
         JTable table = new JTable(data, col);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setFillsViewportHeight(true); // Cho đẹp hơn
     
         // Tạo panel chứa thông tin người dùng
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
         infoPanel.setBackground(Color.WHITE);
         JLabel idLabel = new JLabel("ID: " + str.get(0));
+        idLabel.setFont(new Font(null, Font.PLAIN, 16));
         JLabel nameLabel = new JLabel("Username: " + str.get(1));
+        nameLabel.setFont(new Font(null, Font.PLAIN, 16));
         infoPanel.add(idLabel);
         infoPanel.add(nameLabel);
     
@@ -533,6 +584,7 @@ public class StatisticalPanel extends JPanel{
     
         // Label tổng doanh thu
         JLabel totalLabel = new JLabel("Tổng doanh thu: " + total);
+        totalLabel.setFont(new Font(null, Font.PLAIN, 16));
         totalLabel.setHorizontalAlignment(JLabel.CENTER);
     
         // Thêm các thành phần vào panel chính

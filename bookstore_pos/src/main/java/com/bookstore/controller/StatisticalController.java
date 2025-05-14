@@ -1,5 +1,6 @@
 package com.bookstore.controller;
 
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -7,6 +8,9 @@ import javax.swing.JPanel;
 import com.bookstore.BUS.StatisticalBUS;
 import com.bookstore.gui.panel.StatisticalPanel;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 
@@ -482,23 +486,35 @@ public class StatisticalController {
 
     public void displayQuantityCustomer(JPanel view) {
         JPanel box = new JPanel();
-        box.add(new JLabel("Số khách hàng"));
-        box.add(new JLabel(statisticalBUS.getQuantityCustomer()));
+        view.add(Box.createVerticalStrut(10));
+        box.setBackground(new Color(114, 233, 129));
+        JLabel label = new JLabel("Số khách hàng: " + statisticalBUS.getQuantityCustomer());
+        label.setFont(new Font(null, Font.PLAIN, 16));
+        box.add(label);
         view.add(box);
+        view.add(Box.createVerticalStrut(10));
     }
 
     public void displayQuantityOrder(JPanel view) {
         JPanel box = new JPanel();
-        box.add(new JLabel("Số hóa đơn"));
-        box.add(new JLabel(statisticalBUS.getQuantityOrder()));
+        view.add(Box.createVerticalStrut(10));
+        box.setBackground(new Color(114, 233, 129));
+        JLabel label = new JLabel("Số hóa đơn: " + statisticalBUS.getQuantityOrder());
+        label.setFont(new Font(null, Font.PLAIN, 16));
+        box.add(label);
         view.add(box);
+        view.add(Box.createVerticalStrut(10));
     }
 
     public void displayQuantityProduct(JPanel view) {
         JPanel box = new JPanel();
-        box.add(new JLabel("Số sản phẩm"));
-        box.add(new JLabel(statisticalBUS.getQuantityProduct()));
+        view.add(Box.createVerticalStrut(10));
+        box.setBackground(new Color(114, 233, 129));
+        JLabel label = new JLabel("Số sản phẩm: " + statisticalBUS.getQuantityProduct());
+        label.setFont(new Font(null, Font.PLAIN, 16));
+        box.add(label);
         view.add(box);
+        view.add(Box.createVerticalStrut(10));
     }
 
     private String dateReport(){

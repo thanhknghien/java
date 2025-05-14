@@ -3,6 +3,7 @@ package com.bookstore.gui.main;
 import com.bookstore.BUS.PermissionService;
 import javax.swing.*;
 import com.bookstore.gui.component.Button;
+import com.bookstore.gui.component.PanelCover;
 import com.bookstore.gui.panel.*;
 import com.bookstore.gui.util.ColorScheme;
 import com.bookstore.model.User;
@@ -42,8 +43,6 @@ public class MainFrame extends JFrame {
 
     private MainFrameController controller;
     
-
-
     public MainFrame(User user) throws SQLException{
         initComponents(user);
         setTitle("Quản lý bán hàng");
@@ -56,15 +55,15 @@ public class MainFrame extends JFrame {
         setResizable(false);
         setLayout(new BorderLayout());
 
-        westPanel = new JPanel();
+        westPanel = new PanelCover();
+        westPanel.setLayout(new BorderLayout(10,10));
+        westPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.add(westPanel, BorderLayout.WEST);
         centerPanel = new JPanel();
         this.add(centerPanel, BorderLayout.CENTER);
 
-        westPanel.setPreferredSize(new Dimension(300, 800));
+        westPanel.setPreferredSize(new Dimension(310, 800));
         centerPanel.setPreferredSize(new Dimension(1200, 800));
-
-        Border thickBorder = new LineBorder(ColorScheme.BORDER, 2);
         
 
         tkPanel = new JPanel();
@@ -72,7 +71,6 @@ public class MainFrame extends JFrame {
 
         tkPanel.setPreferredSize(new Dimension(300, 100));
 
-        tkPanel.setBorder(thickBorder);
         JPanel userPanel1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         userPanel1.setPreferredSize(new Dimension(270, 40));
         username = new JLabel("Xin chào: " + user.getUsername());
@@ -81,14 +79,14 @@ public class MainFrame extends JFrame {
         logout = new Button("Đăng xuất");
         setupButton(logout);
         
+
         tkPanel.add(Box.createVerticalStrut(10));
         tkPanel.add(userPanel1);
         tkPanel.add(Box.createVerticalStrut(10));
         tkPanel.add(logout);
-        
+        tkPanel.add(Box.createVerticalStrut(10));
         pessPanel = new JPanel();
         pessPanel.setPreferredSize(new Dimension(300, 700));
-        pessPanel.setBorder(thickBorder);
         pessPanel.setLayout(new BoxLayout(pessPanel, BoxLayout.Y_AXIS));
 
         posGUI = new Button("Tạo hóa đơn");
@@ -132,8 +130,8 @@ public class MainFrame extends JFrame {
         }
         
         
-        westPanel.add(tkPanel);
-        westPanel.add(pessPanel);
+        westPanel.add(tkPanel, BorderLayout.NORTH);
+        westPanel.add(pessPanel, BorderLayout.CENTER);
 
         controller = new MainFrameController();
         addActionListenerLogoutButton();
