@@ -9,7 +9,6 @@ import com.bookstore.BUS.StatisticalBUS;
 import com.bookstore.gui.panel.StatisticalPanel;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;

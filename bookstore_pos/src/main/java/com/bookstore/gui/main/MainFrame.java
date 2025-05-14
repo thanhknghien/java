@@ -5,10 +5,7 @@ import javax.swing.*;
 import com.bookstore.gui.component.Button;
 import com.bookstore.gui.component.PanelCover;
 import com.bookstore.gui.panel.*;
-import com.bookstore.gui.util.ColorScheme;
 import com.bookstore.model.User;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 import com.bookstore.controller.MainFrameController;
 import com.bookstore.controller.PermissionController;
