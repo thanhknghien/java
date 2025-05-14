@@ -1,15 +1,22 @@
 package com.bookstore.BUS;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.bookstore.dao.CustomerDAO;
+import com.bookstore.dao.UserDAO;
 import com.bookstore.model.Customer;
+import com.bookstore.model.User;
+import com.bookstore.util.SessionManager;
 
 public class CustomerBUS {
     private CustomerDAO customerDAO;
+    private UserDAO userDAO;
 
     public CustomerBUS() {
         this.customerDAO = new CustomerDAO(); // Khởi tạo lớp DAO để thao tác với dữ liệu
+        userDAO = new UserDAO();
     }
 
     // Thêm khách hàng mới
@@ -85,5 +92,24 @@ public class CustomerBUS {
     // Lấy danh sách tất cả khách hàng
     public List<Customer> getAllCustomers() {
         return customerDAO.getAllCustomers();
+    }
+
+    
+    public ArrayList<String> getAllPermissions(int userId) throws SQLException {
+        User user = userDAO.getUserById(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        User currentUser = sessionManager.getCurrentUser();
+        sessionManager.setCurrentUser(user);
+        
+        try {
+            ArrayList<ArrayList<String>> allPermissions = sessionManager.getAllPermissions();
+            return allPermissions.get(5); 
+        } finally {
+            sessionManager.setCurrentUser(currentUser);
+        }
     }
 }
