@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.awt.FileDialog;
+import java.io.FileOutputStream;
+import javax.swing.border.EmptyBorder;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -41,19 +43,24 @@ public class CategoryPanel extends JPanel {
     private DefaultTableModel categorysTableModel;
 
     public CategoryPanel() {
-        controller = new CategoryController();
+//        controller = new CategoryController();
         initializeUI();
         loadCategoriesData();
     }
 
     private void initializeUI() {
         this.setLayout(new BorderLayout());
+//        setBorder(new EmptyBorder(10, 10, 10, 10));
+        // Panel đệm để tạo khoảng cách 300px từ mép trái
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); // Căn trái 300px
 
-        JPanel northPanel = new JPanel(new BorderLayout());
+        // north panel - Sử dụng FlowLayout để kéo leftPanel và rightPanel sát nhau
+        JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         // left panel
         JPanel leftPanel = new JPanel(new GridBagLayout());
-        leftPanel.setPreferredSize(new Dimension(400, 0));
+        leftPanel.setPreferredSize(new Dimension(570, 118)); // Tăng chiều cao để chứa nội dung
         Border thickBorder = new LineBorder(ColorScheme.BORDER, 2);
         leftPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Nhập thông tin"));
         GridBagConstraints gbcL = new GridBagConstraints();
@@ -79,9 +86,10 @@ public class CategoryPanel extends JPanel {
         // right panel
         JPanel rightPanel = new JPanel(new GridBagLayout());
         rightPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Thanh chức năng"));
-        Dimension buttonSize = new Dimension(150, 30);
+        Dimension buttonSize = new Dimension(120, 25); // Kích thước cho các nút thông thường
+        Dimension addResetButtonSize = new Dimension(155, 25); // Kích thước cho btnAdd và btnReset
         GridBagConstraints gbcR = new GridBagConstraints();
-        gbcR.insets = new Insets(10, 20, 5, 5);
+        gbcR.insets = new Insets(5, 5, 2, 5); // Insets giống Product
         gbcR.gridx = 0;
         gbcR.gridy = 0;
         gbcR.fill = GridBagConstraints.HORIZONTAL;
@@ -97,35 +105,35 @@ public class CategoryPanel extends JPanel {
         gbcR.anchor = GridBagConstraints.WEST;
         gbcR.gridwidth = 1;
         btnAdd = new Button("Thêm danh mục");
-        btnAdd.setPreferredSize(buttonSize);
+        btnAdd.setPreferredSize(addResetButtonSize); // Kích thước 155x25
         ColorScheme.styleButton(btnAdd, false);
         rightPanel.add(btnAdd, gbcR);
         btnAdd.addActionListener(e -> addCategory());
 
         gbcR.gridy = 1;
+        gbcR.insets = new Insets(5, 5, 2, 5);
         btnReset = new Button("Làm mới bảng");
-        btnReset.setPreferredSize(buttonSize);
+        btnReset.setPreferredSize(addResetButtonSize); // Kích thước 155x25
         ColorScheme.styleButton(btnReset, false);
         rightPanel.add(btnReset, gbcR);
         btnReset.addActionListener(e -> loadCategoriesData());
 
-        gbcR.insets = new Insets(10, 0, 5, 25);
+        gbcR.insets = new Insets(5, 0, 2, 10); 
         gbcR.gridx = 1;
         gbcR.gridy = 2;
         btnUpdate = new Button("Sửa danh mục");
-        btnUpdate.setPreferredSize(buttonSize);
+        btnUpdate.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnUpdate, false);
         rightPanel.add(btnUpdate, gbcR);
         btnUpdate.addActionListener(e -> updateCategory());
 
-        gbcR.insets = new Insets(10, 0, 5, 25);
-        cboSearchType = new JComboBox<>(new String[]{"Tìm theo ID", "Tìm theo tên"});
         gbcR.gridy = 0;
+        cboSearchType = new JComboBox<>(new String[]{"Tìm theo ID", "Tìm theo tên"});
         rightPanel.add(cboSearchType, gbcR);
 
         gbcR.gridy = 1;
         btnClear = new Button("Xóa ô nhập liệu");
-        btnClear.setPreferredSize(buttonSize);
+        btnClear.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnClear, false);
         rightPanel.add(btnClear, gbcR);
         btnClear.addActionListener(e -> clearTextField());
@@ -133,39 +141,40 @@ public class CategoryPanel extends JPanel {
         gbcR.gridx = 2;
         gbcR.gridy = 2;
         btnDelete = new Button("Xóa danh mục");
-        btnDelete.setPreferredSize(buttonSize);
+        btnDelete.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnDelete, false);
         rightPanel.add(btnDelete, gbcR);
         btnDelete.addActionListener(e -> deleteCategory());
 
         gbcR.gridy = 1;
         btnImportFile = new Button("Nhập File 📥");
-        btnImportFile.setPreferredSize(buttonSize);
+        btnImportFile.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnImportFile, false);
         rightPanel.add(btnImportFile, gbcR);
-        btnImportFile.addActionListener(e ->importFromExcel());
+        btnImportFile.addActionListener(e -> importFromExcel());
 
         gbcR.gridy = 0;
         btnSearch = new Button("Tìm kiếm 🔍");
-        btnSearch.setPreferredSize(buttonSize);
+        btnSearch.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnSearch, false);
         rightPanel.add(btnSearch, gbcR);
         btnSearch.addActionListener(e -> searchCategory());
 
         gbcR.gridx = 3;
-        gbcR.gridy = 1;
+        gbcR.gridy = 2;
         btnExportFile = new Button("Xuất File 📤");
-        btnExportFile.setPreferredSize(buttonSize);
+        btnExportFile.setPreferredSize(buttonSize); // Kích thước 120x25
         ColorScheme.styleButton(btnExportFile, false);
         rightPanel.add(btnExportFile, gbcR);
-        btnExportFile.addActionListener(e -> exportTableToPDF());
+        btnExportFile.addActionListener(e -> exportToExcel());
 
-        northPanel.add(leftPanel, BorderLayout.WEST);
-        northPanel.add(rightPanel, BorderLayout.EAST);
-        this.add(northPanel, BorderLayout.NORTH);
+        northPanel.add(leftPanel);
+        northPanel.add(rightPanel);
+        wrapperPanel.add(northPanel, BorderLayout.CENTER);
+        this.add(wrapperPanel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 250, 0, 250));
+        centerPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Danh sách danh mục"));
 
         String[] columns = {"ID", "Tên danh mục"};
         categorysTable = new CustomTable(columns);
@@ -189,10 +198,11 @@ public class CategoryPanel extends JPanel {
                 }
             }
         });
+        controller = new CategoryController(this);
 
         JScrollPane categorysScrollPane = new JScrollPane(categorysTable);
         categorysScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER));
-        categorysScrollPane.setPreferredSize(new Dimension(800, 400));
+        categorysScrollPane.setPreferredSize(new Dimension(1200, 600));
         categorysTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         categorysTable.getColumnModel().getColumn(1).setPreferredWidth(250);
 
@@ -339,9 +349,6 @@ public class CategoryPanel extends JPanel {
         }
     }
     
-    public void exportTableToPDF() {
-        
-    }
     public void importFromExcel() {
         FileDialog fileDialog = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chọn file Excel", FileDialog.LOAD);
         fileDialog.setFile("*.xlsx;*.xls");
@@ -425,9 +432,106 @@ public class CategoryPanel extends JPanel {
                 return "";
         }
     }
+    
+    public void exportToExcel() {
+        // Kiểm tra nếu bảng rỗng
+        if (categorysTable.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Bảng danh mục trống! Không có dữ liệu để xuất.", 
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Hiển thị FileDialog để người dùng chọn nơi lưu file
+        FileDialog fileDialog = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this), "Lưu file Excel", FileDialog.SAVE);
+        fileDialog.setFile("DanhMuc.xlsx"); // Tên file mặc định
+        fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".xlsx"));
+
+        fileDialog.setVisible(true);
+
+        String directory = fileDialog.getDirectory();
+        String file = fileDialog.getFile();
+
+        if (directory != null && file != null) {
+            // Đảm bảo tên file có đuôi .xlsx
+            if (!file.toLowerCase().endsWith(".xlsx")) {
+                file += ".xlsx";
+            }
+            String excelFilePath = directory + file;
+
+            try (Workbook workbook = new XSSFWorkbook()) {
+                // Tạo sheet
+                Sheet sheet = workbook.createSheet("Danh mục");
+
+                // Tạo dòng tiêu đề
+                Row headerRow = sheet.createRow(0);
+                String[] columns = {"ID", "Tên danh mục"};
+                for (int i = 0; i < columns.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(columns[i]);
+                }
+
+                // Ghi dữ liệu từ bảng
+                for (int rowIndex = 0; rowIndex < categorysTable.getRowCount(); rowIndex++) {
+                    Row row = sheet.createRow(rowIndex + 1); // Bắt đầu từ dòng 1 (sau tiêu đề)
+                    for (int colIndex = 0; colIndex < categorysTable.getColumnCount(); colIndex++) {
+                        Cell cell = row.createCell(colIndex);
+                        Object value = categorysTable.getValueAt(rowIndex, colIndex);
+                        if (value != null) {
+                            if (colIndex == 0) { // Cột ID (số nguyên)
+                                cell.setCellValue(Integer.parseInt(value.toString()));
+                            } else { // Cột Tên danh mục (chuỗi)
+                                cell.setCellValue(value.toString());
+                            }
+                        }
+                    }
+                }
+
+                // Tự động điều chỉnh kích thước cột
+                for (int i = 0; i < columns.length; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                // Ghi file Excel
+                try (FileOutputStream fos = new FileOutputStream(excelFilePath)) {
+                    workbook.write(fos);
+                    JOptionPane.showMessageDialog(this, "Xuất dữ liệu sang Excel thành công! File được lưu tại: " + excelFilePath, 
+                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi ghi file Excel: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
     public void clearTextField(){
         categoryID.setText("");
         name.setText("");
+    }
+    public void updateButtonsVisibility(boolean canAdd, boolean canEdit, boolean canDelete) {
+        if (btnAdd != null) {
+            // Cập nhật hiển thị nút thêm
+            btnAdd.setVisible(canAdd);
+            btnImportFile.setVisible(canAdd);
+            
+        }
+        
+        if (btnUpdate != null) {
+            // Cập nhật hiển thị nút sửa
+            btnUpdate.setVisible(canEdit);
+        }
+        
+        if (btnDelete != null) {
+            // Cập nhật hiển thị nút xóa
+            btnDelete.setVisible(canDelete);
+            
+        }
+        
+
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

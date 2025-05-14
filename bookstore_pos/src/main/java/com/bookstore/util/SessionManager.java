@@ -95,20 +95,14 @@ public class SessionManager {
                 case "product_management":
                 ProductManagement pm = productManagementDAO.getById(currentUser.getId());
                 if (pm != null) {
-                    // In ra thông tin quyền để kiểm tra
-                    System.out.println("Permissions for Product Management: ");
-                    System.out.println("Can add: " + pm.isCanAdd());
-                    System.out.println("Can edit: " + pm.isCanEdit());
-                    System.out.println("Can delete: " + pm.isCanDelete());
-                    System.out.println("Can view: " + pm.isCanView());
-                    
-                    // Kiểm tra quyền 'add'
-                    if (action.equals("add")) {
-                        return pm.isCanAdd(); // Nếu có quyền add, trả về true
+                        switch (action) {
+                            case "add": return pm.isCanAdd();
+                            case "edit": return pm.isCanEdit();
+                            case "delete": return pm.isCanDelete();
+                            case "view": return pm.isCanView();
+                        }
                     }
-                    // Các quyền khác
-                }
-                break;
+                    break;
                 case "statistics_management":
                     StatisticsManagement sm = statisticsManagementDAO.getById(currentUser.getId());
                     if (sm != null) {

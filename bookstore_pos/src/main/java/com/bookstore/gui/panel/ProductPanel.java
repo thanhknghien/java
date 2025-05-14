@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.awt.FileDialog;
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -51,11 +52,10 @@ public class ProductPanel extends JPanel {
     private String tempImagePath;
 
     public ProductPanel() {
-        controller = new ProductController();
+//        controller = new ProductController(this);
         tempImagePath = "";
         initializeUI();
         loadProductData();
-        updateButtonsVisibility(true, true, true);
     }
 
     private void initializeUI() {
@@ -221,15 +221,16 @@ public class ProductPanel extends JPanel {
         btnSearch.addActionListener(e -> searchProduct());
 
         gbcR.gridx = 3;
-        gbcR.gridy = 1;
+        gbcR.gridy = 2;
         btnExportFile = new Button("Xuất File 📤");
         btnExportFile.setPreferredSize(buttonSize);
         ColorScheme.styleButton(btnExportFile, false);
         rightPanel.add(btnExportFile, gbcR);
-
+        btnExportFile.addActionListener(e -> exportToExcel());
         northPanel.add(leftPanel, BorderLayout.WEST);
         northPanel.add(rightPanel, BorderLayout.EAST);
         this.add(northPanel, BorderLayout.NORTH);
+        controller = new ProductController(this);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBorder(BorderFactory.createTitledBorder(thickBorder, "Danh sách sản phẩm"));
@@ -824,42 +825,110 @@ public class ProductPanel extends JPanel {
                 return "";
         }
     }
-    public void updateButtonsVisibility(boolean canAdd, boolean canEdit, boolean canDelete) {
-        // Kiểm tra null trước khi truy cập các thành phần
-        if (canAdd) {
-            System.out.println("Người dùng có quyền thêm.");
-        } else {
-            System.out.println("Người dùng KHÔNG có quyền thêm.");
+    public void exportToExcel() {
+        // Kiểm tra nếu bảng rỗng
+        if (productsTable.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Bảng sản phẩm trống! Không có dữ liệu để xuất.", 
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        if (canEdit) {
-            System.out.println("Người dùng có quyền sua.");
-        } 
-        if (canDelete) {
-            System.out.println("Người dùng có quyền xoa.");
-        } 
+
+        // Hiển thị FileDialog để người dùng chọn nơi lưu file
+        FileDialog fileDialog = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this), "Lưu file Excel", FileDialog.SAVE);
+        fileDialog.setFile("SanPham.xlsx"); // Tên file mặc định
+        fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".xlsx"));
+
+        fileDialog.setVisible(true);
+
+        String directory = fileDialog.getDirectory();
+        String file = fileDialog.getFile();
+
+        if (directory != null && file != null) {
+            // Đảm bảo tên file có đuôi .xlsx
+            if (!file.toLowerCase().endsWith(".xlsx")) {
+                file += ".xlsx";
+            }
+            String excelFilePath = directory + file;
+
+            try (Workbook workbook = new XSSFWorkbook()) {
+                // Tạo sheet
+                Sheet sheet = workbook.createSheet("Sản phẩm");
+
+                // Tạo dòng tiêu đề
+                Row headerRow = sheet.createRow(0);
+                String[] columns = {"ID", "Tên sản phẩm", "Tác giả", "Giá", "ID danh mục", "Đường dẫn ảnh"};
+                for (int i = 0; i < columns.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(columns[i]);
+                }
+
+                // Ghi dữ liệu từ bảng
+                for (int rowIndex = 0; rowIndex < productsTable.getRowCount(); rowIndex++) {
+                    Row row = sheet.createRow(rowIndex + 1); // Bắt đầu từ dòng 1 (sau tiêu đề)
+                    for (int colIndex = 0; colIndex < productsTable.getColumnCount(); colIndex++) {
+                        Cell cell = row.createCell(colIndex);
+                        Object value = productsTable.getValueAt(rowIndex, colIndex);
+                        if (value != null) {
+                            if (colIndex == 0 || colIndex == 4) { // Cột ID và ID danh mục (số nguyên)
+                                try {
+                                    cell.setCellValue(Integer.parseInt(value.toString()));
+                                } catch (NumberFormatException e) {
+                                    cell.setCellValue(value.toString());
+                                }
+                            } else if (colIndex == 3) { // Cột Giá (số thực)
+                                try {
+                                    cell.setCellValue(Double.parseDouble(value.toString()));
+                                } catch (NumberFormatException e) {
+                                    cell.setCellValue(value.toString());
+                                }
+                            } else { // Các cột chuỗi (Tên sản phẩm, Tác giả, Đường dẫn ảnh)
+                                cell.setCellValue(value.toString());
+                            }
+                        }
+                    }
+                }
+
+                // Tự động điều chỉnh kích thước cột
+                for (int i = 0; i < columns.length; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                // Ghi file Excel
+                try (FileOutputStream fos = new FileOutputStream(excelFilePath)) {
+                    workbook.write(fos);
+                    JOptionPane.showMessageDialog(this, "Xuất dữ liệu sang Excel thành công! File được lưu tại: " + excelFilePath, 
+                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi ghi file Excel: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+        public void updateButtonsVisibility(boolean canAdd, boolean canEdit, boolean canDelete) {
         if (btnAdd != null) {
             // Cập nhật hiển thị nút thêm
             btnAdd.setVisible(canAdd);
+            btnImportFile.setVisible(canAdd);
+            
         }
         
         if (btnUpdate != null) {
             // Cập nhật hiển thị nút sửa
-                btnUpdate.setVisible(canEdit);
+            btnUpdate.setVisible(canEdit);
         }
         
         if (btnDelete != null) {
             // Cập nhật hiển thị nút xóa
             btnDelete.setVisible(canDelete);
+            
         }
+        
 
-//        // Cập nhật hiển thị các thành phần tìm kiếm và lọc
-//        if (searchField != null) searchField.setEnabled(canView);
-//        if (searchButton != null) searchButton.setEnabled(canView);
-//        if (filterRoleComboBox != null) filterRoleComboBox.setEnabled(canView);
-//        if (filterStatusComboBox != null) filterStatusComboBox.setEnabled(canView);
-//        
-//        // Nếu không có quyền xem, ẩn bảng dữ liệu
-//        if (userTable != null) userTable.setEnabled(canView);
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

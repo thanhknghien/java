@@ -133,7 +133,7 @@ public class ProductBUS {
         
         try {
             ArrayList<ArrayList<String>> allPermissions = sessionManager.getAllPermissions();
-            return allPermissions.get(1); // user_management permissions
+            return allPermissions.get(1); 
         } finally {
             sessionManager.setCurrentUser(currentUser);
         }

@@ -6,14 +6,21 @@ package com.bookstore.BUS;
 
 import com.bookstore.model.Category;
 import com.bookstore.dao.CategoryDAO;
+import com.bookstore.model.User;
+import com.bookstore.dao.UserDAO;
+import com.bookstore.util.SessionManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import java.util.List;
 
 public class CategoryBUS {
     private CategoryDAO categoryDAO;
+    private UserDAO userDAO;
     
     public CategoryBUS(){
         this.categoryDAO = new CategoryDAO();
+        userDAO = new UserDAO();
     }
     
     public boolean addCategory(Category category){
@@ -47,5 +54,22 @@ public class CategoryBUS {
     
     public List<Category> getAllCategories() {
         return categoryDAO.getAllCategories();
+    }
+    public ArrayList<String> getAllPermissions(int userId) throws SQLException {
+        User user = userDAO.getUserById(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        SessionManager sessionManager = SessionManager.getInstance();
+        User currentUser = sessionManager.getCurrentUser();
+        sessionManager.setCurrentUser(user);
+        
+        try {
+            ArrayList<ArrayList<String>> allPermissions = sessionManager.getAllPermissions();
+            return allPermissions.get(4); 
+        } finally {
+            sessionManager.setCurrentUser(currentUser);
+        }
     }
 }

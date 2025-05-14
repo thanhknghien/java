@@ -17,10 +17,11 @@ import javax.swing.JOptionPane;
 public class ProductController {
     private ProductBUS productBUS;
     private ProductPanel panel;
-    public ProductController(){
+    public ProductController(ProductPanel panel){
+        this.panel = panel;
         this.productBUS = new ProductBUS();
+        updateUIBasedOnPermissions();
     }
-    
     public List<Product> getAllProduct() {
         try {
             return productBUS.getAllProducts();
@@ -75,7 +76,14 @@ public class ProductController {
         }
     }
 
-    private void handleError(String lỗi_khi_kiểm_tra_quyền, SQLException e) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private void handleError(String title, Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.trim().isEmpty()) {
+            message = "Đã xảy ra lỗi không xác định";
+        }
+        JOptionPane.showMessageDialog(panel, 
+            title + ": " + message, 
+            "Lỗi", 
+            JOptionPane.ERROR_MESSAGE);
     }
 }
