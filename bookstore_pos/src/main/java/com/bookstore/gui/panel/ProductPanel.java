@@ -633,41 +633,35 @@ public class ProductPanel extends JPanel {
         final int WIDTH = 150;
         final int HEIGHT = 100;
         final String DEFAULT_IMAGE_PATH = "product/default_img.png";
-    
+
         try {
-            String finalPath = path;
+            String finalPath = (path == null || path.trim().isEmpty()) ? DEFAULT_IMAGE_PATH : path;
 
-            if (path == null || path.trim().isEmpty()) {
-                finalPath = DEFAULT_IMAGE_PATH;
+            // Tìm ảnh từ classpath (resource)
+            java.net.URL imageUrl = getClass().getClassLoader().getResource(finalPath);
+
+            // Nếu không tìm thấy, thử ảnh mặc định
+            if (imageUrl == null) {
+                imageUrl = getClass().getClassLoader().getResource(DEFAULT_IMAGE_PATH);
             }
 
-            // Tải ảnh trực tiếp từ hệ thống file
-            String absolutePath = "src/main/resources/" + finalPath;
-            File imageFile = new File(absolutePath);
-            
-            if (!imageFile.exists()) {
-                // Nếu không tồn tại, thử tải default image từ hệ thống file
-                absolutePath = "src/main/resources/" + DEFAULT_IMAGE_PATH;
-                imageFile = new File(absolutePath);
-            }
-
-            if (!imageFile.exists()) {
-                // Nếu không tìm thấy ảnh, hiển thị placeholder
+            // Nếu vẫn không có, tạo ảnh trống "No Image"
+            if (imageUrl == null) {
                 BufferedImage emptyImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2d = emptyImage.createGraphics();
                 g2d.setColor(java.awt.Color.GRAY);
                 g2d.fillRect(0, 0, WIDTH, HEIGHT);
                 g2d.setColor(java.awt.Color.BLACK);
-                g2d.drawString("No Image", WIDTH/2 - 30, HEIGHT/2);
+                g2d.drawString("No Image", WIDTH / 2 - 30, HEIGHT / 2);
                 g2d.dispose();
                 return new ImageIcon(emptyImage);
             }
 
-            // Tải ảnh từ file
-            ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
+            // Load ảnh và scale
+            ImageIcon icon = new ImageIcon(imageUrl);
             Image scaledImage = icon.getImage().getScaledInstance(WIDTH, HEIGHT, Image.SCALE_SMOOTH);
             return new ImageIcon(scaledImage);
-    
+
         } catch (Exception e) {
             System.err.println("Error loading image: " + path + " - " + e.getMessage());
             BufferedImage emptyImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -675,11 +669,12 @@ public class ProductPanel extends JPanel {
             g2d.setColor(java.awt.Color.GRAY);
             g2d.fillRect(0, 0, WIDTH, HEIGHT);
             g2d.setColor(java.awt.Color.BLACK);
-            g2d.drawString("No Image", WIDTH/2 - 30, HEIGHT/2);
+            g2d.drawString("No Image", WIDTH / 2 - 30, HEIGHT / 2);
             g2d.dispose();
             return new ImageIcon(emptyImage);
         }
     }
+
     
     public void importFromExcel() {
         FileDialog fileDialog = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chọn file Excel", FileDialog.LOAD);
